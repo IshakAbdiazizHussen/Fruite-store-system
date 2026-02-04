@@ -29,10 +29,9 @@ export default function Sidebar() {
     <aside className="w-64 min-h-screen bg-gradient-to-b from-green-700 via-green-800 to-green-900 text-white flex flex-col">
       {/* LOGO */}
       <div className="px-6 py-8 flex items-center gap-4">
-        <div className="bg-gradient-to-br from-orange-400 to-orange-500 p-3 rounded-xl">
-          <Package className="text-white" />
+        <div className="bg-gradient-to-br from-orange-400 to-orange-500 p-3 rounded-xl shadow-lg">
+          <Package className="text-white" size={22} />
         </div>
-
         <div>
           <h1 className="text-lg font-semibold">Fresh Harvest</h1>
           <p className="text-sm text-green-200">Fruits Management</p>

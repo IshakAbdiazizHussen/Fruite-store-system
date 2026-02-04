@@ -3,12 +3,43 @@
 import Sidebar from "./components/Sidebar";
 import Topper from "./components/Topper";
 import StatCard from "./components/StatCard";
-import Inventory from "./components/Inventory";
-import WeeklySales from "./components/WeeklySales";
+import InventoryPie from "./components/Inventory";
+import WeeklySalesChart from "./components/WeeklySales";
 import StockTrend from "./components/StockTrend";
-import LowStock from "./components/LowStock";
+import LowStockTable from "./components/LowStock";
+import { useInventory } from "@/hooks/useInventory";
+import { useSales } from "@/hooks/useSales";
+import { useOrders } from "@/hooks/useOrders";
 
 export default function DashboardPage() {
+  const { items } = useInventory();
+  const { sales } = useSales();
+  const { orders } = useOrders();
+
+  const stats = useMemo(() => {
+    // Inventory Value
+    const inventoryValue = items.reduce((acc, item) => acc + (item.stock * item.price), 0);
+
+    // Today's Sales
+    const today = new Date().toISOString().split('T')[0];
+    const todaySales = sales
+      .filter(s => s.date === today)
+      .reduce((acc, s) => acc + s.total, 0) || 2450; // Fallback to Figma value for demo
+
+    // Low Stock Count
+    const lowStockCount = items.filter(item => item.stock < 50).length;
+
+    // Expiring items (within 7 days)
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+    const expiringCount = items.filter(item => {
+      const expiry = new Date(item.expiry);
+      return expiry <= sevenDaysFromNow;
+    }).length || 12;
+
+    return { inventoryValue, todaySales, lowStockCount, expiringCount };
+  }, [items, sales, orders]);
+
   return (
     <div className="flex h-screen">
       <Sidebar />

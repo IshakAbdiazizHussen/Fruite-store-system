@@ -12,7 +12,7 @@ const data = [
   { day: "Sun", sales: 1700 },
 ];
 
-export default function WeeklySales() {
+export default function WeeklySalesChart() {
   return (
     <BarChart width={450} height={300} data={data}>
       <XAxis dataKey="day" />

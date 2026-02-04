@@ -1,27 +1,20 @@
-import React from "react";
+
+"use client";
+
+import React, { useState, useMemo, useEffect } from "react";
 import { Plus, Search, Eye, Pencil, Trash2 } from "lucide-react";
-
-const items = [
-  { name: "Red Apples", category: "Apples", stock: 450, unit: "kg", price: 3.5, expiry: "2025-12-20", status: "In Stock" },
-  { name: "Bananas", category: "Tropical", stock: 320, unit: "kg", price: 2.2, expiry: "2025-12-18", status: "In Stock" },
-  { name: "Strawberries", category: "Berries", stock: 25, unit: "kg", price: 8.5, expiry: "2025-12-15", status: "Low Stock" },
-  { name: "Oranges", category: "Citrus", stock: 380, unit: "kg", price: 3.2, expiry: "2025-12-22", status: "In Stock" },
-  { name: "Avocados", category: "Tropical", stock: 15, unit: "kg", price: 6.8, expiry: "2025-12-14", status: "Low Stock" },
-  { name: "Blueberries", category: "Berries", stock: 18, unit: "kg", price: 9.0, expiry: "2025-12-19", status: "In Stock" },
-  { name: "Mangose", category: "Tropical", stock: 50, unit: "kg", price: 7.5, expiry: "2025-12-21", status: "In Stock" },
-  { name: "Grapes", category: "Berries", stock: 60, unit: "kg", price: 4.5, expiry: "2025-12-17", status: "In Stock" },
-  { name: "Pineapples", category: "Tropical", stock: 22, unit: "kg", price: 5.0, expiry: "2025-12-16", status: "Low Stock" },
-  { name: "Raspberries", category: "Berries", stock: 30, unit: "kg", price: 10.0, expiry: "2025-12-23", status: "In Stock" },
-  { name: "Lemons", category: "Citrus", stock: 200, unit: "kg", price: 2.8, expiry: "2025-12-24", status: "In Stock" },
-  { name: "Watermelons", category: "Melons", stock: 80, unit: "kg", price: 3.0, expiry: "2025-12-25", status: "In Stock" },
-
-];
+import { useInventory } from "@/hooks/useInventory";
+import { useSearchParams } from "next/navigation";
+import AddItemModal from "../components/AddItemModal";
+import EditItemModal from "../components/EditItemModal";
+import ViewItemModal from "../components/ViewItemModal";
+import { cn } from "@/lib/utils";
 
 function StatusBadge({ status }) {
   const low = status === "Low Stock";
   return (
     <span
-      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium
+      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold
       ${low ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-700"}`}
     >
       {status}
@@ -30,134 +23,204 @@ function StatusBadge({ status }) {
 }
 
 export default function Page() {
+  const searchParams = useSearchParams();
+  const { items, addItem, deleteItem, updateItem } = useInventory();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("All");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [viewItem, setViewItem] = useState(null);
+
+  useEffect(() => {
+    const fromNavbar = searchParams.get("search") || "";
+    setSearchTerm(fromNavbar);
+  }, [searchParams]);
+
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => {
+      const matchesSearch =
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesFilter =
+        filter === "All" ||
+        (filter === "In Stock" && item.status === "In Stock") ||
+        (filter === "Low Stock" && item.status === "Low Stock");
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [items, searchTerm, filter]);
+
+  const totalItems = items.length;
+  const totalStockValue = items.reduce((acc, item) => acc + (item.stock * item.price), 0);
+  const lowStockCount = items.filter(item => item.status === "Low Stock").length;
+
   return (
     <>
-      <div className="m-8">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-xl font-medium">Inventory Management</h1>
-            <p className="text-gray-500">Manage your fruit store and pricing.</p>
-          </div>
-
-          <button
-            className="inline-flex items-center gap-3 rounded-lg bg-green-500 px-3 py-2 font-medium
-                       text-white shadow-lg hover:bg-green-600 transition-colors"
-          >
-            <Plus className="h-7 w-7" />
-            Add New Item
-          </button>
+      {/* Header */}
+      <div className="px-8 pt-8 pb-4 flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Inventory Management</h1>
+          <p className="text-gray-500 text-sm mt-1">Manage your fruit stock, pricing and expiry dates.</p>
         </div>
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-xl hover:bg-green-600 transition-colors shadow-lg shadow-green-200 text-sm font-medium"
+        >
+          <Plus size={18} />
+          Add New Item
+        </button>
+      </div>
 
-        {/* inventory searching.... */}
-        <div className="mt-6 bg-white px-3 py-2 rounded-2xl shadow-md border border-gray-100 flex items-center gap-2">
-          {/* Search */}
-          <div className="flex items-center gap-3 flex-1 border border-gray-200 rounded-2xl px-2 py-2">
-            <Search className="text-gray-400" size={22} />
+      {/* KPI Cards */}
+      <section className="px-8 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+            <p className="text-gray-500 text-sm font-medium">Total Items</p>
+            <p className="mt-2 text-3xl font-bold text-gray-800">{totalItems}</p>
+            <p className="text-xs text-gray-400 mt-1">Products in inventory</p>
+          </div>
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+            <p className="text-gray-500 text-sm font-medium">Total Stock Value</p>
+            <p className="mt-2 text-3xl font-bold text-gray-800">
+              ${totalStockValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">Current inventory valuation</p>
+          </div>
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+            <p className="text-gray-500 text-sm font-medium">Low Stock Alerts</p>
+            <p className="mt-2 text-3xl font-bold text-orange-500">{lowStockCount}</p>
+            <p className="text-xs text-gray-400 mt-1">Items needing restock</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Search & Filter */}
+      <div className="px-8 mb-6">
+        <div className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-1 border border-gray-200 rounded-xl px-3 py-2">
+            <Search className="text-gray-400 shrink-0" size={18} />
             <input
-              className="w-full outline-none text-lg text-gray-700 placeholder:text-gray-400"
+              className="w-full outline-none text-sm text-gray-700 placeholder:text-gray-400"
               placeholder="Search by name or category..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-
-          {/* Filters */}
-          <div className="flex items-center gap-3">
-            <button className="px-4 py-2 rounded-lg text-lg font-medium bg-gray-100 hover:bg-green-400 transition-colors">
-              All
-            </button>
-            <button className="px-4 py-2 rounded-lg text-lg font-medium bg-gray-100 hover:bg-green-400 transition-colors">
-              In Stock
-            </button>
-            <button className="px-4 py-2 rounded-lg text-lg font-medium bg-gray-100 hover:bg-orange-400 transition-colors">
-              Low Stock
-            </button>
+          <div className="flex items-center gap-2">
+            {["All", "In Stock", "Low Stock"].map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={cn(
+                  "px-4 py-2 rounded-xl text-sm font-medium transition-colors",
+                  filter === f
+                    ? "bg-green-500 text-white shadow-md shadow-green-200"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                )}
+              >
+                {f}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* TABLE CONTAINER (this is what makes it look like the picture) */}
-      <div className="mx-8 bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
-        <table className="w-full text-left">
-          <thead className="bg-green-50 text-gray-500 text-sm uppercase">
-            <tr>
-              <th className="px-6 py-4">Name</th>
-              <th className="px-6 py-4">Category</th>
-              <th className="px-6 py-4">Stock</th>
-              <th className="px-6 py-4">Price</th>
-              <th className="px-6 py-4">Expiry Date</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Actions</th>
-            </tr>
-          </thead>
-
-          {/* BODY */}
-          <tbody className="divide-y">
-            {items.map((item) => {
-              const low = item.status === "Low Stock";
-              return (
-                <tr key={item.name} className="hover:bg-gray-50">
-                  {/* Name with avatar */}
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-4">
-                      <div className="h-11 w-11 rounded-xl bg-green-500 text-white flex items-center justify-center font-semibold">
-                        {item.name[0]}
+      {/* TABLE */}
+      <div className="px-8 pb-8">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
+          <table className="w-full text-left">
+            <thead className="bg-green-50 text-gray-500 text-xs uppercase font-semibold tracking-wider">
+              <tr>
+                <th className="px-6 py-4">Name</th>
+                <th className="px-6 py-4">Category</th>
+                <th className="px-6 py-4">Stock</th>
+                <th className="px-6 py-4">Price</th>
+                <th className="px-6 py-4">Expiry Date</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-gray-700">
+              {filteredItems.map((item) => {
+                const low = item.status === "Low Stock";
+                return (
+                  <tr key={item.name} className="hover:bg-green-50/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                          {item.name[0]}
+                        </div>
+                        <span className="font-semibold text-gray-900 text-sm">{item.name}</span>
                       </div>
-                      <span className="font-medium text-gray-900">{item.name}</span>
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-5 text-gray-700">{item.category}</td>
-
-                  <td className={`px-6 py-5 ${low ? "text-orange-600 font-semibold" : "text-gray-900"}`}>
-                    {item.stock} {item.unit}
-                  </td>
-
-                  <td className="px-6 py-5 text-gray-900">${item.price.toFixed(2)}</td>
-
-                  <td className="px-6 py-5 text-gray-700">{item.expiry}</td>
-
-                  <td className="px-6 py-5">
-                    <StatusBadge status={item.status} />
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-4">
-                      <button className="text-blue-600 hover:text-blue-800">
-                        <Eye size={18} />
-                      </button>
-                      <button className="text-green-600 hover:text-green-800">
-                        <Pencil size={18} />
-                      </button>
-                      <button className="text-red-600 hover:text-gray-500">
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{item.category}</td>
+                    <td className={`px-6 py-4 text-sm font-semibold ${low ? "text-orange-500" : "text-gray-900"}`}>
+                      {item.stock} {item.unit}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900 font-medium">${item.price.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{item.expiry}</td>
+                    <td className="px-6 py-4">
+                      <StatusBadge status={item.status} />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => setViewItem(item)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="View Details"
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button
+                          onClick={() => setEditItem(item)}
+                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                          title="Edit Item"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          onClick={() => deleteItem(item.name)}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete Item"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {filteredItems.length === 0 && (
+            <div className="p-12 text-center text-gray-400 text-sm">
+              No items found matching your search criteria.
+            </div>
+          )}
+        </div>
       </div>
 
-      <section className="mx-8 mt-8 mb-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-8">
-            <h3 className="text-gray-500 text-lg">Total Items</h3>
-            <p className="mt-3 text-2xl font-semibold text-gray-600">12</p>
-          </div>
-
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-8">
-            <h3 className="text-gray-500 text-lg">Total Stock Value</h3>
-            <p className="mt-3 text-2xl font-semibold text-gray-600">$66</p>
-          </div>
-
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-8">
-            <h3 className="text-gray-500 text-lg">Low Stock Items</h3>
-            <p className="mt-3 text-2xl font-semibold text-orange-600">3</p>
-          </div>
-        </div>
-    </section>
+      {/* Modals */}
+      <AddItemModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAdd={addItem}
+      />
+      <EditItemModal
+        isOpen={!!editItem}
+        item={editItem}
+        onClose={() => setEditItem(null)}
+        onSave={(updated) => {
+          updateItem(updated);
+          setEditItem(null);
+        }}
+      />
+      <ViewItemModal
+        isOpen={!!viewItem}
+        item={viewItem}
+        onClose={() => setViewItem(null)}
+      />
     </>
   );
 }

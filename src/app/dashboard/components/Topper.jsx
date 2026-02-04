@@ -2,16 +2,16 @@
 
 import { Bell, Search } from "lucide-react";
 
-export default function Topper() {
   return (
-    <div className="flex items-center justify-between bg-white px-6 py-4 shadow-sm">
-      <div className="flex items-center gap-3 w-full max-w-md">
-        <Search className="text-gray-500" size={18} />
-        <input
-          className="w-full outline-none"
-          placeholder="Search fruits, orders, suppliers..."
-        />
-      </div>
+    <div className="flex items-center justify-between bg-white px-6 py-3.5 shadow-sm border-b border-gray-100">
+      <div className="flex items-center gap-3 w-full">
+        <button
+          onClick={onToggleSidebar}
+          className="p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-500"
+          title={isSidebarOpen ? "Hide sidebar" : "Show sidebar"}
+        >
+          {isSidebarOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
 
       <div className="flex items-center gap-6">
         <Bell size={18} />
