@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { recordActivity } from "@/lib/activityLog";
+import { readStorageJson } from "@/lib/safeStorage";
 
 const initialSuppliers = [
     { id: 1, name: "Farm Fresh Suppliers", contactPerson: "Khaalid Hashi", phone: "+252 61 213 7065", email: "khaalid@farmfresh.com", location: "Mogadishu, Somalia", products: "Apples, Bananas, Grapes", rating: 4.8, orders: 45, color: "bg-green-500" },
@@ -14,8 +15,8 @@ export function useSuppliers() {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        const saved = localStorage.getItem("fruit_store_suppliers");
-        if (saved) setSuppliers(JSON.parse(saved));
+        const parsed = readStorageJson("fruit_store_suppliers", null);
+        if (Array.isArray(parsed)) setSuppliers(parsed);
         setIsLoaded(true);
     }, []);
 

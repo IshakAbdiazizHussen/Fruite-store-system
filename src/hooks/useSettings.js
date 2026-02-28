@@ -2,12 +2,14 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { recordActivity } from "@/lib/activityLog";
+import { readStorageJson } from "@/lib/safeStorage";
 
 const initialSettings = {
     profile: {
         name: "Ilwaad Mohamed",
         email: "ilwaad@admin.com",
         role: "Administrator",
+        avatar: "/Ilwaad-manager.png",
     },
     notifications: {
         email: true,
@@ -15,6 +17,7 @@ const initialSettings = {
         lowStock: true,
         expiry: true,
     },
+    notificationEmail: "ishakabdiaziz9060@gmail.com",
     regional: {
         language: "en-us",
         currency: "usd",
@@ -31,9 +34,8 @@ export function useSettings() {
 
     // Load from localStorage
     useEffect(() => {
-        const saved = localStorage.getItem("fruit_store_settings");
-        if (saved) {
-            const parsed = JSON.parse(saved);
+        const parsed = readStorageJson("fruit_store_settings", null);
+        if (parsed && typeof parsed === "object") {
             setSettings({
                 ...initialSettings,
                 ...parsed,
@@ -45,6 +47,7 @@ export function useSettings() {
                     ...initialSettings.notifications,
                     ...(parsed.notifications || {}),
                 },
+                notificationEmail: parsed.notificationEmail || initialSettings.notificationEmail,
                 regional: {
                     ...initialSettings.regional,
                     ...(parsed.regional || {}),
@@ -76,17 +79,42 @@ export function useSettings() {
     }, []);
 
     const toggleNotification = useCallback((id) => {
+        let nextValue = false;
         setSettings((prev) => ({
             ...prev,
             notifications: {
                 ...prev.notifications,
-                [id]: !prev.notifications[id],
+                [id]: (() => {
+                    nextValue = !prev.notifications[id];
+                    return nextValue;
+                })(),
             },
         }));
         recordActivity({
             type: "update",
             title: "Notification setting changed",
-            description: `${id} notifications were toggled.`,
+            description: `${id} notifications were ${nextValue ? "enabled" : "disabled"}.`,
+        });
+        return nextValue;
+    }, []);
+
+    const setAllNotifications = useCallback((enabled) => {
+        setSettings((prev) => {
+            const keys = Object.keys(prev.notifications || {});
+            const nextNotifications = keys.reduce((acc, key) => {
+                acc[key] = enabled;
+                return acc;
+            }, {});
+            return {
+                ...prev,
+                notifications: nextNotifications,
+            };
+        });
+
+        recordActivity({
+            type: "update",
+            title: "Notification settings updated",
+            description: `All notifications were ${enabled ? "enabled" : "disabled"}.`,
         });
     }, []);
 
@@ -105,14 +133,26 @@ export function useSettings() {
         });
     }, []);
 
-    const changePassword = useCallback((currentPassword, newPassword) => {
+    const updateNotificationEmail = useCallback((email) => {
+        setSettings((prev) => ({
+            ...prev,
+            notificationEmail: email,
+        }));
+        recordActivity({
+            type: "update",
+            title: "Notification email updated",
+            description: `Notification email set to ${email}.`,
+        });
+    }, []);
+
+    const changePassword = useCallback((newPassword) => {
         let didChange = false;
         let error = "";
 
         setSettings((prev) => {
             const existingPassword = prev.security?.password || initialSettings.security.password;
-            if (existingPassword !== currentPassword) {
-                error = "Current password is incorrect.";
+            if (existingPassword === newPassword) {
+                error = "New password must be different from old password.";
                 return prev;
             }
 
@@ -145,6 +185,8 @@ export function useSettings() {
         settings,
         updateProfile,
         toggleNotification,
+        setAllNotifications,
+        updateNotificationEmail,
         updateRegional,
         changePassword,
     };

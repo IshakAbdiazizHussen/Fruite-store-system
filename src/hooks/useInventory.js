@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { recordActivity } from "@/lib/activityLog";
+import { readStorageJson } from "@/lib/safeStorage";
 
 const initialItems = [
     { name: "Red Apples", category: "Apples", stock: 450, unit: "kg", price: 3.5, expiry: "2025-12-20", status: "In Stock" },
@@ -23,8 +24,8 @@ export function useInventory() {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        const saved = localStorage.getItem("fruit_store_inventory");
-        if (saved) setItems(JSON.parse(saved));
+        const parsed = readStorageJson("fruit_store_inventory", null);
+        if (Array.isArray(parsed)) setItems(parsed);
         setIsLoaded(true);
     }, []);
 

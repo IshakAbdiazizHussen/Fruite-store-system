@@ -12,19 +12,23 @@ import {
   Settings,
   Dot,
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const menu = [
-  { label: "Dashboard", icon: LayoutDashboard, active: true },
-  { label: "Inventory", icon: Box },
-  { label: "Sales", icon: TrendingUp },
-  { label: "Orders", icon: ShoppingCart },
-  { label: "Purchases", icon: ShoppingBag },
-  { label: "Suppliers", icon: Users },
-  { label: "Reports", icon: FileText },
-  { label: "Settings", icon: Settings },
+  { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+  { label: "Inventory", icon: Box, href: "/dashboard/inventory" },
+  { label: "Sales", icon: TrendingUp, href: "/dashboard/sales" },
+  { label: "Orders", icon: ShoppingCart, href: "/dashboard/orders" },
+  { label: "Purchases", icon: ShoppingBag, href: "/dashboard/purchases" },
+  { label: "Suppliers", icon: Users, href: "/dashboard/suppliers" },
+  { label: "Reports", icon: FileText, href: "/dashboard/reports" },
+  { label: "Settings", icon: Settings, href: "/dashboard/settings" },
 ];
 
 export default function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <aside className="w-64 min-h-screen bg-gradient-to-b from-green-700 via-green-800 to-green-900 text-white flex flex-col">
       {/* LOGO */}
@@ -43,57 +47,32 @@ export default function Sidebar() {
 
       {/* MENU */}
       <nav className="flex-1 px-4 space-y-2">
+        {menu.map((item) => {
+          const Icon = item.icon;
+          const isActive =
+            pathname === item.href ||
+            (item.href !== "/dashboard" && pathname.startsWith(item.href));
 
-  {/* Dashboard - ACTIVE */}
-  <div className="relative flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer bg-gradient-to-r from-orange-400 to-orange-500 text-white">
-    <LayoutDashboard size={20} />
-    <span className="text-base font-medium">Dashboard</span>
-    <Dot className="absolute right-4 text-yellow-200" size={32} />
-  </div>
-
-  {/* Inventory */}
-  <div className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-green-100 hover:bg-green-700">
-    <Box size={20} />
-    <span className="text-base font-medium">Inventory</span>
-  </div>
-
-  {/* Sales */}
-  <div className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-green-100 hover:bg-green-700">
-    <TrendingUp size={20} />
-    <span className="text-base font-medium">Sales</span>
-  </div>
-
-  {/* Orders */}
-  <div className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-green-100 hover:bg-green-700">
-    <ShoppingCart size={20} />
-    <span className="text-base font-medium">Orders</span>
-  </div>
-
-  {/* Purchases */}
-  <div className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-green-100 hover:bg-green-700">
-    <ShoppingBag size={20} />
-    <span className="text-base font-medium">Purchases</span>
-  </div>
-
-  {/* Suppliers */}
-  <div className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-green-100 hover:bg-green-700">
-    <Users size={20} />
-    <span className="text-base font-medium">Suppliers</span>
-  </div>
-
-  {/* Reports */}
-  <div className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-green-100 hover:bg-green-700">
-    <FileText size={20} />
-    <span className="text-base font-medium">Reports</span>
-  </div>
-
-  {/* Settings */}
-  <div className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-green-100 hover:bg-green-700">
-    <Settings size={20} />
-    <span className="text-base font-medium">Settings</span>
-  </div>
-
-</nav>
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`relative flex items-center gap-4 px-4 py-3 rounded-xl transition-colors ${
+                isActive
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                  : "text-green-100 hover:bg-green-700"
+              }`}
+              aria-current={isActive ? "page" : undefined}
+            >
+              <Icon size={20} />
+              <span className="text-base font-medium">{item.label}</span>
+              {isActive ? (
+                <Dot className="absolute right-4 text-yellow-200" size={32} />
+              ) : null}
+            </Link>
+          );
+        })}
+      </nav>
 
     </aside>
   );

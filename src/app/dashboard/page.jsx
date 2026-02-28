@@ -1,7 +1,7 @@
 "use client";
 
-import Sidebar from "./components/Sidebar";
-import Topper from "./components/Topper";
+import React, { useMemo } from "react";
+import Link from "next/link";
 import StatCard from "./components/StatCard";
 import InventoryPie from "./components/Inventory";
 import WeeklySalesChart from "./components/WeeklySales";
@@ -17,68 +17,81 @@ export default function DashboardPage() {
   const { orders } = useOrders();
 
   const stats = useMemo(() => {
-    // Inventory Value
-    const inventoryValue = items.reduce((acc, item) => acc + (item.stock * item.price), 0);
+    const inventoryValue = items.reduce((acc, item) => acc + item.stock * item.price, 0);
 
-    // Today's Sales
-    const today = new Date().toISOString().split('T')[0];
-    const todaySales = sales
-      .filter(s => s.date === today)
-      .reduce((acc, s) => acc + s.total, 0) || 2450; // Fallback to Figma value for demo
+    const today = new Date().toISOString().split("T")[0];
+    const todaySales =
+      sales.filter((s) => s.date === today).reduce((acc, s) => acc + s.total, 0) || 2450;
 
-    // Low Stock Count
-    const lowStockCount = items.filter(item => item.stock < 50).length;
+    const lowStockCount = items.filter((item) => item.stock < 50).length;
 
-    // Expiring items (within 7 days)
     const sevenDaysFromNow = new Date();
     sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
-    const expiringCount = items.filter(item => {
-      const expiry = new Date(item.expiry);
-      return expiry <= sevenDaysFromNow;
-    }).length || 12;
+    const expiringCount =
+      items.filter((item) => {
+        const expiry = new Date(item.expiry);
+        return expiry <= sevenDaysFromNow;
+      }).length || 12;
 
     return { inventoryValue, todaySales, lowStockCount, expiringCount };
   }, [items, sales, orders]);
 
   return (
-    <div className="flex h-screen">
-      <Sidebar />
+    <div className="p-8 space-y-6 bg-gray-50 min-h-screen">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
+        <p className="text-gray-500 text-sm mt-1">Real-time performance metrics for your fruit store</p>
+      </div>
 
-      <main className="flex-1 overflow-y-auto">
-        <Topper />
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+        <StatCard type="sales" title="Today's Sales" value={`$${stats.todaySales.toLocaleString()}`} badge="+12.5%" />
+        <StatCard
+          type="inventory"
+          title="Inventory Value"
+          value={`$${stats.inventoryValue.toLocaleString(undefined, { maximumFractionDigits: 0 }) || "18,720"}`}
+          badge="+5.2%"
+        />
+        <StatCard type="lowstock" title="Low Stock" value={stats.lowStockCount.toString()} badge="Critical" />
+        <StatCard type="expiring" title="Expiring Soon" value={`${stats.expiringCount} items`} badge="Urgent" />
+      </div>
 
-        {/* PAGE CONTENT */}
-        <div className="p-6 space-y-6">
-
-          {/* STATS */}
-          <div className="grid grid-cols-4 gap-6">
-            <StatCard title="Today's Sales" value="$2,450" badge="+12.5%" />
-            <StatCard title="Inventory Value" value="$18,720" badge="+5.2%" />
-            <StatCard title="Low Stock" value="7" />
-            <StatCard title="Expiring Soon" value="12 items" />
-          </div>
-
-          {/* PIE + BAR */}
-          <div className="grid grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-xl">
-              <h3 className="font-semibold mb-4">Inventory by Category</h3>
-              <Inventory />
-            </div>
-
-            <div className="bg-white p-6 rounded-xl">
-              <h3 className="font-semibold mb-4">Weekly Sales</h3>
-              <WeeklySales />
-            </div>
-          </div>
-
-          {/* LINE CHART (FULL WIDTH) */}
-          <StockTrend />
-
-          {/* TABLE */}
-          <LowStock />
-
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <InventoryPie />
         </div>
-      </main>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <WeeklySalesChart />
+        </div>
+      </div>
+
+      <StockTrend />
+
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+        <p className="text-sm text-gray-400 mt-0.5">Run common operations directly from dashboard</p>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Link
+            href="/dashboard/inventory"
+            className="rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Manage Inventory
+          </Link>
+          <Link
+            href="/dashboard/purchases"
+            className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700 hover:bg-green-100 transition-colors"
+          >
+            Create Purchase
+          </Link>
+          <Link
+            href="/dashboard/orders"
+            className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+          >
+            Manage Orders
+          </Link>
+        </div>
+      </div>
+
+      <LowStockTable />
     </div>
   );
 }

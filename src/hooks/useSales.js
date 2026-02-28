@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { chartData as initialChartData } from "@/app/data/page";
 import { recordActivity } from "@/lib/activityLog";
+import { readStorageJson } from "@/lib/safeStorage";
 
 const initialSalesList = [
     { id: "SALE001", fruit: "Apples", units: 120, total: 420.00, date: "2024-11-20" },
@@ -17,10 +18,10 @@ export function useSales() {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        const savedSales = localStorage.getItem("fruit_store_sales");
-        const savedAnalytics = localStorage.getItem("fruit_store_analytics");
-        if (savedSales) setSales(JSON.parse(savedSales));
-        if (savedAnalytics) setAnalytics(JSON.parse(savedAnalytics));
+        const parsedSales = readStorageJson("fruit_store_sales", null);
+        const parsedAnalytics = readStorageJson("fruit_store_analytics", null);
+        if (Array.isArray(parsedSales)) setSales(parsedSales);
+        if (Array.isArray(parsedAnalytics)) setAnalytics(parsedAnalytics);
         setIsLoaded(true);
     }, []);
 

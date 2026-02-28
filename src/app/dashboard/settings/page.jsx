@@ -1,29 +1,41 @@
 "use client";
 
-import { Bell, User, Lock, Globe, Database } from 'lucide-react'
-import React, { useMemo, useState, useEffect } from 'react'
+import { Bell, User, Lock, Globe, Database, Eye, EyeOff } from 'lucide-react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useSettings } from "@/hooks/useSettings";
 import { useOrders } from "@/hooks/useOrders";
 import { usePurchases } from "@/hooks/usePurchases";
 import { useSales } from "@/hooks/useSales";
+import { openEmailDraft } from "@/lib/emailNotifications";
 
 export default function SettingsPage() {
-  const { settings, updateProfile, toggleNotification, updateRegional, changePassword } = useSettings();
+  const { settings, updateProfile, toggleNotification, setAllNotifications, updateNotificationEmail, updateRegional, changePassword } = useSettings();
   const { orders } = useOrders();
   const { purchases } = usePurchases();
   const { sales, analytics } = useSales();
   const [profileForm, setProfileForm] = useState(settings.profile);
   const [passwordForm, setPasswordForm] = useState({
-    current: "",
     next: "",
     confirm: "",
   });
   const [profileStatus, setProfileStatus] = useState("");
+  const [notificationStatus, setNotificationStatus] = useState("");
   const [passwordStatus, setPasswordStatus] = useState("");
+  const [notificationEmail, setNotificationEmail] = useState(settings.notificationEmail || "ishakabdiaziz9060@gmail.com");
+  const [showPassword, setShowPassword] = useState({
+    next: false,
+    confirm: false,
+  });
+  
+  const roleOptions = [ "Administrator", "Store Admin", "Manager", "Supervisor", "Sales Manager", "Inventory Manager", "Cashier" ];
 
   useEffect(() => {
     setProfileForm(settings.profile);
   }, [settings.profile]);
+
+  useEffect(() => {
+    setNotificationEmail(settings.notificationEmail || "ishakabdiaziz9060@gmail.com");
+  }, [settings.notificationEmail]);
 
   const handleProfileSubmit = (e) => {
     e.preventDefault();
@@ -43,11 +55,33 @@ export default function SettingsPage() {
     setProfileStatus("Profile updated successfully.");
   };
 
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setProfileStatus("Please choose an image file.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setProfileStatus("Image size must be less than 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setProfileForm((prev) => ({ ...prev, avatar: String(reader.result) }));
+      setProfileStatus("Photo selected. Click Save Changes to apply.");
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
     setPasswordStatus("");
 
-    if (!passwordForm.current || !passwordForm.next || !passwordForm.confirm) {
+    if (!passwordForm.next || !passwordForm.confirm) {
       setPasswordStatus("Fill all password fields.");
       return;
     }
@@ -56,20 +90,53 @@ export default function SettingsPage() {
       setPasswordStatus("New password must be at least 8 characters.");
       return;
     }
+    if (!/[A-Za-z]/.test(passwordForm.next) || !/\d/.test(passwordForm.next)) {
+      setPasswordStatus("New password must include at least one letter and one number.");
+      return;
+    }
 
     if (passwordForm.next !== passwordForm.confirm) {
       setPasswordStatus("New password and confirm password do not match.");
       return;
     }
 
-    const result = changePassword(passwordForm.current, passwordForm.next);
+    const result = changePassword(passwordForm.next);
     if (!result.ok) {
       setPasswordStatus(result.error);
       return;
     }
 
-    setPasswordForm({ current: "", next: "", confirm: "" });
+    setPasswordForm({ next: "", confirm: "" });
     setPasswordStatus("Password changed successfully.");
+  };
+
+  const handleToggleNotification = (id, label) => {
+    const next = !settings.notifications[id];
+    toggleNotification(id);
+    setNotificationStatus(`${label} ${next ? "enabled" : "disabled"}.`);
+  };
+
+  const handleAllNotifications = (enabled) => {
+    setAllNotifications(enabled);
+    setNotificationStatus(`All notifications ${enabled ? "enabled" : "disabled"}.`);
+  };
+
+  const handleNotificationEmailSave = () => {
+    if (!notificationEmail.trim()) {
+      setNotificationStatus("Notification email is required.");
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(notificationEmail)) {
+      setNotificationStatus("Please enter a valid email address.");
+      return;
+    }
+    updateNotificationEmail(notificationEmail.trim());
+    setNotificationStatus(`Notification email saved: ${notificationEmail.trim()}`);
+  };
+
+  const handleEmailDraft = () => {
+    const recipient = notificationEmail.trim() || "ishakabdiaziz9060@gmail.com";
+    openEmailDraft(recipient, "Fruit Store Notifications");
   };
 
   const reportSummary = useMemo(() => {
@@ -176,6 +243,22 @@ export default function SettingsPage() {
           </div>
 
           <form onSubmit={handleProfileSubmit} className="space-y-5">
+            <div className="flex items-center gap-4">
+              <img
+                src={profileForm.avatar || "/Ilwaad-manager.png"}
+                alt="Profile"
+                className="w-16 h-16 rounded-full object-cover border border-gray-200"
+              />
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Profile Photo</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-green-100 file:px-3 file:py-1.5 file:text-green-700"
+                />
+              </div>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
               <input
@@ -196,12 +279,17 @@ export default function SettingsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
-              <input
-                type="text"
+              <select
                 value={profileForm.role}
-                readOnly
-                className="w-full rounded-xl border border-gray-100 bg-gray-50 px-4 py-2.5 outline-none text-gray-500 cursor-not-allowed"
-              />
+                onChange={(e) => setProfileForm({ ...profileForm, role: e.target.value })}
+                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
+              >
+                {roleOptions.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
             </div>
             <button
               type="submit"
@@ -223,6 +311,52 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-6">
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleAllNotifications(true)}
+                className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100"
+              >
+                Enable all
+              </button>
+              <button
+                onClick={() => handleAllNotifications(false)}
+                className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+              >
+                Disable all
+              </button>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Notification Email</label>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={notificationEmail}
+                  onChange={(e) => setNotificationEmail(e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  placeholder="email@example.com"
+                />
+                <button
+                  onClick={handleNotificationEmailSave}
+                  className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 hover:bg-blue-100"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleEmailDraft}
+                className="rounded-lg border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-100"
+              >
+                Open queued email draft
+              </button>
+              <button
+                onClick={() => openEmailDraft(notificationEmail.trim() || "ishakabdiaziz9060@gmail.com", "Fruit Store Test Notification")}
+                className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+              >
+                Send test email
+              </button>
+            </div>
             {[
               { id: 'email', label: 'Email Notifications' },
               { id: 'push', label: 'Push Notifications' },
@@ -236,12 +370,13 @@ export default function SettingsPage() {
                     type="checkbox"
                     className="sr-only peer"
                     checked={settings.notifications[item.id]}
-                    onChange={() => toggleNotification(item.id)}
+                    onChange={() => handleToggleNotification(item.id, item.label)}
                   />
                   <div className="relative h-7 w-12 rounded-full bg-gray-200 transition-colors peer-checked:bg-blue-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:h-6 after:w-6 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-5" />
                 </label>
               </div>
             ))}
+            {notificationStatus ? <p className="text-sm text-blue-600">{notificationStatus}</p> : null}
           </div>
         </div>
 
@@ -255,35 +390,48 @@ export default function SettingsPage() {
           </div>
 
           <form onSubmit={handlePasswordSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Current Password</label>
-              <input
-                type="password"
-                value={passwordForm.current}
-                onChange={(e) => setPasswordForm((prev) => ({ ...prev, current: e.target.value }))}
-                placeholder="••••••••"
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
-              />
-            </div>
+            <p className="text-xs text-gray-500">
+              {settings.security?.lastChanged
+                ? `Last changed: ${new Date(settings.security.lastChanged).toLocaleString()}`
+                : "Password has not been changed yet."}
+            </p>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">New Password</label>
-              <input
-                type="password"
-                value={passwordForm.next}
-                onChange={(e) => setPasswordForm((prev) => ({ ...prev, next: e.target.value }))}
-                placeholder="••••••••"
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword.next ? "text" : "password"}
+                  value={passwordForm.next}
+                  onChange={(e) => setPasswordForm((prev) => ({ ...prev, next: e.target.value }))}
+                  placeholder="••••••••"
+                  className="w-full rounded-xl border border-gray-200 px-4 pr-11 py-2.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => ({ ...prev, next: !prev.next }))}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword.next ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm New Password</label>
-              <input
-                type="password"
-                value={passwordForm.confirm}
-                onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirm: e.target.value }))}
-                placeholder="••••••••"
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword.confirm ? "text" : "password"}
+                  value={passwordForm.confirm}
+                  onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirm: e.target.value }))}
+                  placeholder="••••••••"
+                  className="w-full rounded-xl border border-gray-200 px-4 pr-11 py-2.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => ({ ...prev, confirm: !prev.confirm }))}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             <button type="submit" className="w-full rounded-xl bg-purple-600 py-3 text-white font-medium hover:bg-purple-700 transition-all shadow-lg shadow-purple-100">
               Update Password

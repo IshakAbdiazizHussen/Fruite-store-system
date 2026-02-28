@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { purchase as initialPurchases } from "@/app/data/page";
 import { recordActivity } from "@/lib/activityLog";
+import { readStorageJson } from "@/lib/safeStorage";
 
 function normalizePurchaseIds(list) {
     const seen = new Set();
@@ -31,12 +32,9 @@ export function usePurchases() {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        const saved = localStorage.getItem("fruit_store_purchases");
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed)) {
-                setPurchases(normalizePurchaseIds(parsed));
-            }
+        const parsed = readStorageJson("fruit_store_purchases", null);
+        if (Array.isArray(parsed)) {
+            setPurchases(normalizePurchaseIds(parsed));
         }
         setIsLoaded(true);
     }, []);

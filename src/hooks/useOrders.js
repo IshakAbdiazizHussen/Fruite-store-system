@@ -3,14 +3,15 @@
 import { useState, useCallback, useEffect } from "react";
 import { orders as initialOrders } from "@/app/data/page";
 import { recordActivity } from "@/lib/activityLog";
+import { readStorageJson } from "@/lib/safeStorage";
 
 export function useOrders() {
     const [orders, setOrders] = useState(initialOrders);
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        const saved = localStorage.getItem("fruit_store_orders");
-        if (saved) setOrders(JSON.parse(saved));
+        const parsed = readStorageJson("fruit_store_orders", null);
+        if (Array.isArray(parsed)) setOrders(parsed);
         setIsLoaded(true);
     }, []);
 
