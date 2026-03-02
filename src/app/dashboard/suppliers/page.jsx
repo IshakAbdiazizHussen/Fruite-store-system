@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { Users, Star, Phone, Mail, MapPin, Plus, X, Package, Calendar, ExternalLink } from 'lucide-react';
+import { Users, Star, Phone, Mail, MapPin, Plus, X, Package, Calendar, ExternalLink, Trash2, RotateCcw } from 'lucide-react';
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { useOrders } from "@/hooks/useOrders";
 import { usePurchases } from "@/hooks/usePurchases";
 import AddSupplierModal from "../components/AddSupplierModal";
 
 export default function SuppliersPage() {
-  const { suppliers, addSupplier } = useSuppliers();
+  const { suppliers, addSupplier, deleteSupplier, resetSuppliers } = useSuppliers();
   const { orders } = useOrders();
   const { purchases } = usePurchases();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -100,6 +100,27 @@ export default function SuppliersPage() {
     setSelectedSupplier(null);
   };
 
+  const handleDeleteSupplier = (supplier) => {
+    const confirmed = window.confirm(`Delete ${supplier.name} from suppliers?`);
+    if (!confirmed) return;
+
+    deleteSupplier(supplier.id);
+
+    if (selectedSupplier?.id === supplier.id) {
+      closeContact();
+      closeOrders();
+    }
+  };
+
+  const handleResetSuppliers = () => {
+    const confirmed = window.confirm("Reset all suppliers back to the default list?");
+    if (!confirmed) return;
+
+    resetSuppliers();
+    closeContact();
+    closeOrders();
+  };
+
   return (
     <>
       <div className='p-6 flex justify-between items-start'>
@@ -107,13 +128,22 @@ export default function SuppliersPage() {
           <h1 className='text-2xl font-medium'>Suppliers Management</h1>
           <p className='font-light text-gray-500 text-sm'>Manage your fruit suppliers and contacts</p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-xl hover:bg-green-600 transition-colors shadow-lg shadow-green-200"
-        >
-          <Plus size={20} />
-          Add Supplier
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleResetSuppliers}
+            className="flex items-center gap-2 border border-orange-300 text-orange-700 px-4 py-2.5 rounded-xl hover:bg-orange-50 transition-colors"
+          >
+            <RotateCcw size={18} />
+            Reset Suppliers
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-xl hover:bg-green-600 transition-colors shadow-lg shadow-green-200"
+          >
+            <Plus size={20} />
+            Add Supplier
+          </button>
+        </div>
       </div>
 
       <section className="flex flex-wrap gap-6 w-full px-8 mb-8">
@@ -194,6 +224,14 @@ export default function SuppliersPage() {
                   View Orders
                 </button>
               </div>
+
+              <button
+                onClick={() => handleDeleteSupplier(s)}
+                className="mt-3 w-full rounded-xl border border-red-200 text-red-700 py-2.5 text-sm font-medium hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+              >
+                <Trash2 size={16} />
+                Delete Supplier
+              </button>
             </div>
           ))}
         </div>

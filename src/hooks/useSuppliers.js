@@ -25,16 +25,19 @@ export function useSuppliers() {
     }, [suppliers, isLoaded]);
 
     const addSupplier = useCallback((newSupplier) => {
-        setSuppliers((prev) => [
-            {
-                ...newSupplier,
-                id: prev.length + 1,
-                rating: 5.0,
-                orders: 0,
-                color: "bg-orange-500",
-            },
-            ...prev,
-        ]);
+        setSuppliers((prev) => {
+            const nextId = prev.reduce((maxId, supplier) => Math.max(maxId, Number(supplier.id) || 0), 0) + 1;
+            return [
+                {
+                    ...newSupplier,
+                    id: nextId,
+                    rating: 5.0,
+                    orders: 0,
+                    color: "bg-orange-500",
+                },
+                ...prev,
+            ];
+        });
         recordActivity({
             type: "create",
             title: "Supplier added",
@@ -42,5 +45,27 @@ export function useSuppliers() {
         });
     }, []);
 
-    return { suppliers, addSupplier };
+    const deleteSupplier = useCallback((supplierId) => {
+        const target = suppliers.find((supplier) => supplier.id === supplierId);
+        setSuppliers((prev) => prev.filter((supplier) => supplier.id !== supplierId));
+
+        if (target) {
+            recordActivity({
+                type: "delete",
+                title: "Supplier removed",
+                description: `${target.name} was removed from suppliers.`,
+            });
+        }
+    }, [suppliers]);
+
+    const resetSuppliers = useCallback(() => {
+        setSuppliers(initialSuppliers);
+        recordActivity({
+            type: "update",
+            title: "Suppliers reset",
+            description: "Supplier list was reset to defaults.",
+        });
+    }, []);
+
+    return { suppliers, addSupplier, deleteSupplier, resetSuppliers };
 }
