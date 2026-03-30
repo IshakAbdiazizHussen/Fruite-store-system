@@ -47,58 +47,58 @@ export default function ReportsPage() {
   return (
     <>
       <div className="p-6">
-        <h1 className="text-2xl font-medium mb-4">Reports & Analytics</h1>
-        <section className="flex flex-wrap gap-6 w-full">
-          <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 flex-1 min-w-[240px]">
+        <h1 className="mb-4 text-2xl font-medium text-slate-900 dark:text-white">Reports & Analytics</h1>
+        <section className="flex w-full flex-wrap gap-6">
+          <div className="min-w-[240px] flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-white/10 dark:bg-slate-900/80">
             <section className="flex items-start justify-between">
-              <div className="h-12 w-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-500/10">
                 <FileText className="text-blue-600" size={24} />
               </div>
-              <p className="font-light text-gray-500">Delivered</p>
+              <p className="font-light text-gray-500 dark:text-slate-400">Delivered</p>
             </section>
-            <h3 className="text-3xl font-medium mt-4">{stats.delivered}</h3>
+            <h3 className="mt-4 text-3xl font-medium text-slate-900 dark:text-white">{stats.delivered}</h3>
           </div>
 
-          <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 flex-1 min-w-[240px]">
+          <div className="min-w-[240px] flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-white/10 dark:bg-slate-900/80">
             <section className="flex items-start justify-between">
-              <div className="h-12 w-12 bg-green-100 rounded-xl flex items-center justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 dark:bg-green-500/10">
                 <TrendingUp className="text-green-600" size={24} />
               </div>
-              <p className="font-light text-gray-500">Processing</p>
+              <p className="font-light text-gray-500 dark:text-slate-400">Processing</p>
             </section>
-            <h3 className="text-3xl font-medium mt-4">{stats.processing}</h3>
+            <h3 className="mt-4 text-3xl font-medium text-slate-900 dark:text-white">{stats.processing}</h3>
           </div>
 
-          <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 flex-1 min-w-[240px]">
+          <div className="min-w-[240px] flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-white/10 dark:bg-slate-900/80">
             <section className="flex items-start justify-between">
-              <div className="h-12 w-12 bg-purple-100 rounded-xl flex items-center justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-500/10">
                 <FileText className="text-purple-600" size={24} />
               </div>
-              <p className="font-light text-gray-500">Pending</p>
+              <p className="font-light text-gray-500 dark:text-slate-400">Pending</p>
             </section>
-            <h3 className="text-3xl font-medium mt-4">{stats.pending}</h3>
+            <h3 className="mt-4 text-3xl font-medium text-slate-900 dark:text-white">{stats.pending}</h3>
           </div>
 
-          <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 flex-1 min-w-[240px]">
+          <div className="min-w-[240px] flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-white/10 dark:bg-slate-900/80">
             <section className="flex items-start justify-between">
-              <div className="h-12 w-12 bg-orange-100 rounded-xl flex items-center justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-500/10">
                 <Calendar className="text-orange-600" size={24} />
               </div>
-              <p className="font-light text-gray-500">Total Orders</p>
+              <p className="font-light text-gray-500 dark:text-slate-400">Total Orders</p>
             </section>
-            <h3 className="text-3xl font-medium mt-4">{stats.total}</h3>
+            <h3 className="mt-4 text-3xl font-medium text-slate-900 dark:text-white">{stats.total}</h3>
           </div>
         </section>
       </div>
 
-      <section className="mx-8 mt-2 mb-12 bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-50">
-          <h3 className="text-xl font-medium">Available Reports</h3>
-          <p className="text-gray-500 text-sm font-light mt-1">Download and view system-generated reports</p>
+      <section className="mx-8 mt-2 mb-12 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-colors dark:border-white/10 dark:bg-slate-900/80">
+        <div className="border-b border-gray-50 p-6 dark:border-white/10">
+          <h3 className="text-xl font-medium text-slate-900 dark:text-white">Available Reports</h3>
+          <p className="mt-1 text-sm font-light text-gray-500 dark:text-slate-400">Download and view system-generated reports</p>
         </div>
 
-        <div className="bg-gray-50 border-b border-gray-100">
-          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-6 py-4 text-xs uppercase font-medium text-gray-500">
+        <div className="border-b border-gray-100 bg-gray-50 dark:border-white/10 dark:bg-white/5">
+          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-6 py-4 text-xs font-medium uppercase text-gray-500 dark:text-slate-400">
             <p>Report Name</p>
             <p>Type</p>
             <p>Generated</p>
@@ -108,23 +108,23 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div className="divide-y divide-gray-50">
+        <div className="divide-y divide-gray-50 dark:divide-white/10">
           {reports.map((r) => (
-            <div key={r.name} className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] gap-4 items-center px-6 py-5 hover:bg-gray-50 transition-colors">
+            <div key={r.name} className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 px-6 py-5 transition-colors hover:bg-gray-50 dark:hover:bg-white/5">
               <div className="flex items-center gap-4 min-w-0">
-                <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 dark:bg-green-500/10">
                   <FileText className="text-green-600" size={18} />
                 </div>
-                <p className="text-gray-900 font-medium truncate">{r.name}</p>
+                <p className="truncate font-medium text-gray-900 dark:text-white">{r.name}</p>
               </div>
-              <div><span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-medium">{r.type}</span></div>
-              <p className="text-gray-500 text-sm whitespace-nowrap">{r.date}</p>
-              <p className="text-gray-500 text-sm whitespace-nowrap">{r.size}</p>
-              <div className="text-center"><span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium">{r.status}</span></div>
+              <div><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">{r.type}</span></div>
+              <p className="whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">{r.date}</p>
+              <p className="whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">{r.size}</p>
+              <div className="text-center"><span className="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-500/10 dark:text-green-300">{r.status}</span></div>
               <div className="text-right">
                 <button
                   onClick={() => downloadReport(r)}
-                  className="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-all shadow-sm"
+                  className="rounded-lg bg-green-500 p-2 text-white shadow-sm transition-all hover:bg-green-600"
                 >
                   <Download size={16} />
                 </button>

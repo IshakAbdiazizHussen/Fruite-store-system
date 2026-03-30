@@ -117,6 +117,30 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-300;
+  }
+  button,
+  input,
+  select,
+  textarea,
+  div,
+  section,
+  article,
+  aside,
+  main,
+  header,
+  footer,
+  nav,
+  table,
+  thead,
+  tbody,
+  tr,
+  td,
+  th {
+    transition:
+      background-color 250ms ease,
+      border-color 250ms ease,
+      color 250ms ease,
+      box-shadow 250ms ease;
   }
 }
