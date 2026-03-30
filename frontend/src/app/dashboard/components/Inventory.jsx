@@ -1,15 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
-
-const data = [
-  { name: "Apples", value: 28 },
-  { name: "Bananas", value: 22 },
-  { name: "Citrus", value: 18 },
-  { name: "Berries", value: 15 },
-  { name: "Tropical", value: 10 },
-  { name: "Others", value: 7 },
-];
+import { useInventory } from "@/hooks/useInventory";
 
 const COLORS = [
   "#ef4444",
@@ -23,6 +16,23 @@ const COLORS = [
 const renderPieLabel = ({ name, value }) => `${name} ${value}%`;
 
 export default function InventoryPie() {
+  const { items } = useInventory();
+  const data = useMemo(() => {
+    const grouped = items.reduce((acc, item) => {
+      const key = item.category || "Others";
+      acc[key] = (acc[key] || 0) + Number(item.stock || 0);
+      return acc;
+    }, {});
+
+    const total = Object.values(grouped).reduce((sum, value) => sum + value, 0);
+    if (!total) return [];
+
+    return Object.entries(grouped).map(([name, value]) => ({
+      name,
+      value: Math.round((value / total) * 100),
+    }));
+  }, [items]);
+
   return (
     <div className="w-full">
       <h3 className="text-lg font-semibold text-gray-900">Inventory by Category</h3>

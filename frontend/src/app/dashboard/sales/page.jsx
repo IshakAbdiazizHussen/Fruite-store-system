@@ -12,26 +12,20 @@ export default function SalesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const stats = useMemo(() => {
-    const totalRevenue = sales.reduce((acc, sale) => acc + sale.total, 0) + 78050; // Base from initial
-    const totalUnits = sales.reduce((acc, sale) => acc + sale.units, 0) + 22300;
+    const totalRevenue = sales.reduce((acc, sale) => acc + Number(sale.total || 0), 0);
+    const totalUnits = sales.reduce((acc, sale) => acc + Number(sale.units || 0), 0);
     return { revenue: totalRevenue, units: totalUnits };
   }, [sales]);
 
-  // Data for Top Selling (dynamic from sales list)
   const topSellingData = useMemo(() => {
     const counts = {};
-    sales.forEach(s => {
-      counts[s.name] = (counts[s.name] || 0) + s.units;
+    sales.forEach((sale) => {
+      counts[sale.name] = (counts[sale.name] || 0) + Number(sale.units || 0);
     });
-    // Add some default ones if empty or a few more for visual
-    const defaults = [
-      { name: "Bananas", sales: 11000 },
-      { name: "Apples", sales: 16000 },
-      { name: "Oranges", sales: 12500 },
-      { name: "Blueberries", sales: 20000 },
-    ];
-    const top = Object.entries(counts).map(([name, units]) => ({ name, sales: units }));
-    return [...top, ...defaults].slice(0, 5).sort((a, b) => b.sales - a.sales);
+    return Object.entries(counts)
+      .map(([name, units]) => ({ name, sales: units }))
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 5);
   }, [sales]);
 
   return (
@@ -143,8 +137,8 @@ export default function SalesPage() {
           <h3 className="text-xl font-medium mb-1">Recent Transactions</h3>
           <p className="text-gray-500 text-sm font-light mb-4">Latest sales activity</p>
           <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
-            {sales.map(s => (
-              <div key={s.id} className="flex justify-between items-center p-3 rounded-xl bg-gray-50">
+            {sales.map((s) => (
+              <div key={s.saleId || s.id} className="flex justify-between items-center p-3 rounded-xl bg-gray-50">
                 <div>
                   <p className="font-medium text-sm">{s.name}</p>
                   <p className="text-xs text-gray-400">{s.date}</p>

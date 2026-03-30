@@ -1,4 +1,5 @@
 const InventoryItem = require("../models/InventoryItem");
+const { createHttpError, normalizeDatabaseError } = require("../utils/httpError");
 
 function normalizeInventoryItem(payload) {
   return {
@@ -14,32 +15,40 @@ async function listInventoryItems() {
 }
 
 async function createInventoryItem(payload) {
-  const item = await InventoryItem.create(normalizeInventoryItem(payload));
-  return item.toObject();
+  try {
+    if (!String(payload?.name || "").trim()) {
+      throw createHttpError("Item name is required.", 400);
+    }
+
+    const item = await InventoryItem.create(normalizeInventoryItem(payload));
+    return item.toObject();
+  } catch (error) {
+    throw normalizeDatabaseError(error, "Unable to create inventory item.");
+  }
 }
 
 async function updateInventoryItem(name, payload) {
-  const item = await InventoryItem.findOneAndUpdate(
-    { name },
-    normalizeInventoryItem(payload),
-    { new: true, runValidators: true }
-  ).lean();
+  try {
+    const item = await InventoryItem.findOneAndUpdate(
+      { name },
+      normalizeInventoryItem(payload),
+      { new: true, runValidators: true }
+    ).lean();
 
-  if (!item) {
-    const error = new Error(`Inventory item ${name} not found.`);
-    error.statusCode = 404;
-    throw error;
+    if (!item) {
+      throw createHttpError(`Inventory item ${name} not found.`, 404);
+    }
+
+    return item;
+  } catch (error) {
+    throw normalizeDatabaseError(error, "Unable to update inventory item.");
   }
-
-  return item;
 }
 
 async function deleteInventoryItem(name) {
   const item = await InventoryItem.findOneAndDelete({ name });
   if (!item) {
-    const error = new Error(`Inventory item ${name} not found.`);
-    error.statusCode = 404;
-    throw error;
+    throw createHttpError(`Inventory item ${name} not found.`, 404);
   }
 }
 

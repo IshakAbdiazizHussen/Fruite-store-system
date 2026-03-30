@@ -30,8 +30,8 @@ export async function apiRequest(path, options = {}) {
 
     try {
       const payload = await response.json();
-      if (payload?.message) {
-        message = payload.message;
+      if (payload?.message || payload?.error) {
+        message = payload.message || payload.error;
       }
     } catch {
       // Ignore non-JSON error responses.

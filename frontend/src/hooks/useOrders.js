@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { orders as initialOrders } from "@/app/data/page";
 import { recordActivity } from "@/lib/activityLog";
 import { apiRequest } from "@/lib/apiClient";
+import { notifyBackendDataChanged, subscribeToBackendDataChanged } from "@/lib/backendSync";
 
 export function useOrders() {
-  const [orders, setOrders] = useState(initialOrders);
+  const [orders, setOrders] = useState([]);
 
   const loadOrders = useCallback(async () => {
     const data = await apiRequest("/orders");
@@ -17,6 +17,9 @@ export function useOrders() {
     loadOrders().catch((error) => {
       console.error("Failed to load orders", error);
     });
+    return subscribeToBackendDataChanged(() => {
+      loadOrders().catch(() => {});
+    });
   }, [loadOrders]);
 
   const addOrder = useCallback(async (newOrder) => {
@@ -25,6 +28,7 @@ export function useOrders() {
       body: JSON.stringify(newOrder),
     });
     await loadOrders();
+    notifyBackendDataChanged();
     recordActivity({
       type: "create",
       title: "Order created",
@@ -37,6 +41,7 @@ export function useOrders() {
       method: "DELETE",
     });
     await loadOrders();
+    notifyBackendDataChanged();
     recordActivity({
       type: "delete",
       title: "Order deleted",
@@ -53,6 +58,7 @@ export function useOrders() {
       body: JSON.stringify({ ...target, status }),
     });
     await loadOrders();
+    notifyBackendDataChanged();
     recordActivity({
       type: "update",
       title: "Order status updated",
@@ -66,6 +72,7 @@ export function useOrders() {
       body: JSON.stringify(updatedOrder),
     });
     await loadOrders();
+    notifyBackendDataChanged();
     recordActivity({
       type: "update",
       title: "Order updated",

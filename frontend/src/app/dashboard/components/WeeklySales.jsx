@@ -1,18 +1,34 @@
 "use client";
 
+import { useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
-
-const data = [
-  { day: "Mon", sales: 1200 },
-  { day: "Tue", sales: 1450 },
-  { day: "Wed", sales: 1100 },
-  { day: "Thu", sales: 1600 },
-  { day: "Fri", sales: 1850 },
-  { day: "Sat", sales: 2100 },
-  { day: "Sun", sales: 1700 },
-];
+import { useSales } from "@/hooks/useSales";
 
 export default function WeeklySalesChart() {
+  const { sales } = useSales();
+
+  const data = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat("en-US", { weekday: "short" });
+    const days = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (6 - index));
+      return {
+        key: date.toISOString().split("T")[0],
+        day: formatter.format(date),
+        sales: 0,
+      };
+    });
+
+    sales.forEach((sale) => {
+      const target = days.find((day) => day.key === sale.date);
+      if (target) {
+        target.sales += Number(sale.total || 0);
+      }
+    });
+
+    return days.map(({ key, ...item }) => item);
+  }, [sales]);
+
   return (
     <div className="w-full">
       <h3 className="text-lg font-semibold text-gray-900">Weekly Sales</h3>

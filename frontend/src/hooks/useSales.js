@@ -4,16 +4,10 @@ import { useState, useCallback, useEffect } from "react";
 import { chartData as initialChartData } from "@/app/data/page";
 import { recordActivity } from "@/lib/activityLog";
 import { apiRequest } from "@/lib/apiClient";
-
-const initialSalesList = [
-  { saleId: "SALE001", name: "Apples", units: 120, total: 420.0, date: "2024-11-20" },
-  { saleId: "SALE002", name: "Bananas", units: 85, total: 187.0, date: "2024-11-19" },
-  { saleId: "SALE003", name: "Strawberries", units: 30, total: 255.0, date: "2024-11-19" },
-  { saleId: "SALE004", name: "Oranges", units: 150, total: 480.0, date: "2024-11-18" },
-];
+import { notifyBackendDataChanged, subscribeToBackendDataChanged } from "@/lib/backendSync";
 
 export function useSales() {
-  const [sales, setSales] = useState(initialSalesList);
+  const [sales, setSales] = useState([]);
   const [analytics, setAnalytics] = useState(initialChartData);
 
   const loadSales = useCallback(async () => {
@@ -26,6 +20,9 @@ export function useSales() {
     loadSales().catch((error) => {
       console.error("Failed to load sales", error);
     });
+    return subscribeToBackendDataChanged(() => {
+      loadSales().catch(() => {});
+    });
   }, [loadSales]);
 
   const addSale = useCallback(async (newSale) => {
@@ -34,6 +31,7 @@ export function useSales() {
       body: JSON.stringify(newSale),
     });
     await loadSales();
+    notifyBackendDataChanged();
     recordActivity({
       type: "create",
       title: "Sale recorded",

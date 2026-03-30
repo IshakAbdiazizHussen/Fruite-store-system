@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { purchase as initialPurchases } from "@/app/data/page";
 import { recordActivity } from "@/lib/activityLog";
 import { apiRequest } from "@/lib/apiClient";
+import { notifyBackendDataChanged, subscribeToBackendDataChanged } from "@/lib/backendSync";
 
 export function usePurchases() {
-  const [purchases, setPurchases] = useState(initialPurchases);
+  const [purchases, setPurchases] = useState([]);
 
   const loadPurchases = useCallback(async () => {
     const data = await apiRequest("/purchases");
@@ -17,6 +17,9 @@ export function usePurchases() {
     loadPurchases().catch((error) => {
       console.error("Failed to load purchases", error);
     });
+    return subscribeToBackendDataChanged(() => {
+      loadPurchases().catch(() => {});
+    });
   }, [loadPurchases]);
 
   const addPurchase = useCallback(async (newPurchase) => {
@@ -25,6 +28,7 @@ export function usePurchases() {
       body: JSON.stringify(newPurchase),
     });
     await loadPurchases();
+    notifyBackendDataChanged();
 
     recordActivity({
       type: "create",
@@ -42,6 +46,7 @@ export function usePurchases() {
       body: JSON.stringify({ ...target, status }),
     });
     await loadPurchases();
+    notifyBackendDataChanged();
     recordActivity({
       type: "update",
       title: "Purchase status updated",
@@ -55,6 +60,7 @@ export function usePurchases() {
       body: JSON.stringify(updatedPurchase),
     });
     await loadPurchases();
+    notifyBackendDataChanged();
     recordActivity({
       type: "update",
       title: "Purchase updated",

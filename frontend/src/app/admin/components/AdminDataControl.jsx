@@ -126,84 +126,121 @@ export default function AdminDataControl({ section = "all" }) {
     location: "",
     products: "",
   });
+  const [feedback, setFeedback] = useState({ type: "", message: "" });
+
+  function showSuccess(message) {
+    setFeedback({ type: "success", message });
+  }
+
+  function showError(error, fallback) {
+    setFeedback({
+      type: "error",
+      message: error?.message || fallback,
+    });
+  }
 
   async function handleInventorySubmit(event) {
     event.preventDefault();
-    await addItem({
-      ...inventoryForm,
-      stock: Number(inventoryForm.stock),
-      price: Number(inventoryForm.price),
-    });
-    setInventoryForm({
-      name: "",
-      category: "Apples",
-      stock: "",
-      unit: "kg",
-      price: "",
-      expiry: "",
-    });
+    try {
+      await addItem({
+        ...inventoryForm,
+        stock: Number(inventoryForm.stock),
+        price: Number(inventoryForm.price),
+      });
+      setInventoryForm({
+        name: "",
+        category: "Apples",
+        stock: "",
+        unit: "kg",
+        price: "",
+        expiry: "",
+      });
+      showSuccess("Inventory item saved.");
+    } catch (error) {
+      showError(error, "Unable to save inventory item.");
+    }
   }
 
   async function handleOrderSubmit(event) {
     event.preventDefault();
-    await addOrder({
-      ...orderForm,
-      items: Number(orderForm.items),
-      total: Number(orderForm.total),
-    });
-    setOrderForm({
-      customer: "",
-      items: "",
-      total: "",
-      status: "Pending",
-      date: new Date().toISOString().split("T")[0],
-    });
+    try {
+      await addOrder({
+        ...orderForm,
+        items: Number(orderForm.items),
+        total: Number(orderForm.total),
+      });
+      setOrderForm({
+        customer: "",
+        items: "",
+        total: "",
+        status: "Pending",
+        date: new Date().toISOString().split("T")[0],
+      });
+      showSuccess("Order saved.");
+    } catch (error) {
+      showError(error, "Unable to save order.");
+    }
   }
 
   async function handlePurchaseSubmit(event) {
     event.preventDefault();
-    await addPurchase({
-      ...purchaseForm,
-      amount: Number(purchaseForm.amount),
-      quantity: `${purchaseForm.quantity} kg`,
-    });
-    setPurchaseForm({
-      supplier: "",
-      items: "",
-      quantity: "",
-      amount: "",
-      status: "Pending",
-      date: new Date().toISOString().split("T")[0],
-    });
+    try {
+      await addPurchase({
+        ...purchaseForm,
+        amount: Number(purchaseForm.amount),
+        quantity: `${purchaseForm.quantity} kg`,
+      });
+      setPurchaseForm({
+        supplier: "",
+        items: "",
+        quantity: "",
+        amount: "",
+        status: "Pending",
+        date: new Date().toISOString().split("T")[0],
+      });
+      showSuccess("Purchase saved.");
+    } catch (error) {
+      showError(error, "Unable to save purchase.");
+    }
   }
 
   async function handleSaleSubmit(event) {
     event.preventDefault();
-    await addSale({
-      ...saleForm,
-      units: Number(saleForm.units),
-      price: Number(saleForm.price),
-      total: Number(saleForm.units) * Number(saleForm.price),
-    });
-    setSaleForm({
-      name: "",
-      units: "",
-      price: "",
-      date: new Date().toISOString().split("T")[0],
-    });
+    try {
+      await addSale({
+        ...saleForm,
+        units: Number(saleForm.units),
+        price: Number(saleForm.price),
+        total: Number(saleForm.units) * Number(saleForm.price),
+      });
+      setSaleForm({
+        name: "",
+        units: "",
+        price: "",
+        date: new Date().toISOString().split("T")[0],
+      });
+      showSuccess("Sale saved.");
+    } catch (error) {
+      showError(error, "Unable to save sale.");
+    }
   }
 
   async function handleSupplierSubmit(event) {
     event.preventDefault();
-    await addSupplier(supplierForm);
-    setSupplierForm({
-      name: "",
-      contactPerson: "",
-      phone: "",
-      email: "",
-      location: "",
-      products: "",
-    });
+    try {
+      await addSupplier(supplierForm);
+      setSupplierForm({
+        name: "",
+        contactPerson: "",
+        phone: "",
+        email: "",
+        location: "",
+        products: "",
+      });
+      showSuccess("Supplier saved.");
+    } catch (error) {
+      showError(error, "Unable to save supplier.");
+    }
   }
 
   const showAll = section === "all";
@@ -220,6 +257,17 @@ export default function AdminDataControl({ section = "all" }) {
         <h1 className="mt-3 text-3xl font-semibold text-slate-900 dark:text-white">{meta.title}</h1>
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{meta.description}</p>
       </div>
+      {feedback.message ? (
+        <div
+          className={`rounded-2xl border px-4 py-3 text-sm ${
+            feedback.type === "error"
+              ? "border-red-200 bg-red-50 text-red-700 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-200"
+              : "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200"
+          }`}
+        >
+          {feedback.message}
+        </div>
+      ) : null}
 
       {showInventory ? (
         <SectionCard title="Inventory" description="Add stock items and adjust the current product list.">
@@ -257,13 +305,27 @@ export default function AdminDataControl({ section = "all" }) {
                     <td className="py-3">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => updateItem({ ...item, stock: Number(item.stock) + 10 })}
+                          onClick={async () => {
+                            try {
+                              await updateItem({ ...item, stock: Number(item.stock) + 10 });
+                              showSuccess(`${item.name} stock updated.`);
+                            } catch (error) {
+                              showError(error, "Unable to update inventory item.");
+                            }
+                          }}
                           className="rounded-xl border border-blue-200 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:border-blue-400/30 dark:text-blue-200 dark:hover:bg-blue-500/10"
                         >
                           +10 stock
                         </button>
                         <button
-                          onClick={() => deleteItem(item.name)}
+                          onClick={async () => {
+                            try {
+                              await deleteItem(item.name);
+                              showSuccess(`${item.name} deleted.`);
+                            } catch (error) {
+                              showError(error, "Unable to delete inventory item.");
+                            }
+                          }}
                           className="rounded-xl border border-red-200 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50 dark:border-red-400/30 dark:text-red-200 dark:hover:bg-red-500/10"
                         >
                           Delete
@@ -302,10 +364,24 @@ export default function AdminDataControl({ section = "all" }) {
                 <div className="flex items-center gap-2">
                   <Select
                     value={order.status}
-                    onChange={(e) => updateOrderStatus(order.orderId, e.target.value)}
+                    onChange={async (e) => {
+                      try {
+                        await updateOrderStatus(order.orderId, e.target.value);
+                        showSuccess(`${order.orderId} updated.`);
+                      } catch (error) {
+                        showError(error, "Unable to update order.");
+                      }
+                    }}
                     options={["Pending", "Processing", "Delivered"]}
                   />
-                  <button onClick={() => deleteOrder(order.orderId)} className="rounded-xl border border-red-200 p-3 text-red-700 hover:bg-red-50 dark:border-red-400/30 dark:text-red-200 dark:hover:bg-red-500/10">
+                  <button onClick={async () => {
+                    try {
+                      await deleteOrder(order.orderId);
+                      showSuccess(`${order.orderId} deleted.`);
+                    } catch (error) {
+                      showError(error, "Unable to delete order.");
+                    }
+                  }} className="rounded-xl border border-red-200 p-3 text-red-700 hover:bg-red-50 dark:border-red-400/30 dark:text-red-200 dark:hover:bg-red-500/10">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
@@ -339,7 +415,14 @@ export default function AdminDataControl({ section = "all" }) {
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{purchase.items} • {purchase.quantity} • ${Number(purchase.amount).toFixed(2)}</p>
                     <div className="mt-3 flex gap-2">
                       <button
-                        onClick={() => updatePurchaseStatus(purchase.purchaseId, purchase.status === "Pending" ? "Completed" : "Pending")}
+                        onClick={async () => {
+                          try {
+                            await updatePurchaseStatus(purchase.purchaseId, purchase.status === "Pending" ? "Completed" : "Pending");
+                            showSuccess(`${purchase.purchaseId} updated.`);
+                          } catch (error) {
+                            showError(error, "Unable to update purchase.");
+                          }
+                        }}
                         className="rounded-xl border border-blue-200 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:border-blue-400/30 dark:text-blue-200 dark:hover:bg-blue-500/10"
                       >
                         Mark {purchase.status === "Pending" ? "Completed" : "Pending"}
@@ -353,6 +436,9 @@ export default function AdminDataControl({ section = "all" }) {
 
           {showSales ? (
             <SectionCard title="Sales" description="Record new sales and review the latest revenue entries.">
+              <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+                Sale ID is generated automatically. Enter the product name here.
+              </p>
               <form onSubmit={handleSaleSubmit} className="grid gap-3 md:grid-cols-2">
                 <Input value={saleForm.name} onChange={(e) => setSaleForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Product name" />
                 <Input value={saleForm.units} onChange={(e) => setSaleForm((prev) => ({ ...prev, units: e.target.value }))} placeholder="Units" type="number" />
@@ -405,7 +491,14 @@ export default function AdminDataControl({ section = "all" }) {
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{supplier.contactPerson} • {supplier.location}</p>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{supplier.products}</p>
                 <button
-                  onClick={() => deleteSupplier(supplier.supplierId || supplier.id)}
+                  onClick={async () => {
+                    try {
+                      await deleteSupplier(supplier.supplierId || supplier.id);
+                      showSuccess(`${supplier.name} deleted.`);
+                    } catch (error) {
+                      showError(error, "Unable to delete supplier.");
+                    }
+                  }}
                   className="mt-4 rounded-xl border border-red-200 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50 dark:border-red-400/30 dark:text-red-200 dark:hover:bg-red-500/10"
                 >
                   Delete Supplier

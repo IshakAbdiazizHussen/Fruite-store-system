@@ -3,15 +3,10 @@
 import { useState, useCallback, useEffect } from "react";
 import { recordActivity } from "@/lib/activityLog";
 import { apiRequest } from "@/lib/apiClient";
-
-const initialSuppliers = [
-  { id: 1, supplierId: "SUP001", name: "Farm Fresh Suppliers", contactPerson: "Khaalid Hashi", phone: "+252 61 213 7065", email: "khaalid@farmfresh.com", location: "Mogadishu, Somalia", products: "Apples, Bananas, Grapes", rating: 4.8, orders: 45, color: "bg-green-500" },
-  { id: 2, supplierId: "SUP002", name: "Tropical Imports Ltd", contactPerson: "Mohamed Abdiaziz", phone: "+252 61 090 9070", email: "Azhari@tropicalimports.com", location: "Doha, Qatar", products: "Mangoes, Pineapples, Avocados", rating: 4.9, orders: 38, color: "bg-blue-500" },
-  { id: 3, supplierId: "SUP003", name: "Berry Best Co.", contactPerson: "Khadiijo Hashi", phone: "+252 61 040 6889", email: "khadiijo@berrybest.com", location: "Dubai, UAE", products: "Strawberries, Blueberries", rating: 4.9, orders: 38, color: "bg-purple-500" },
-];
+import { notifyBackendDataChanged, subscribeToBackendDataChanged } from "@/lib/backendSync";
 
 export function useSuppliers() {
-  const [suppliers, setSuppliers] = useState(initialSuppliers);
+  const [suppliers, setSuppliers] = useState([]);
 
   const loadSuppliers = useCallback(async () => {
     const data = await apiRequest("/suppliers");
@@ -22,6 +17,9 @@ export function useSuppliers() {
     loadSuppliers().catch((error) => {
       console.error("Failed to load suppliers", error);
     });
+    return subscribeToBackendDataChanged(() => {
+      loadSuppliers().catch(() => {});
+    });
   }, [loadSuppliers]);
 
   const addSupplier = useCallback(async (newSupplier) => {
@@ -30,6 +28,7 @@ export function useSuppliers() {
       body: JSON.stringify(newSupplier),
     });
     await loadSuppliers();
+    notifyBackendDataChanged();
     recordActivity({
       type: "create",
       title: "Supplier added",
@@ -42,6 +41,7 @@ export function useSuppliers() {
       method: "DELETE",
     });
     await loadSuppliers();
+    notifyBackendDataChanged();
 
     recordActivity({
       type: "delete",
@@ -55,6 +55,7 @@ export function useSuppliers() {
       method: "POST",
     });
     await loadSuppliers();
+    notifyBackendDataChanged();
     recordActivity({
       type: "update",
       title: "Suppliers reset",

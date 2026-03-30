@@ -104,9 +104,9 @@ export default function SuppliersPage() {
     const confirmed = window.confirm(`Delete ${supplier.name} from suppliers?`);
     if (!confirmed) return;
 
-    deleteSupplier(supplier.id);
+    deleteSupplier(supplier.supplierId || supplier.id);
 
-    if (selectedSupplier?.id === supplier.id) {
+    if ((selectedSupplier?.supplierId || selectedSupplier?.id) === (supplier.supplierId || supplier.id)) {
       closeContact();
       closeOrders();
     }
@@ -175,7 +175,7 @@ export default function SuppliersPage() {
       <section className="mx-8 mb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {suppliers.map((s) => (
-            <div key={s.id} className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 flex flex-col h-full">
+            <div key={s.supplierId || s.id} className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 flex flex-col h-full">
               <div className="flex items-start gap-4 mb-6">
                 <div className={`h-16 w-16 rounded-2xl ${s.color || 'bg-green-500'} flex items-center justify-center text-white shrink-0`}>
                   <Users size={30} />
