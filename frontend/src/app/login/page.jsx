@@ -23,7 +23,7 @@ export default function LoginPage() {
 
     try {
       await loginAdmin(form);
-      router.replace("/dashboard");
+      router.replace("/admin");
     } catch (submitError) {
       setError(submitError.message || "Login failed.");
     } finally {

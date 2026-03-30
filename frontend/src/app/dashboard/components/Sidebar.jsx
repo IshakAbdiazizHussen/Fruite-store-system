@@ -10,7 +10,6 @@ import {
   Users,
   FileText,
   Settings,
-  MonitorSmartphone,
   Dot,
 } from "lucide-react";
 import Link from "next/link";
@@ -25,7 +24,6 @@ const menu = [
   { label: "Purchases", icon: ShoppingBag, href: "/dashboard/purchases" },
   { label: "Suppliers", icon: Users, href: "/dashboard/suppliers" },
   { label: "Reports", icon: FileText, href: "/dashboard/reports" },
-  { label: "Frontend CMS", icon: MonitorSmartphone, href: "/dashboard/content" },
   { label: "Settings", icon: Settings, href: "/dashboard/settings" },
 ];
 
