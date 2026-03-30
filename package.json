@@ -1,33 +1,21 @@
 {
-  "name": "fruit-store",
+  "name": "fruit-store-system",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "dev": "next dev -H localhost -p 3000 --experimental-https",
-    "dev:open": "open https://localhost:3000 && npm run dev",
-    "backend:dev": "nodemon backend/src/server.js",
-    "backend:start": "node backend/src/server.js",
-    "build": "next build",
-    "start": "next start"
-  },
-  "dependencies": {
-    "@tailwindcss/vite": "^4.1.18",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "cors": "^2.8.5",
-    "lucide-react": "^0.562.0",
-    "next": "16.1.1",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "recharts": "^3.6.0",
-    "tailwind-merge": "^3.4.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "babel-plugin-react-compiler": "1.0.0",
-    "nodemon": "^3.1.10",
-    "tailwindcss": "^4.1.18"
+    "dev:frontend": "npm run dev --workspace frontend",
+    "build:frontend": "npm run build --workspace frontend",
+    "start:frontend": "npm run start --workspace frontend",
+    "dev:backend": "npm run dev --workspace backend",
+    "start:backend": "npm run start --workspace backend",
+    "frontend:dev": "npm run dev --workspace frontend",
+    "frontend:build": "npm run build --workspace frontend",
+    "frontend:start": "npm run start --workspace frontend",
+    "backend:dev": "npm run dev --workspace backend",
+    "backend:start": "npm run start --workspace backend"
   }
 }

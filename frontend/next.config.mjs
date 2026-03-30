@@ -1,4 +1,4 @@
-import { dirname } from "path";
+import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 
 const configDir = dirname(fileURLToPath(import.meta.url));
@@ -7,7 +7,7 @@ const configDir = dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   reactCompiler: true,
   turbopack: {
-    root: configDir,
+    root: resolve(configDir, ".."),
   },
   allowedDevOrigins: [
     "192.168.0.183:3000",

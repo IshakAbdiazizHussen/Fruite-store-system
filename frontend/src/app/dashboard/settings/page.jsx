@@ -37,7 +37,7 @@ export default function SettingsPage() {
     setNotificationEmail(settings.notificationEmail || "ishakabdiaziz9060@gmail.com");
   }, [settings.notificationEmail]);
 
-  const handleProfileSubmit = (e) => {
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
     setProfileStatus("");
 
@@ -51,7 +51,7 @@ export default function SettingsPage() {
       return;
     }
 
-    updateProfile(profileForm);
+    await updateProfile(profileForm);
     setProfileStatus("Profile updated successfully.");
   };
 
@@ -77,7 +77,7 @@ export default function SettingsPage() {
     reader.readAsDataURL(file);
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setPasswordStatus("");
 
@@ -100,7 +100,7 @@ export default function SettingsPage() {
       return;
     }
 
-    const result = changePassword(passwordForm.next);
+    const result = await changePassword(passwordForm.next);
     if (!result.ok) {
       setPasswordStatus(result.error);
       return;
@@ -110,18 +110,18 @@ export default function SettingsPage() {
     setPasswordStatus("Password changed successfully.");
   };
 
-  const handleToggleNotification = (id, label) => {
+  const handleToggleNotification = async (id, label) => {
     const next = !settings.notifications[id];
-    toggleNotification(id);
+    await toggleNotification(id);
     setNotificationStatus(`${label} ${next ? "enabled" : "disabled"}.`);
   };
 
-  const handleAllNotifications = (enabled) => {
-    setAllNotifications(enabled);
+  const handleAllNotifications = async (enabled) => {
+    await setAllNotifications(enabled);
     setNotificationStatus(`All notifications ${enabled ? "enabled" : "disabled"}.`);
   };
 
-  const handleNotificationEmailSave = () => {
+  const handleNotificationEmailSave = async () => {
     if (!notificationEmail.trim()) {
       setNotificationStatus("Notification email is required.");
       return;
@@ -130,7 +130,7 @@ export default function SettingsPage() {
       setNotificationStatus("Please enter a valid email address.");
       return;
     }
-    updateNotificationEmail(notificationEmail.trim());
+    await updateNotificationEmail(notificationEmail.trim());
     setNotificationStatus(`Notification email saved: ${notificationEmail.trim()}`);
   };
 

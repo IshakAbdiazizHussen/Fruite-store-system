@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const { corsOptions } = require("./config/cors");
 const apiRoutes = require("./routes/api");
@@ -9,6 +10,7 @@ const errorHandler = require("./middleware/errorHandler");
 const app = express();
 
 app.use(cors(corsOptions));
+app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api", apiRoutes);

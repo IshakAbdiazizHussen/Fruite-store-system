@@ -212,7 +212,7 @@ export default function Page() {
         item={editItem}
         onClose={() => setEditItem(null)}
         onSave={(updated) => {
-          updateItem(updated);
+          updateItem(updated, editItem?.name);
           setEditItem(null);
         }}
       />
