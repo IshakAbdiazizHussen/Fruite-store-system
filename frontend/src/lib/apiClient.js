@@ -8,16 +8,22 @@ export async function apiRequest(path, options = {}) {
   const authToken =
     typeof window !== "undefined" ? window.localStorage.getItem("fruit_store_token") : null;
 
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    cache: "no-store",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-      ...(options.headers || {}),
-    },
-    ...options,
-  });
+  let response;
+
+  try {
+    response = await fetch(`${getApiBaseUrl()}${path}`, {
+      cache: "no-store",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        ...(options.headers || {}),
+      },
+      ...options,
+    });
+  } catch {
+    throw new Error("Cannot connect to the backend server. Start the backend and try again.");
+  }
 
   if (!response.ok) {
     let message = `Request failed with status ${response.status}`;
