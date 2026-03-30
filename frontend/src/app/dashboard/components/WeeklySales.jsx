@@ -31,8 +31,8 @@ export default function WeeklySalesChart() {
 
   return (
     <div className="w-full">
-      <h3 className="text-lg font-semibold text-gray-900">Weekly Sales</h3>
-      <p className="text-sm text-gray-400 mt-0.5 mb-4">Sales performance over the last 7 days</p>
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Weekly Sales</h3>
+      <p className="mt-0.5 mb-4 text-sm text-slate-400 dark:text-slate-500">Sales performance over the last 7 days</p>
       <div className="h-280 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>

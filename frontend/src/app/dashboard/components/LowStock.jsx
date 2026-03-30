@@ -88,13 +88,13 @@ export default function LowStock() {
       : "bg-orange-50 text-orange-500 border border-orange-200";
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900/80">
       <div className="p-8 pb-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Low Stock Alerts</h3>
-            <p className="text-sm text-gray-400 mt-0.5">Items requiring immediate attention</p>
-            {notice ? <p className="text-xs text-green-600 mt-2">{notice}</p> : null}
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Low Stock Alerts</h3>
+            <p className="mt-0.5 text-sm text-slate-400 dark:text-slate-500">Items requiring immediate attention</p>
+            {notice ? <p className="mt-2 text-xs text-green-600 dark:text-green-300">{notice}</p> : null}
           </div>
           <button
             onClick={handleReorderAll}

@@ -35,8 +35,8 @@ export default function InventoryPie() {
 
   return (
     <div className="w-full">
-      <h3 className="text-lg font-semibold text-gray-900">Inventory by Category</h3>
-      <p className="text-sm text-gray-400 mt-0.5 mb-4">Current stock distribution</p>
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Inventory by Category</h3>
+      <p className="mt-0.5 mb-4 text-sm text-slate-400 dark:text-slate-500">Current stock distribution</p>
       <div className="h-[280px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>

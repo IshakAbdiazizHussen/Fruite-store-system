@@ -5,9 +5,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, Search, Menu, X, Moon, Sun } from "lucide-react";
 import { getActivities } from "@/lib/activityLog";
+import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
 
 const LAST_SEEN_KEY = "fruit_store_activity_seen_at";
-const THEME_KEY = "fruit_store_theme";
 
 export default function Topper({ onToggleSidebar, isSidebarOpen }) {
   const router = useRouter();
@@ -49,16 +49,9 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
   useEffect(() => {
     loadProfile();
     loadActivities();
-    const savedTheme = localStorage.getItem(THEME_KEY);
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initialTheme =
-      savedTheme === "dark" || savedTheme === "light"
-        ? savedTheme
-        : prefersDark
-          ? "dark"
-          : "light";
+    const initialTheme = getInitialTheme();
     setTheme(initialTheme);
-    document.documentElement.classList.toggle("dark", initialTheme === "dark");
+    applyTheme(initialTheme);
 
     const onActivity = () => loadActivities();
     const onSettings = () => loadProfile();
@@ -72,12 +65,17 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
     window.addEventListener("fruit-store-settings-updated", onSettings);
     window.addEventListener("storage", onActivity);
     document.addEventListener("mousedown", onClickOutside);
+    const unsubscribeTheme = subscribeToTheme((nextTheme) => {
+      setTheme(nextTheme);
+      applyTheme(nextTheme);
+    });
 
     return () => {
       window.removeEventListener("fruit-store-activity-updated", onActivity);
       window.removeEventListener("fruit-store-settings-updated", onSettings);
       window.removeEventListener("storage", onActivity);
       document.removeEventListener("mousedown", onClickOutside);
+      unsubscribeTheme();
     };
   }, []);
 
@@ -106,8 +104,7 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
   const handleThemeToggle = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
-    localStorage.setItem(THEME_KEY, nextTheme);
-    document.documentElement.classList.toggle("dark", nextTheme === "dark");
+    persistTheme(nextTheme);
   };
 
   const formatTime = (iso) => {

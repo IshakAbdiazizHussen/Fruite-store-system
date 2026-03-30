@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut, Menu, Moon, Sun, X } from "lucide-react";
 import { getStoredUser, logoutAdmin } from "@/lib/authClient";
-
-const THEME_KEY = "fruit_store_theme";
+import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
 
 export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
   const router = useRouter();
@@ -13,16 +12,14 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
   const [theme, setTheme] = useState("light");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem(THEME_KEY);
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initialTheme =
-      savedTheme === "dark" || savedTheme === "light"
-        ? savedTheme
-        : prefersDark
-          ? "dark"
-          : "light";
+    const initialTheme = getInitialTheme();
     setTheme(initialTheme);
-    document.documentElement.classList.toggle("dark", initialTheme === "dark");
+    applyTheme(initialTheme);
+
+    return subscribeToTheme((nextTheme) => {
+      setTheme(nextTheme);
+      applyTheme(nextTheme);
+    });
   }, []);
 
   async function handleLogout() {
@@ -33,8 +30,7 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
   function handleThemeToggle() {
     const nextTheme = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
-    localStorage.setItem(THEME_KEY, nextTheme);
-    document.documentElement.classList.toggle("dark", nextTheme === "dark");
+    persistTheme(nextTheme);
   }
 
   return (

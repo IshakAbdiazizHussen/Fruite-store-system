@@ -24,9 +24,9 @@ const data = [
 
 export default function StockTrend() {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-      <h3 className="text-lg font-semibold text-gray-900">Stock Trends</h3>
-      <p className="text-sm text-gray-400 mt-0.5 mb-6">Inventory levels over the past week</p>
+    <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-slate-900/80">
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Stock Trends</h3>
+      <p className="mt-0.5 mb-6 text-sm text-slate-400 dark:text-slate-500">Inventory levels over the past week</p>
 
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
