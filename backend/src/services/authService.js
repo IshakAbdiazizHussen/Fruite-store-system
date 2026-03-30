@@ -2,7 +2,7 @@ const AdminUser = require("../models/AdminUser");
 const { authConfig } = require("../config/auth");
 const { createToken, verifyPassword } = require("../utils/password");
 
-function toSafeUser(user) {x
+function toSafeUser(user) {
   return {
     id: user._id.toString(),
     name: user.name,
