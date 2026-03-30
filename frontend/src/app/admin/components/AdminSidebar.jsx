@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Box,
   Dot,
   FileText,
   LayoutDashboard,
@@ -11,6 +10,7 @@ import {
   Settings,
   ShoppingBag,
   ShoppingCart,
+  Store,
   TrendingUp,
   Users,
 } from "lucide-react";
@@ -18,13 +18,13 @@ import { useFrontendContent } from "@/hooks/useFrontendContent";
 
 const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/data?section=inventory", label: "Inventory", icon: Box },
-  { href: "/admin/data?section=sales", label: "Sales", icon: TrendingUp },
-  { href: "/admin/data?section=orders", label: "Orders", icon: ShoppingCart },
-  { href: "/admin/data?section=purchases", label: "Purchases", icon: ShoppingBag },
-  { href: "/admin/data?section=suppliers", label: "Suppliers", icon: Users },
-  { href: "/dashboard/reports", label: "Reports", icon: FileText },
-  { href: "/admin/content", label: "Settings", icon: Settings },
+  { href: "/admin/inventory", label: "Inventory", icon: Store },
+  { href: "/admin/sales", label: "Sales", icon: TrendingUp },
+  { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
+  { href: "/admin/purchases", label: "Purchases", icon: ShoppingBag },
+  { href: "/admin/suppliers", label: "Suppliers", icon: Users },
+  { href: "/admin/reports", label: "Reports", icon: FileText },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 export default function AdminSidebar() {
@@ -48,11 +48,7 @@ export default function AdminSidebar() {
       <nav className="flex-1 space-y-2 px-4 py-5">
         {links.map((link) => {
           const Icon = link.icon;
-          const isActive =
-            (link.href === "/admin" && pathname === "/admin") ||
-            (link.href.includes("/admin/data") && pathname === "/admin/data") ||
-            (link.href === "/dashboard/reports" && pathname === "/dashboard/reports") ||
-            (link.href === "/admin/content" && pathname === "/admin/content");
+          const isActive = pathname === link.href;
 
           return (
             <Link

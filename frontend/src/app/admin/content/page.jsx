@@ -33,8 +33,8 @@ export default function AdminContentPage() {
   return (
     <div className="space-y-6 p-8">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-600 dark:text-emerald-300">Admin Content</p>
-        <h1 className="mt-3 text-3xl font-semibold text-slate-900 dark:text-white">Frontend information control</h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-600 dark:text-emerald-300">Legacy Content Route</p>
+        <h1 className="mt-3 text-3xl font-semibold text-slate-900 dark:text-white">Backend text control</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

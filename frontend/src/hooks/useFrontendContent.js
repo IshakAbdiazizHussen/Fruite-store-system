@@ -53,31 +53,52 @@ function mergeContent(content) {
 
 export function useFrontendContent({ authenticated = false } = {}) {
   const [content, setContent] = useState(defaultFrontendContent);
+  const [isBackendAvailable, setIsBackendAvailable] = useState(true);
+  const [error, setError] = useState("");
 
   const loadContent = useCallback(async () => {
-    const data = await apiRequest("/frontend-content", {
-      headers: authenticated ? undefined : {},
-    });
-    setContent(mergeContent(data));
+    try {
+      const data = await apiRequest("/frontend-content", {
+        headers: authenticated ? undefined : {},
+      });
+      setContent(mergeContent(data));
+      setIsBackendAvailable(true);
+      setError("");
+      return data;
+    } catch {
+      // Keep the UI usable with local defaults while the backend is offline.
+      setContent(mergeContent(defaultFrontendContent));
+      setIsBackendAvailable(false);
+      setError("Backend content service is unavailable.");
+      return defaultFrontendContent;
+    }
   }, [authenticated]);
 
   useEffect(() => {
-    loadContent().catch((error) => {
-      console.error("Failed to load frontend content", error);
-    });
+    loadContent();
   }, [loadContent]);
 
   const updateContent = useCallback(async (patch) => {
-    const next = await apiRequest("/frontend-content", {
-      method: "PATCH",
-      body: JSON.stringify(patch),
-    });
-    setContent(mergeContent(next));
-    return next;
+    try {
+      const next = await apiRequest("/frontend-content", {
+        method: "PATCH",
+        body: JSON.stringify(patch),
+      });
+      setContent(mergeContent(next));
+      setIsBackendAvailable(true);
+      setError("");
+      return next;
+    } catch (updateError) {
+      setIsBackendAvailable(false);
+      setError(updateError.message || "Unable to save backend content.");
+      throw updateError;
+    }
   }, []);
 
   return {
     content,
+    error,
+    isBackendAvailable,
     updateContent,
     reloadContent: loadContent,
   };
