@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useInventory } from "@/hooks/useInventory";
 import { useOrders } from "@/hooks/useOrders";
@@ -49,6 +50,8 @@ function Select({ value, onChange, options }) {
 }
 
 export default function AdminDataPage() {
+  const searchParams = useSearchParams();
+  const activeSection = searchParams.get("section") || "all";
   const { items, addItem, deleteItem, updateItem } = useInventory();
   const { orders, addOrder, deleteOrder, updateOrderStatus } = useOrders();
   const { purchases, addPurchase, updatePurchaseStatus } = usePurchases();
@@ -172,6 +175,13 @@ export default function AdminDataPage() {
     });
   }
 
+  const showAll = activeSection === "all";
+  const showInventory = showAll || activeSection === "inventory";
+  const showOrders = showAll || activeSection === "orders";
+  const showPurchases = showAll || activeSection === "purchases";
+  const showSales = showAll || activeSection === "sales";
+  const showSuppliers = showAll || activeSection === "suppliers";
+
   return (
     <div className="space-y-8 p-8">
       <div>
@@ -182,6 +192,7 @@ export default function AdminDataPage() {
         </p>
       </div>
 
+      {showInventory ? (
       <SectionCard title="Inventory" description="Add stock items and adjust the current product list.">
         <form onSubmit={handleInventorySubmit} className="grid gap-3 md:grid-cols-6">
           <Input value={inventoryForm.name} onChange={(e) => setInventoryForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Item name" />
@@ -236,7 +247,9 @@ export default function AdminDataPage() {
           </table>
         </div>
       </SectionCard>
+      ) : null}
 
+      {showOrders ? (
       <SectionCard title="Orders" description="Create customer orders and update their status directly here.">
         <form onSubmit={handleOrderSubmit} className="grid gap-3 md:grid-cols-5">
           <Input value={orderForm.customer} onChange={(e) => setOrderForm((prev) => ({ ...prev, customer: e.target.value }))} placeholder="Customer" />
@@ -271,8 +284,11 @@ export default function AdminDataPage() {
           ))}
         </div>
       </SectionCard>
+      ) : null}
 
+      {showPurchases || showSales ? (
       <div className="grid gap-8 xl:grid-cols-2">
+        {showPurchases ? (
         <SectionCard title="Purchases" description="Create supplier purchases and flip their workflow status.">
           <form onSubmit={handlePurchaseSubmit} className="grid gap-3 md:grid-cols-2">
             <Input value={purchaseForm.supplier} onChange={(e) => setPurchaseForm((prev) => ({ ...prev, supplier: e.target.value }))} placeholder="Supplier" />
@@ -304,7 +320,9 @@ export default function AdminDataPage() {
             ))}
           </div>
         </SectionCard>
+        ) : <div />}
 
+        {showSales ? (
         <SectionCard title="Sales" description="Record new sales and review the latest revenue entries.">
           <form onSubmit={handleSaleSubmit} className="grid gap-3 md:grid-cols-2">
             <Input value={saleForm.name} onChange={(e) => setSaleForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Product name" />
@@ -326,8 +344,11 @@ export default function AdminDataPage() {
             ))}
           </div>
         </SectionCard>
+        ) : <div />}
       </div>
+      ) : null}
 
+      {showSuppliers ? (
       <SectionCard title="Suppliers" description="Add supplier records, remove old ones, or reset the list to defaults.">
         <form onSubmit={handleSupplierSubmit} className="grid gap-3 md:grid-cols-3">
           <Input value={supplierForm.name} onChange={(e) => setSupplierForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Company name" />
@@ -364,6 +385,7 @@ export default function AdminDataPage() {
           ))}
         </div>
       </SectionCard>
+      ) : null}
     </div>
   );
 }
