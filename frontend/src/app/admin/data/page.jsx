@@ -10,10 +10,10 @@ import { useSuppliers } from "@/hooks/useSuppliers";
 
 function SectionCard({ title, description, children }) {
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900/80">
       <div className="mb-5">
-        <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
-        <p className="mt-1 text-sm text-slate-500">{description}</p>
+        <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{title}</h2>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>
       </div>
       {children}
     </section>
@@ -27,7 +27,7 @@ function Input({ value, onChange, placeholder, type = "text" }) {
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400"
+      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400 dark:border-white/10 dark:bg-slate-950 dark:text-white"
     />
   );
 }
@@ -37,7 +37,7 @@ function Select({ value, onChange, options }) {
     <select
       value={value}
       onChange={onChange}
-      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400"
+      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400 dark:border-white/10 dark:bg-slate-950 dark:text-white"
     >
       {options.map((option) => (
         <option key={option} value={option}>
@@ -175,9 +175,9 @@ export default function AdminDataPage() {
   return (
     <div className="space-y-8 p-8">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-blue-600">Data Control</p>
-        <h1 className="mt-3 text-3xl font-semibold text-slate-900">Manage backend data directly</h1>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-blue-600 dark:text-blue-300">Data Control</p>
+        <h1 className="mt-3 text-3xl font-semibold text-slate-900 dark:text-white">Manage backend data directly</h1>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
           Add, update, and clean up your live inventory, orders, purchases, sales, and suppliers from one backend admin page.
         </p>
       </div>
@@ -198,7 +198,7 @@ export default function AdminDataPage() {
 
         <div className="mt-6 overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="text-left text-slate-500">
+            <thead className="text-left text-slate-500 dark:text-slate-400">
               <tr>
                 <th className="pb-3">Name</th>
                 <th className="pb-3">Stock</th>
@@ -210,7 +210,7 @@ export default function AdminDataPage() {
             <tbody className="divide-y divide-slate-100">
               {items.slice(0, 8).map((item) => (
                 <tr key={item.name}>
-                  <td className="py-3 font-medium text-slate-900">{item.name}</td>
+                  <td className="py-3 font-medium text-slate-900 dark:text-white">{item.name}</td>
                   <td className="py-3">{item.stock} {item.unit}</td>
                   <td className="py-3">${Number(item.price).toFixed(2)}</td>
                   <td className="py-3">{item.status}</td>
@@ -252,10 +252,10 @@ export default function AdminDataPage() {
 
         <div className="mt-6 grid gap-3">
           {orders.slice(0, 8).map((order) => (
-            <div key={order.orderId} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 p-4">
+            <div key={order.orderId} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 p-4 dark:border-white/10 dark:bg-slate-950/40">
               <div>
-                <p className="font-semibold text-slate-900">{order.orderId} - {order.customer}</p>
-                <p className="text-sm text-slate-500">{order.items} items • ${Number(order.total).toFixed(2)} • {order.date}</p>
+                <p className="font-semibold text-slate-900 dark:text-white">{order.orderId} - {order.customer}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{order.items} items • ${Number(order.total).toFixed(2)} • {order.date}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Select
@@ -289,9 +289,9 @@ export default function AdminDataPage() {
 
           <div className="mt-6 space-y-3">
             {purchases.slice(0, 6).map((purchase) => (
-              <div key={purchase.purchaseId} className="rounded-2xl border border-slate-200 p-4">
-                <p className="font-semibold text-slate-900">{purchase.purchaseId} - {purchase.supplier}</p>
-                <p className="mt-1 text-sm text-slate-500">{purchase.items} • {purchase.quantity} • ${Number(purchase.amount).toFixed(2)}</p>
+              <div key={purchase.purchaseId} className="rounded-2xl border border-slate-200 p-4 dark:border-white/10 dark:bg-slate-950/40">
+                <p className="font-semibold text-slate-900 dark:text-white">{purchase.purchaseId} - {purchase.supplier}</p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{purchase.items} • {purchase.quantity} • ${Number(purchase.amount).toFixed(2)}</p>
                 <div className="mt-3 flex gap-2">
                   <button
                     onClick={() => updatePurchaseStatus(purchase.purchaseId, purchase.status === "Pending" ? "Completed" : "Pending")}
@@ -319,9 +319,9 @@ export default function AdminDataPage() {
 
           <div className="mt-6 space-y-3">
             {sales.slice(0, 6).map((sale) => (
-              <div key={sale.saleId || sale.id} className="rounded-2xl border border-slate-200 p-4">
-                <p className="font-semibold text-slate-900">{sale.saleId || sale.id} - {sale.name}</p>
-                <p className="mt-1 text-sm text-slate-500">{sale.units} units • ${Number(sale.total).toFixed(2)} • {sale.date}</p>
+              <div key={sale.saleId || sale.id} className="rounded-2xl border border-slate-200 p-4 dark:border-white/10 dark:bg-slate-950/40">
+                <p className="font-semibold text-slate-900 dark:text-white">{sale.saleId || sale.id} - {sale.name}</p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{sale.units} units • ${Number(sale.total).toFixed(2)} • {sale.date}</p>
               </div>
             ))}
           </div>
@@ -350,10 +350,10 @@ export default function AdminDataPage() {
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {suppliers.slice(0, 6).map((supplier) => (
-            <div key={supplier.supplierId || supplier.id} className="rounded-2xl border border-slate-200 p-4">
-              <p className="font-semibold text-slate-900">{supplier.name}</p>
-              <p className="mt-1 text-sm text-slate-500">{supplier.contactPerson} • {supplier.location}</p>
-              <p className="mt-1 text-sm text-slate-500">{supplier.products}</p>
+            <div key={supplier.supplierId || supplier.id} className="rounded-2xl border border-slate-200 p-4 dark:border-white/10 dark:bg-slate-950/40">
+              <p className="font-semibold text-slate-900 dark:text-white">{supplier.name}</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{supplier.contactPerson} • {supplier.location}</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{supplier.products}</p>
               <button
                 onClick={() => deleteSupplier(supplier.supplierId || supplier.id)}
                 className="mt-4 rounded-xl border border-red-200 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50"

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Database, LayoutDashboard, MonitorSmartphone, Settings2 } from "lucide-react";
+import { Database, Dot, LayoutDashboard, MonitorSmartphone, Package, Settings2 } from "lucide-react";
 import { useFrontendContent } from "@/hooks/useFrontendContent";
 
 const links = [
@@ -17,30 +17,41 @@ export default function AdminSidebar() {
   const { content } = useFrontendContent({ authenticated: true });
 
   return (
-    <aside className="flex min-h-screen w-72 flex-col bg-slate-950 text-white">
-      <div className="border-b border-white/10 px-6 py-7">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">Backend</p>
-        <h1 className="mt-3 text-2xl font-semibold">{content.branding.appName}</h1>
-        <p className="mt-1 text-sm text-slate-400">Admin panel for managing live data and visible frontend content.</p>
+    <aside className="w-64 min-h-screen bg-gradient-to-b from-green-700 via-green-800 to-green-900 text-white flex flex-col">
+      <div className="px-6 py-8 flex items-center gap-4">
+        <div className="bg-gradient-to-br from-orange-400 to-orange-500 p-3 rounded-xl shadow-lg">
+          <Package className="text-white" size={22} />
+        </div>
+        <div>
+          <h1 className="text-lg font-semibold">{content.branding.sidebarTitle}</h1>
+          <p className="text-sm text-green-200">Backend Administration</p>
+        </div>
       </div>
+
+      <div className="h-px bg-green-600 mx-6 mb-4" />
 
       <nav className="flex-1 space-y-2 px-4 py-5">
         {links.map((link) => {
           const Icon = link.icon;
-          const isActive = pathname === link.href;
+          const isActive =
+            pathname === link.href ||
+            (link.href !== "/admin" && pathname.startsWith(link.href));
 
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-colors ${
+              className={`relative flex items-center gap-4 px-4 py-3 rounded-xl transition-colors ${
                 isActive
-                  ? "bg-emerald-500 text-white"
-                  : "text-slate-300 hover:bg-white/5 hover:text-white"
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                  : "text-green-100 hover:bg-green-700"
               }`}
             >
-              <Icon className="h-4 w-4" />
-              <span>{link.label}</span>
+              <Icon size={20} />
+              <span className="text-base font-medium">{link.label}</span>
+              {isActive ? (
+                <Dot className="absolute right-4 text-yellow-200" size={32} />
+              ) : null}
             </Link>
           );
         })}

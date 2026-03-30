@@ -8,6 +8,7 @@ import AdminTopbar from "./components/AdminTopbar";
 
 export default function AdminLayout({ children }) {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -27,8 +28,8 @@ export default function AdminLayout({ children }) {
 
   if (isCheckingAuth) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
-        <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-sm text-slate-200">
+      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#ecfccb,_#f8fafc_40%,_#dcfce7_100%)] dark:bg-[radial-gradient(circle_at_top,_#0f172a,_#111827_45%,_#052e16_100%)]">
+        <div className="rounded-2xl border border-white/60 bg-white px-6 py-4 text-sm text-slate-600 shadow-xl dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
           Loading admin panel...
         </div>
       </div>
@@ -36,11 +37,18 @@ export default function AdminLayout({ children }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
-      <AdminSidebar />
-      <div className="flex min-h-screen flex-1 flex-col">
-        <AdminTopbar />
-        <main className="flex-1">{children}</main>
+    <div className="h-screen overflow-hidden flex bg-[radial-gradient(circle_at_top,_#ecfccb,_#f8fafc_40%,_#dcfce7_100%)] dark:bg-[radial-gradient(circle_at_top,_#0f172a,_#111827_45%,_#052e16_100%)]">
+      <aside className={`${isSidebarOpen ? "w-64" : "w-0"} shrink-0 overflow-hidden transition-all duration-300`}>
+        <AdminSidebar />
+      </aside>
+      <div className="flex-1 flex flex-col">
+        <div className="shrink-0">
+          <AdminTopbar
+            isSidebarOpen={isSidebarOpen}
+            onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+          />
+        </div>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
   );
