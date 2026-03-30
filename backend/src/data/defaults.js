@@ -84,8 +84,35 @@ const defaultSettings = {
   },
 };
 
+const defaultFrontendContent = {
+  branding: {
+    appName: "Fruit Store CMS",
+    sidebarTitle: "Fresh Harvest",
+    sidebarSubtitle: "Fruits Management",
+  },
+  login: {
+    eyebrow: "Admin Login",
+    title: "Sign in to CMS",
+    subtitle: "Use the admin email and password you configured in `backend/.env`.",
+    heroTitle: "Control your store from one secure dashboard.",
+    heroDescription: "Inventory, orders, purchases, suppliers, reports, and settings now run through your backend.",
+  },
+  dashboard: {
+    title: "Dashboard Overview",
+    subtitle: "Real-time performance metrics for your fruit store",
+    quickActionsTitle: "Quick Actions",
+    quickActionsSubtitle: "Run common operations directly from dashboard",
+    actions: [
+      { label: "Manage Inventory", href: "/dashboard/inventory", tone: "neutral" },
+      { label: "Create Purchase", href: "/dashboard/purchases", tone: "success" },
+      { label: "Manage Orders", href: "/dashboard/orders", tone: "info" },
+    ],
+  },
+};
+
 module.exports = {
   defaultAnalytics,
+  defaultFrontendContent,
   defaultInventory,
   defaultOrders,
   defaultPurchases,

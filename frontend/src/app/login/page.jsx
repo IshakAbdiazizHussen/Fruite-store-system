@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LockKeyhole, Mail, Store } from "lucide-react";
 import { loginAdmin } from "@/lib/authClient";
+import { useFrontendContent } from "@/hooks/useFrontendContent";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { content } = useFrontendContent();
   const [form, setForm] = useState({
     email: "admin@fruitstore.com",
     password: "admin12345",
@@ -36,24 +38,24 @@ export default function LoginPage() {
           <section className="hidden bg-gradient-to-br from-green-600 via-lime-500 to-emerald-700 p-10 text-white lg:block">
             <div className="flex items-center gap-3 text-lg font-semibold">
               <Store className="h-6 w-6" />
-              Fruit Store CMS
+              {content.branding.appName}
             </div>
             <h1 className="mt-16 max-w-md text-5xl font-semibold leading-tight">
-              Control your store from one secure dashboard.
+              {content.login.heroTitle}
             </h1>
             <p className="mt-6 max-w-md text-sm text-green-50/90">
-              Inventory, orders, purchases, suppliers, reports, and settings now run through your backend.
+              {content.login.heroDescription}
             </p>
           </section>
 
           <section className="p-8 sm:p-12">
             <div className="max-w-md">
               <p className="text-sm font-medium uppercase tracking-[0.28em] text-green-600">
-                Admin Login
+                {content.login.eyebrow}
               </p>
-              <h2 className="mt-3 text-3xl font-semibold text-gray-900">Sign in to CMS</h2>
+              <h2 className="mt-3 text-3xl font-semibold text-gray-900">{content.login.title}</h2>
               <p className="mt-2 text-sm text-gray-500">
-                Use the admin email and password you configured in `backend/.env`.
+                {content.login.subtitle}
               </p>
 
               <form className="mt-10 space-y-5" onSubmit={handleSubmit}>

@@ -7,6 +7,7 @@ function apiInfo(_req, res) {
       "/api/auth/login",
       "/api/auth/me",
       "/api/auth/logout",
+      "/api/frontend-content",
       "/api/inventory",
       "/api/orders",
       "/api/purchases",

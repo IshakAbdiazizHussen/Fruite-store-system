@@ -10,10 +10,12 @@ import {
   Users,
   FileText,
   Settings,
+  MonitorSmartphone,
   Dot,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useFrontendContent } from "@/hooks/useFrontendContent";
 
 const menu = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -23,11 +25,13 @@ const menu = [
   { label: "Purchases", icon: ShoppingBag, href: "/dashboard/purchases" },
   { label: "Suppliers", icon: Users, href: "/dashboard/suppliers" },
   { label: "Reports", icon: FileText, href: "/dashboard/reports" },
+  { label: "Frontend CMS", icon: MonitorSmartphone, href: "/dashboard/content" },
   { label: "Settings", icon: Settings, href: "/dashboard/settings" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { content } = useFrontendContent({ authenticated: true });
 
   return (
     <aside className="w-64 min-h-screen bg-gradient-to-b from-green-700 via-green-800 to-green-900 text-white flex flex-col">
@@ -37,8 +41,8 @@ export default function Sidebar() {
           <Package className="text-white" size={22} />
         </div>
         <div>
-          <h1 className="text-lg font-semibold">Fresh Harvest</h1>
-          <p className="text-sm text-green-200">Fruits Management</p>
+          <h1 className="text-lg font-semibold">{content.branding.sidebarTitle}</h1>
+          <p className="text-sm text-green-200">{content.branding.sidebarSubtitle}</p>
         </div>
       </div>
 

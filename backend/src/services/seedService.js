@@ -1,4 +1,5 @@
 const InventoryItem = require("../models/InventoryItem");
+const FrontendContent = require("../models/FrontendContent");
 const AdminUser = require("../models/AdminUser");
 const Order = require("../models/Order");
 const Purchase = require("../models/Purchase");
@@ -8,6 +9,7 @@ const Settings = require("../models/Settings");
 const Supplier = require("../models/Supplier");
 const {
   defaultAnalytics,
+  defaultFrontendContent,
   defaultInventory,
   defaultOrders,
   defaultPurchases,
@@ -42,6 +44,13 @@ async function ensureSeedData() {
     await Settings.create({
       key: "default",
       ...defaultSettings,
+    });
+  }
+
+  if ((await FrontendContent.countDocuments()) === 0) {
+    await FrontendContent.create({
+      key: "default",
+      ...defaultFrontendContent,
     });
   }
 

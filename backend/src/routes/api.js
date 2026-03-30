@@ -2,6 +2,7 @@ const express = require("express");
 
 const authenticate = require("../middleware/authenticate");
 const authController = require("../controllers/authController");
+const frontendContentController = require("../controllers/frontendContentController");
 const { healthCheck } = require("../controllers/healthController");
 const { apiInfo } = require("../controllers/rootController");
 const inventoryController = require("../controllers/inventoryController");
@@ -17,6 +18,7 @@ const protectedRouter = express.Router();
 router.get("/", apiInfo);
 router.get("/health", healthCheck);
 router.post("/auth/login", authController.login);
+router.get("/frontend-content", frontendContentController.getFrontendContent);
 
 protectedRouter.use(authenticate);
 protectedRouter.get("/auth/me", authController.me);
@@ -41,6 +43,7 @@ protectedRouter.post("/sales", salesController.createSale);
 
 protectedRouter.get("/settings", settingsController.getSettings);
 protectedRouter.patch("/settings", settingsController.updateSettings);
+protectedRouter.patch("/frontend-content", frontendContentController.updateFrontendContent);
 
 protectedRouter.get("/suppliers", supplierController.list);
 protectedRouter.post("/suppliers", supplierController.create);
