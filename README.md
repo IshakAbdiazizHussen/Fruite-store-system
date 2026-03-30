@@ -15,7 +15,7 @@ This repository is now separated into two clear applications:
 │   └── package.json
 ├── backend
 │   ├── src
-│   ├── .env.example
+│   ├── .env
 │   └── package.json
 └── package.json
 ```
@@ -31,13 +31,13 @@ npm install
 Start the frontend:
 
 ```bash
-npm run frontend:dev
+npm run dev:frontend
 ```
 
 Start the backend:
 
 ```bash
-npm run backend:dev
+npm run dev:backend
 ```
 
 ## Run Per App
@@ -60,6 +60,7 @@ npm run dev
 
 ## Notes
 
+- The frontend runs on `http://localhost:3001` by default.
 - The frontend calls the backend API at `http://localhost:4000/api` by default.
 - Backend environment values live in `backend/.env`.
 - Protected CMS routes require backend authentication.

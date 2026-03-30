@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H localhost -p 3000 --experimental-https",
-    "dev:open": "open https://localhost:3000 && npm run dev",
+    "dev": "next dev -H localhost -p 3001",
+    "dev:open": "open http://localhost:3001 && npm run dev",
     "build": "next build",
     "start": "next start"
   },

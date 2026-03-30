@@ -1,4 +1,4 @@
-const allowedOrigins = (process.env.CORS_ORIGINS || "https://localhost:3000,http://localhost:3000")
+const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:3001,https://localhost:3000,http://localhost:3000")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);

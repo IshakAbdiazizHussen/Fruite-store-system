@@ -20,7 +20,7 @@ cp .env.example .env
 Edit `.env` if needed:
 
 - `BACKEND_PORT=4000`
-- `CORS_ORIGINS=https://localhost:3000,http://localhost:3000`
+- `CORS_ORIGINS=http://localhost:3001,https://localhost:3000,http://localhost:3000`
 - `MONGODB_URI=your-mongodb-atlas-connection-string`
 - `MONGODB_DB_NAME=fruit-store`
 - `AUTH_SECRET=your-long-random-secret`
