@@ -81,6 +81,10 @@ const defaultSettings = {
   security: {
     password: "admin12345",
     lastChanged: null,
+    loginAlerts: true,
+    rememberDevice: true,
+    twoFactorEnabled: false,
+    sessionTimeoutMinutes: 30,
   },
 };
 

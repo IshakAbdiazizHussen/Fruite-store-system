@@ -32,6 +32,10 @@ const initialSettings = {
   security: {
     password: "admin12345",
     lastChanged: null,
+    loginAlerts: true,
+    rememberDevice: true,
+    twoFactorEnabled: false,
+    sessionTimeoutMinutes: 30,
   },
 };
 
@@ -180,6 +184,20 @@ export function useSettings() {
     };
   }, [patchSettings, settings.security]);
 
+  const updateSecurity = useCallback(async (patch) => {
+    await patchSettings({
+      security: {
+        ...settings.security,
+        ...patch,
+      },
+    });
+    recordActivity({
+      type: "security",
+      title: "Security settings updated",
+      description: "Account protection preferences were updated.",
+    });
+  }, [patchSettings, settings.security]);
+
   return {
     settings,
     updateProfile,
@@ -188,5 +206,6 @@ export function useSettings() {
     updateNotificationEmail,
     updateRegional,
     changePassword,
+    updateSecurity,
   };
 }

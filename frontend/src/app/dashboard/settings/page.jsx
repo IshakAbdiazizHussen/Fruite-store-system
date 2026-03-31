@@ -10,7 +10,7 @@ import { openEmailDraft } from "@/lib/emailNotifications";
 import { defaultAvatarPosition, getAvatarImageStyle, normalizeAvatarPosition } from "@/lib/avatarStyle";
 
 export default function SettingsPage() {
-  const { settings, updateProfile, toggleNotification, setAllNotifications, updateNotificationEmail, updateRegional, changePassword } = useSettings();
+  const { settings, updateProfile, toggleNotification, setAllNotifications, updateNotificationEmail, updateRegional, changePassword, updateSecurity } = useSettings();
   const { orders } = useOrders();
   const { purchases } = usePurchases();
   const { sales, analytics } = useSales();
@@ -32,6 +32,11 @@ export default function SettingsPage() {
     { id: 'push', label: 'Push Notifications', description: 'Show instant alerts while you are using the dashboard.' },
     { id: 'lowStock', label: 'Low Stock Alerts', description: 'Warn you when products are running out.' },
     { id: 'expiry', label: 'Expiry Alerts', description: 'Remind you before items reach their expiry date.' },
+  ];
+  const securityItems = [
+    { id: "loginAlerts", label: "Login Alerts", description: "Email me whenever a new sign-in is detected." },
+    { id: "rememberDevice", label: "Remember Trusted Device", description: "Reduce repeated verification on this device." },
+    { id: "twoFactorEnabled", label: "Two-Step Verification", description: "Add an extra step before account access." },
   ];
 
   const roleOptions = [ "Administrator", "Store Admin", "Manager", "Supervisor", "Sales Manager", "Inventory Manager", "Cashier" ];
@@ -161,6 +166,17 @@ export default function SettingsPage() {
   const handleEmailDraft = () => {
     const recipient = notificationEmail.trim() || "ishakabdiaziz9060@gmail.com";
     openEmailDraft(recipient, "Fruit Store Notifications");
+  };
+
+  const handleSecurityToggle = async (id) => {
+    const nextValue = !settings.security?.[id];
+    await updateSecurity({ [id]: nextValue });
+    setPasswordStatus(`${securityItems.find((item) => item.id === id)?.label || "Security setting"} ${nextValue ? "enabled" : "disabled"}.`);
+  };
+
+  const handleSessionTimeoutChange = async (value) => {
+    await updateSecurity({ sessionTimeoutMinutes: Number(value) });
+    setPasswordStatus(`Session timeout set to ${value} minutes.`);
   };
 
   const reportSummary = useMemo(() => {
@@ -483,6 +499,44 @@ export default function SettingsPage() {
               </p>
               <div className="mt-3 rounded-xl border border-purple-100 bg-white/80 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
                 Use at least 8 characters with both letters and numbers for a stronger password.
+              </div>
+            </div>
+            <div className="space-y-3">
+              {securityItems.map((item) => (
+                <div key={item.id} className="flex items-center justify-between gap-4 rounded-2xl border border-purple-100 bg-purple-50/60 px-4 py-3 dark:border-purple-400/20 dark:bg-purple-500/10">
+                  <div>
+                    <p className="font-medium text-slate-900 dark:text-white">{item.label}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.description}</p>
+                  </div>
+                  <label className="relative inline-flex cursor-pointer items-center self-start">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={Boolean(settings.security?.[item.id])}
+                      onChange={() => handleSecurityToggle(item.id)}
+                    />
+                    <div className="relative h-7 w-12 rounded-full bg-purple-100 transition-colors peer-checked:bg-purple-600 after:absolute after:left-[2px] after:top-[2px] after:h-6 after:w-6 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-5 dark:bg-slate-700" />
+                  </label>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-2xl border border-gray-200 bg-white/70 p-4 dark:border-white/10 dark:bg-slate-950/60">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Session Timeout</label>
+              <div className="flex items-center gap-3">
+                <select
+                  value={settings.security?.sessionTimeoutMinutes || 30}
+                  onChange={(e) => handleSessionTimeoutChange(e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-purple-500 dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                >
+                  <option value="15">15 minutes</option>
+                  <option value="30">30 minutes</option>
+                  <option value="45">45 minutes</option>
+                  <option value="60">60 minutes</option>
+                  <option value="120">120 minutes</option>
+                </select>
+                <span className="rounded-xl bg-purple-50 px-3 py-2 text-xs font-semibold text-purple-700 dark:bg-purple-500/10 dark:text-purple-200">
+                  {settings.security?.sessionTimeoutMinutes || 30} min
+                </span>
               </div>
             </div>
             <div>

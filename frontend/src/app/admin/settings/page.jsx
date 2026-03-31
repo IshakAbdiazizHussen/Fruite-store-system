@@ -86,6 +86,7 @@ export default function AdminSettingsPage() {
     updateNotificationEmail,
     updateRegional,
     changePassword,
+    updateSecurity,
   } = useSettings();
   const { content, updateContent } = useFrontendContent({ authenticated: true });
   const { orders } = useOrders();
@@ -106,6 +107,11 @@ export default function AdminSettingsPage() {
     { id: "push", label: "Push Notifications", description: "Show instant admin alerts while you are online." },
     { id: "lowStock", label: "Low Stock Alerts", description: "Warn the team when inventory is running low." },
     { id: "expiry", label: "Expiry Alerts", description: "Highlight products that need attention before expiry." },
+  ];
+  const securityItems = [
+    { id: "loginAlerts", label: "Login Alerts", description: "Send an alert when a new sign-in happens." },
+    { id: "rememberDevice", label: "Remember Trusted Device", description: "Keep trusted admin devices recognized for longer." },
+    { id: "twoFactorEnabled", label: "Two-Step Verification", description: "Require an additional verification step on login." },
   ];
 
   const roleOptions = ["Administrator", "Store Admin", "Manager", "Supervisor", "Sales Manager", "Inventory Manager", "Cashier"];
@@ -263,6 +269,17 @@ export default function AdminSettingsPage() {
 
     setPasswordForm({ next: "", confirm: "" });
     setPasswordStatus("Password changed successfully.");
+  }
+
+  async function handleSecurityToggle(id) {
+    const nextValue = !settings.security?.[id];
+    await updateSecurity({ [id]: nextValue });
+    setPasswordStatus(`${securityItems.find((item) => item.id === id)?.label || "Security setting"} ${nextValue ? "enabled" : "disabled"}.`);
+  }
+
+  async function handleSessionTimeoutChange(value) {
+    await updateSecurity({ sessionTimeoutMinutes: Number(value) });
+    setPasswordStatus(`Session timeout set to ${value} minutes.`);
   }
 
   function updateContentSection(section, key, value) {
@@ -514,6 +531,40 @@ export default function AdminSettingsPage() {
               </p>
               <div className="mt-3 rounded-xl border border-violet-100 bg-white/80 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
                 Use at least 8 characters with both letters and numbers for a stronger password.
+              </div>
+            </div>
+            <div className="space-y-3">
+              {securityItems.map((item) => (
+                <div key={item.id} className="flex items-center justify-between gap-4 rounded-2xl border border-violet-100 bg-violet-50/60 px-4 py-3 dark:border-violet-400/20 dark:bg-violet-500/10">
+                  <div>
+                    <p className="font-medium text-slate-900 dark:text-white">{item.label}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.description}</p>
+                  </div>
+                  <label className="relative inline-flex cursor-pointer items-center self-start">
+                    <input
+                      type="checkbox"
+                      className="peer sr-only"
+                      checked={Boolean(settings.security?.[item.id])}
+                      onChange={() => handleSecurityToggle(item.id)}
+                    />
+                    <div className="relative h-7 w-12 rounded-full bg-violet-100 transition-colors peer-checked:bg-violet-600 after:absolute after:left-[2px] after:top-[2px] after:h-6 after:w-6 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-5 dark:bg-slate-700" />
+                  </label>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white/70 p-4 dark:border-white/10 dark:bg-slate-950/60">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Session Timeout</label>
+              <div className="flex items-center gap-3">
+                <Select value={settings.security?.sessionTimeoutMinutes || 30} onChange={(e) => handleSessionTimeoutChange(e.target.value)}>
+                  <option value="15">15 minutes</option>
+                  <option value="30">30 minutes</option>
+                  <option value="45">45 minutes</option>
+                  <option value="60">60 minutes</option>
+                  <option value="120">120 minutes</option>
+                </Select>
+                <span className="rounded-xl bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700 dark:bg-violet-500/10 dark:text-violet-200">
+                  {settings.security?.sessionTimeoutMinutes || 30} min
+                </span>
               </div>
             </div>
             <div>

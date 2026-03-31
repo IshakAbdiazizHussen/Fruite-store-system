@@ -23,6 +23,10 @@ const settingsSchema = new mongoose.Schema(
     security: {
       password: { type: String, required: true, trim: true },
       lastChanged: { type: String, default: null },
+      loginAlerts: { type: Boolean, default: true },
+      rememberDevice: { type: Boolean, default: true },
+      twoFactorEnabled: { type: Boolean, default: false },
+      sessionTimeoutMinutes: { type: Number, default: 30 },
     },
   },
   { timestamps: true, versionKey: false }
