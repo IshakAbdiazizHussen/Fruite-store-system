@@ -33,8 +33,15 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
     persistTheme(nextTheme);
   }
 
+  const initials = (user?.name || "Admin User")
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
-    <div className="flex items-center justify-between bg-white dark:bg-gray-900 px-6 py-3.5 shadow-sm border-b border-gray-100 dark:border-gray-800">
+    <div className="flex items-center justify-between border-b border-gray-100 bg-white px-5 py-2.5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
       <div className="flex items-center gap-3 w-full">
         <button
           onClick={onToggleSidebar}
@@ -50,10 +57,15 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="text-right">
-          <p className="text-sm font-semibold text-slate-900 dark:text-white">{user?.name || "Admin User"}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">{user?.email || "admin@fruitstore.com"}</p>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 rounded-2xl border border-gray-200/80 bg-white/80 px-2.5 py-1.5 shadow-[0_8px_24px_rgba(15,23,42,0.06)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-none">
+          <div className="text-right leading-tight">
+            <p className="text-sm font-semibold text-slate-900 dark:text-white">{user?.name || "Admin User"}</p>
+            <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{user?.email || "admin@fruitstore.com"}</p>
+          </div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(16,185,129,0.28)]">
+            {initials}
+          </div>
         </div>
         <button
           onClick={handleThemeToggle}
@@ -61,10 +73,10 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
         >
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </button>
-        <div className="h-8 w-px bg-gray-200 dark:bg-gray-700" />
+        <div className="h-7 w-px bg-gray-200 dark:bg-gray-700" />
         <button
           onClick={handleLogout}
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/5"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/5"
         >
           <LogOut className="h-4 w-4" />
           Logout

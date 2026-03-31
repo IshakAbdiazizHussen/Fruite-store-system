@@ -116,7 +116,7 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
   };
 
   return (
-    <div className="flex items-center justify-between bg-white dark:bg-gray-900 px-6 py-3.5 shadow-sm border-b border-gray-100 dark:border-gray-800">
+    <div className="flex items-center justify-between border-b border-gray-100 bg-white px-5 py-2.5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
       <div className="flex items-center gap-3 w-full">
         <button
           onClick={onToggleSidebar}
@@ -140,7 +140,7 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
         </form>
       </div>
 
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-3">
         <button
           onClick={handleThemeToggle}
           className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-300"
@@ -184,21 +184,21 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
           ) : null}
         </div>
 
-        <div className="h-8 w-px bg-gray-200 dark:bg-gray-700" />
+        <div className="h-7 w-px bg-gray-200 dark:bg-gray-700" />
 
-        <div className="flex items-center gap-3">
-          <div className="text-right hidden sm:block">
+        <div className="flex items-center gap-2.5 rounded-2xl border border-gray-200/80 bg-white/80 px-2.5 py-1.5 shadow-[0_8px_24px_rgba(15,23,42,0.06)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-none">
+          <div className="text-right hidden sm:block leading-tight">
             <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{profile.name}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{profile.role}</p>
+            <p className="mt-0.5 text-[11px] text-gray-500 dark:text-gray-400">{profile.role}</p>
           </div>
           <Link href="/dashboard/settings">
-            <div className="relative shrink-0 cursor-pointer">
+            <div className="relative shrink-0 cursor-pointer transition-transform duration-200 hover:scale-[1.02]">
               <img
                 src={profile.avatar || "/Ilwaad-manager.png"}
                 alt="Manager"
-                className="w-10 h-10 rounded-full object-cover shadow-sm"
+                className="h-11 w-11 rounded-2xl object-cover shadow-[0_10px_24px_rgba(15,23,42,0.14)] ring-2 ring-white dark:ring-gray-900"
               />
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
+              <span className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500 dark:border-gray-900" />
             </div>
           </Link>
         </div>
