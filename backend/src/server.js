@@ -9,7 +9,7 @@ const { connectToDatabase } = require("./config/database");
 const { ensureSeedData } = require("./services/seedService");
 const { logInfo } = require("./utils/logger");
 
-const port = Number(process.env.BACKEND_PORT || 4000);
+const port = Number(process.env.PORT || process.env.BACKEND_PORT || 4000);
 
 async function startServer() {
   try {
