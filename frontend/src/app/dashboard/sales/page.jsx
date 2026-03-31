@@ -5,8 +5,6 @@ import { DollarSign, ShoppingBag, TrendingUp, Users, Plus } from "lucide-react";
 import { ResponsiveContainer, LineChart, BarChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { useSales } from "@/hooks/useSales";
 import RecordSaleModal from "../components/RecordSaleModal";
-import { cn } from "@/lib/utils";
-
 export default function SalesPage() {
   const { sales, analytics, addSale } = useSales();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,14 +30,14 @@ export default function SalesPage() {
     <>
       <div className="p-6 flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-medium">Sales Analytics</h1>
-          <p className="text-gray-600 font-light">
+          <h1 className="text-2xl font-medium text-slate-900 dark:text-white">Sales Analytics</h1>
+          <p className="text-gray-600 dark:text-slate-400 font-light">
             Track your sales performance and revenue
           </p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-xl hover:bg-green-600 transition-colors shadow-lg shadow-green-200"
+          className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-xl hover:bg-green-600 transition-colors shadow-lg shadow-green-200 dark:shadow-none"
         >
           <Plus size={20} />
           Record Sale
@@ -47,59 +45,59 @@ export default function SalesPage() {
       </div>
 
       <section className="flex flex-wrap gap-6 w-full px-8">
-        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 flex-1 min-w-[260px]">
+        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 flex-1 min-w-[260px]">
           <section className="flex items-start justify-between">
             <DollarSign className="bg-green-100 p-2 rounded-lg text-green-600 h-12 w-11" size={33} />
             <p className="text-green-600 font-medium">+18.2%</p>
           </section>
           <section className="mt-4">
-            <p className="text-gray-500 text-sm font-light">Total Revenue</p>
-            <h3 className="text-3xl font-medium mt-1">${stats.revenue.toLocaleString()}</h3>
-            <p className="text-gray-400 text-xs mt-2 font-light">Updated just now</p>
+            <p className="text-gray-500 dark:text-slate-400 text-sm font-light">Total Revenue</p>
+            <h3 className="text-3xl font-medium text-slate-900 dark:text-white mt-1">${stats.revenue.toLocaleString()}</h3>
+            <p className="text-gray-400 dark:text-slate-500 text-xs mt-2 font-light">Updated just now</p>
           </section>
         </div>
 
-        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 flex-1 min-w-[260px]">
+        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 flex-1 min-w-[260px]">
           <section className="flex items-start justify-between">
             <ShoppingBag className="bg-blue-100 p-2 rounded-lg text-blue-600 h-12 w-11" size={33} />
             <p className="text-blue-600 font-medium">+12.5%</p>
           </section>
           <section className="mt-4">
-            <p className="text-gray-500 text-sm font-light">Total Sales</p>
-            <h3 className="text-3xl font-medium mt-1">{stats.units.toLocaleString()}</h3>
-            <p className="text-gray-400 text-xs mt-2 font-light">Units sold</p>
+            <p className="text-gray-500 dark:text-slate-400 text-sm font-light">Total Sales</p>
+            <h3 className="text-3xl font-medium text-slate-900 dark:text-white mt-1">{stats.units.toLocaleString()}</h3>
+            <p className="text-gray-400 dark:text-slate-500 text-xs mt-2 font-light">Units sold</p>
           </section>
         </div>
 
-        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 flex-1 min-w-[260px]">
+        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 flex-1 min-w-[260px]">
           <section className="flex items-start justify-between">
             <TrendingUp className="bg-orange-100 p-2 rounded-lg text-orange-600 h-12 w-11" size={33} />
             <p className="text-orange-600 font-medium">+8.4%</p>
           </section>
           <section className="mt-4">
-            <p className="text-gray-500 text-sm font-light">Average Order</p>
-            <h3 className="text-3xl font-medium mt-1">${(stats.revenue / stats.units || 0).toFixed(2)}</h3>
-            <p className="text-gray-400 text-xs mt-2 font-light">Per transaction</p>
+            <p className="text-gray-500 dark:text-slate-400 text-sm font-light">Average Order</p>
+            <h3 className="text-3xl font-medium text-slate-900 dark:text-white mt-1">${(stats.revenue / stats.units || 0).toFixed(2)}</h3>
+            <p className="text-gray-400 dark:text-slate-500 text-xs mt-2 font-light">Per transaction</p>
           </section>
         </div>
 
-        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 flex-1 min-w-[260px]">
+        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 flex-1 min-w-[260px]">
           <section className="flex items-start justify-between">
             <Users className="bg-purple-100 p-2 rounded-lg text-purple-600 h-12 w-11" size={33} />
             <p className="text-purple-600 font-medium">+22.1%</p>
           </section>
           <section className="mt-4">
-            <p className="text-gray-500 text-sm font-light">Customers</p>
-            <h3 className="text-3xl font-medium mt-1">1,847</h3>
-            <p className="text-gray-400 text-xs mt-2 font-light">Active buyers</p>
+            <p className="text-gray-500 dark:text-slate-400 text-sm font-light">Customers</p>
+            <h3 className="text-3xl font-medium text-slate-900 dark:text-white mt-1">1,847</h3>
+            <p className="text-gray-400 dark:text-slate-500 text-xs mt-2 font-light">Active buyers</p>
           </section>
         </div>
       </section>
 
       <section className="px-8 mt-8">
-        <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
-          <h3 className="text-xl font-medium">Monthly Sales Performance</h3>
-          <p className="text-gray-500 font-light mb-6">Revenue and unit distribution by month</p>
+        <div className="bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-6">
+          <h3 className="text-xl font-medium text-slate-900 dark:text-white">Monthly Sales Performance</h3>
+          <p className="text-gray-500 dark:text-slate-400 font-light mb-6">Revenue and unit distribution by month</p>
           <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={analytics}>
@@ -117,9 +115,9 @@ export default function SalesPage() {
       </section>
 
       <section className="px-8 mt-8 mb-8 flex gap-6">
-        <div className="flex-[1.5] bg-white rounded-2xl shadow-md border border-gray-100 p-6 text-2xl font-light">
-          <h3 className="text-xl font-medium mb-1">Top Selling Products</h3>
-          <p className="text-gray-500 text-sm font-light mb-6">Best performers this month</p>
+        <div className="flex-[1.5] bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-6 text-2xl font-light">
+          <h3 className="text-xl font-medium text-slate-900 dark:text-white mb-1">Top Selling Products</h3>
+          <p className="text-gray-500 dark:text-slate-400 text-sm font-light mb-6">Best performers this month</p>
           <div className="h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={topSellingData} layout="vertical">
@@ -133,19 +131,19 @@ export default function SalesPage() {
           </div>
         </div>
 
-        <div className="flex-1 bg-white rounded-2xl shadow-md border border-gray-100 p-6 text-2xl font-light">
-          <h3 className="text-xl font-medium mb-1">Recent Transactions</h3>
-          <p className="text-gray-500 text-sm font-light mb-4">Latest sales activity</p>
+        <div className="flex-1 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-6 text-2xl font-light">
+          <h3 className="text-xl font-medium text-slate-900 dark:text-white mb-1">Recent Transactions</h3>
+          <p className="text-gray-500 dark:text-slate-400 text-sm font-light mb-4">Latest sales activity</p>
           <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
             {sales.map((s) => (
-              <div key={s.saleId || s.id} className="flex justify-between items-center p-3 rounded-xl bg-gray-50">
+              <div key={s.saleId || s.id} className="flex justify-between items-center p-3 rounded-xl bg-gray-50 dark:bg-white/5">
                 <div>
-                  <p className="font-medium text-sm">{s.name}</p>
-                  <p className="text-xs text-gray-400">{s.date}</p>
+                  <p className="font-medium text-sm text-slate-900 dark:text-white">{s.name}</p>
+                  <p className="text-xs text-gray-400 dark:text-slate-500">{s.date}</p>
                 </div>
                 <div className="text-right text-sm">
                   <p className="font-semibold text-green-600">+${s.total.toFixed(2)}</p>
-                  <p className="text-xs text-gray-400">{s.units} units</p>
+                  <p className="text-xs text-gray-400 dark:text-slate-500">{s.units} units</p>
                 </div>
               </div>
             ))}

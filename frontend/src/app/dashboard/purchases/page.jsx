@@ -12,7 +12,7 @@ function StatusBadge({ status }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold
-        ${done ? "bg-green-100 text-green-700" : pending ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-700"}`}
+        ${done ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-300" : pending ? "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-300" : "bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-slate-300"}`}
     >
       {status}
     </span>
@@ -41,12 +41,12 @@ export default function PurchasePage() {
       {/* Header */}
       <div className="px-8 pt-8 pb-4 flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Purchase Orders</h1>
-          <p className="font-light text-gray-500 text-sm mt-1">Manage supplier purchases and inventory restocking</p>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Purchase Orders</h1>
+          <p className="font-light text-gray-500 dark:text-slate-400 text-sm mt-1">Manage supplier purchases and inventory restocking</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-xl hover:bg-green-600 transition-colors shadow-lg shadow-green-200 text-sm font-medium"
+          className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-xl hover:bg-green-600 transition-colors shadow-lg shadow-green-200 dark:shadow-none text-sm font-medium"
         >
           <Plus size={18} />
           New Purchase
@@ -56,21 +56,21 @@ export default function PurchasePage() {
       {/* KPI Cards */}
       <section className="px-8 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 dark:bg-slate-900/80">
             <CircleCheckBig className="bg-green-100 p-2 rounded-xl text-green-600 h-11 w-11 mb-4" size={28} />
-            <p className="text-gray-500 text-sm font-medium">Total Purchases</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">
+            <p className="text-gray-500 dark:text-slate-400 text-sm font-medium">Total Purchases</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
               ${stats.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </p>
           </div>
-          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 dark:bg-slate-900/80">
             <Clock4 className="bg-blue-100 p-2 rounded-xl text-blue-600 h-11 w-11 mb-4" size={28} />
-            <p className="text-gray-500 text-sm font-medium">Total Quantity</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{stats.totalQty.toLocaleString()} kg</p>
+            <p className="text-gray-500 dark:text-slate-400 text-sm font-medium">Total Quantity</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalQty.toLocaleString()} kg</p>
           </div>
-          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 dark:bg-slate-900/80">
             <Package className="bg-orange-100 p-2 rounded-xl text-orange-600 h-11 w-11 mb-4" size={28} />
-            <p className="text-gray-500 text-sm font-medium">Pending Orders</p>
+            <p className="text-gray-500 dark:text-slate-400 text-sm font-medium">Pending Orders</p>
             <p className="text-3xl font-bold text-orange-500 mt-1">{stats.pendingCount}</p>
           </div>
         </div>
@@ -78,13 +78,13 @@ export default function PurchasePage() {
 
       {/* Table */}
       <div className="px-8 pb-8">
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
-          <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">Order History</h3>
-            <span className="text-sm text-gray-400">{purchases.length} purchases</span>
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-white/10 dark:bg-slate-900/80">
+          <div className="px-6 py-4 border-b border-gray-50 dark:border-white/10 flex items-center justify-between">
+            <h3 className="font-semibold text-gray-900 dark:text-white">Order History</h3>
+            <span className="text-sm text-gray-400 dark:text-slate-500">{purchases.length} purchases</span>
           </div>
           <table className="w-full text-left">
-            <thead className="bg-blue-50 text-gray-500 text-xs uppercase font-semibold tracking-wider">
+            <thead className="bg-blue-50 dark:bg-white/5 text-gray-500 dark:text-slate-400 text-xs uppercase font-semibold tracking-wider">
               <tr>
                 <th className="px-6 py-4">Purchase ID</th>
                 <th className="px-6 py-4">Supplier</th>
@@ -96,15 +96,15 @@ export default function PurchasePage() {
                 <th className="px-6 py-4 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-white/10">
               {purchases.map((p) => (
-                <tr key={p.purchaseId} className="hover:bg-blue-50/20 transition-colors">
+                <tr key={p.purchaseId} className="hover:bg-blue-50/20 dark:hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 text-blue-600 font-semibold text-sm">{p.purchaseId}</td>
-                  <td className="px-6 py-4 font-medium text-sm text-gray-900">{p.supplier}</td>
-                  <td className="px-6 py-4 text-gray-400 text-sm">{p.date}</td>
-                  <td className="px-6 py-4 text-gray-600 text-sm">{p.items}</td>
+                  <td className="px-6 py-4 font-medium text-sm text-gray-900 dark:text-white">{p.supplier}</td>
+                  <td className="px-6 py-4 text-gray-400 dark:text-slate-500 text-sm">{p.date}</td>
+                  <td className="px-6 py-4 text-gray-600 dark:text-slate-400 text-sm">{p.items}</td>
                   <td className="px-6 py-4 text-center font-medium text-sm">{p.quantity}</td>
-                  <td className="px-6 py-4 text-center font-bold text-sm text-gray-900">${p.amount.toFixed(2)}</td>
+                  <td className="px-6 py-4 text-center font-bold text-sm text-gray-900 dark:text-white">${p.amount.toFixed(2)}</td>
                   <td className="px-6 py-4 text-center">
                     <StatusBadge status={p.status} />
                   </td>
@@ -112,14 +112,14 @@ export default function PurchasePage() {
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => setViewPurchase(p)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
                         title="View Details"
                       >
                         <Eye size={16} />
                       </button>
                       <button
                         onClick={() => updatePurchaseStatus(p.purchaseId, p.status === "Pending" ? "Completed" : "Pending")}
-                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        className="p-2 text-green-600 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-500/10 rounded-lg transition-colors"
                         title="Toggle Status"
                       >
                         <Pencil size={16} />

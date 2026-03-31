@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -10,6 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { getInitialTheme, subscribeToTheme } from "@/lib/theme";
 
 // Matches the Figma stock trend data
 const data = [
@@ -23,6 +25,24 @@ const data = [
 ];
 
 export default function StockTrend() {
+  const [theme, setCurrentTheme] = useState("light");
+
+  useEffect(() => {
+    setCurrentTheme(getInitialTheme());
+    return subscribeToTheme(setCurrentTheme);
+  }, []);
+
+  const isDark = theme === "dark";
+  const tickColor = isDark ? "#94a3b8" : "#94a3b8";
+  const gridColor = isDark ? "rgba(148, 163, 184, 0.14)" : "#f1f5f9";
+  const tooltipStyle = {
+    borderRadius: 12,
+    border: isDark ? "1px solid rgba(148, 163, 184, 0.16)" : "none",
+    backgroundColor: isDark ? "rgba(15, 23, 42, 0.96)" : "#ffffff",
+    color: isDark ? "#f8fafc" : "#0f172a",
+    boxShadow: isDark ? "0 16px 36px rgba(2, 6, 23, 0.45)" : "0 4px 24px rgba(0,0,0,0.1)",
+  };
+
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-slate-900/80">
       <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Stock Trends</h3>
@@ -31,12 +51,12 @@ export default function StockTrend() {
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
             <XAxis
               dataKey="day"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#94a3b8", fontSize: 13 }}
+              tick={{ fill: tickColor, fontSize: 13 }}
               dy={8}
             />
             <YAxis
@@ -44,10 +64,11 @@ export default function StockTrend() {
               ticks={[0, 150, 300, 450, 600]}
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#94a3b8", fontSize: 12 }}
+              tick={{ fill: tickColor, fontSize: 12 }}
             />
             <Tooltip
-              contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 24px rgba(0,0,0,0.1)" }}
+              contentStyle={tooltipStyle}
+              labelStyle={{ color: isDark ? "#f8fafc" : "#0f172a", fontWeight: 600 }}
               formatter={(value, name) => [`${value} kg`, name]}
             />
             <Legend
@@ -57,7 +78,7 @@ export default function StockTrend() {
               iconSize={8}
               wrapperStyle={{ paddingTop: 20, fontSize: 13 }}
               formatter={(value, entry) => (
-                <span style={{ color: entry.color, fontWeight: 600 }}>⊙ {value}</span>
+                <span style={{ color: isDark ? "#e2e8f0" : entry.color, fontWeight: 600 }}>⊙ {value}</span>
               )}
             />
             <Line

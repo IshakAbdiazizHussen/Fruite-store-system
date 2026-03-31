@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { useInventory } from "@/hooks/useInventory";
+import { getInitialTheme, subscribeToTheme } from "@/lib/theme";
 
 const COLORS = [
   "#ef4444",
@@ -13,10 +14,9 @@ const COLORS = [
   "#8b5cf6",
 ];
 
-const renderPieLabel = ({ name, value }) => `${name} ${value}%`;
-
 export default function InventoryPie() {
   const { items } = useInventory();
+  const [theme, setCurrentTheme] = useState("light");
   const data = useMemo(() => {
     const grouped = items.reduce((acc, item) => {
       const key = item.category || "Others";
@@ -32,6 +32,25 @@ export default function InventoryPie() {
       value: Math.round((value / total) * 100),
     }));
   }, [items]);
+
+  useEffect(() => {
+    setCurrentTheme(getInitialTheme());
+    return subscribeToTheme(setCurrentTheme);
+  }, []);
+
+  const isDark = theme === "dark";
+  const tooltipStyle = {
+    borderRadius: 12,
+    border: isDark ? "1px solid rgba(148, 163, 184, 0.16)" : "1px solid #e2e8f0",
+    backgroundColor: isDark ? "rgba(15, 23, 42, 0.96)" : "#ffffff",
+    color: isDark ? "#f8fafc" : "#0f172a",
+    boxShadow: isDark ? "0 16px 36px rgba(2, 6, 23, 0.45)" : "0 12px 30px rgba(15, 23, 42, 0.12)",
+  };
+  const renderPieLabel = ({ name, value, x, y }) => (
+    <text x={x} y={y} fill={isDark ? "#e2e8f0" : "#334155"} fontSize="12" textAnchor="middle" dominantBaseline="central">
+      {`${name} ${value}%`}
+    </text>
+  );
 
   return (
     <div className="w-full">
@@ -53,8 +72,12 @@ export default function InventoryPie() {
                 <Cell key={entry.name} fill={COLORS[i % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip formatter={(value, name) => [`${value}%`, name]} />
-            <Legend formatter={(value) => value} />
+            <Tooltip
+              contentStyle={tooltipStyle}
+              labelStyle={{ color: isDark ? "#f8fafc" : "#0f172a", fontWeight: 600 }}
+              formatter={(value, name) => [`${value}%`, name]}
+            />
+            <Legend formatter={(value) => <span style={{ color: isDark ? "#e2e8f0" : "#334155" }}>{value}</span>} />
           </PieChart>
         </ResponsiveContainer>
       </div>

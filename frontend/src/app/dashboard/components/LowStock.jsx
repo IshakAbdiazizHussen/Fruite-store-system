@@ -81,11 +81,11 @@ export default function LowStock() {
 
   if (lowStockItems.length === 0) return null;
 
-  const getDaysClass = (days) => (days <= 2 ? "text-red-500" : "text-orange-400");
+  const getDaysClass = (days) => (days <= 2 ? "text-red-500 dark:text-red-300" : "text-orange-400 dark:text-orange-300");
   const getUrgencyBadge = (urgency) =>
     urgency === "Critical"
-      ? "bg-red-50 text-red-500 border border-red-200"
-      : "bg-orange-50 text-orange-500 border border-orange-200";
+      ? "border border-red-200 bg-red-50 text-red-500 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-300"
+      : "border border-orange-200 bg-orange-50 text-orange-500 dark:border-orange-400/20 dark:bg-orange-500/10 dark:text-orange-300";
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900/80">
@@ -98,7 +98,7 @@ export default function LowStock() {
           </div>
           <button
             onClick={handleReorderAll}
-            className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm shadow-green-200 whitespace-nowrap"
+            className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm shadow-green-200 dark:shadow-green-950/40 whitespace-nowrap"
           >
             Reorder All
           </button>
@@ -108,23 +108,23 @@ export default function LowStock() {
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-gray-100">
-              <th className="px-8 py-3 text-xs font-bold text-gray-500 uppercase tracking-widest">Fruit Name</th>
-              <th className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-widest">Current Stock</th>
-              <th className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-widest">Reorder Level</th>
-              <th className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-widest">Days to Expiry</th>
-              <th className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-widest">Status</th>
-              <th className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-widest">Actions</th>
+            <tr className="border-b border-gray-100 dark:border-white/10">
+              <th className="px-8 py-3 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Fruit Name</th>
+              <th className="px-6 py-3 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Current Stock</th>
+              <th className="px-6 py-3 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Reorder Level</th>
+              <th className="px-6 py-3 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Days to Expiry</th>
+              <th className="px-6 py-3 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Status</th>
+              <th className="px-6 py-3 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Actions</th>
             </tr>
           </thead>
           <tbody>
             {lowStockItems.map((item) => (
-              <tr key={item.name} className="border-b border-gray-50 hover:bg-orange-50/30 transition-colors">
-                <td className="px-8 py-5 text-sm font-semibold text-gray-800">{item.name}</td>
+              <tr key={item.name} className="border-b border-gray-50 transition-colors hover:bg-orange-50/30 dark:border-white/5 dark:hover:bg-white/5">
+                <td className="px-8 py-5 text-sm font-semibold text-gray-800 dark:text-white">{item.name}</td>
                 <td className="px-6 py-5 text-sm font-bold text-red-500">
                   {item.stock} {item.unit}
                 </td>
-                <td className="px-6 py-5 text-sm text-gray-500">{item.reorder}</td>
+                <td className="px-6 py-5 text-sm text-gray-500 dark:text-slate-400">{item.reorder}</td>
                 <td className={`px-6 py-5 text-sm font-semibold ${getDaysClass(item.days)}`}>
                   {item.days <= 2 ? <AlertTriangle size={13} className="inline mr-1 mb-0.5" /> : null}
                   {item.days} days
@@ -138,7 +138,7 @@ export default function LowStock() {
                   <button
                     onClick={() => handleReorder(item)}
                     disabled={!!processing[item.name]}
-                    className="bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm shadow-green-200"
+                    className="bg-green-500 hover:bg-green-600 disabled:bg-green-300 dark:disabled:bg-green-800 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm shadow-green-200 dark:shadow-green-950/40"
                   >
                     {processing[item.name] ? "Reordering..." : "Reorder"}
                   </button>
