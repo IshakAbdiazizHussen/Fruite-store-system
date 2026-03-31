@@ -7,6 +7,7 @@ import { Bell, Search, Menu, X, Moon, Sun } from "lucide-react";
 import { getActivities } from "@/lib/activityLog";
 import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
 import { defaultAvatarPosition, getAvatarImageStyle } from "@/lib/avatarStyle";
+import { getAvatarSource } from "@/lib/avatarUpload";
 
 const LAST_SEEN_KEY = "fruit_store_activity_seen_at";
 
@@ -197,7 +198,7 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
             <div className="relative shrink-0 cursor-pointer transition-transform duration-200 hover:scale-[1.02]">
               <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-100 via-white to-cyan-100 p-1.5 shadow-[0_14px_30px_rgba(15,23,42,0.18)] ring-1 ring-slate-200/80 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 dark:ring-white/10">
                 <img
-                  src={profile.avatar || "/Ilwaad-manager.png"}
+                  src={getAvatarSource(profile.avatar) || "/manager-profile.png"}
                   alt="Manager"
                   className="h-full w-full rounded-full object-cover object-center"
                   style={getAvatarImageStyle(profile.avatarPosition)}

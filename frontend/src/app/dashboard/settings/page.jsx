@@ -8,6 +8,7 @@ import { usePurchases } from "@/hooks/usePurchases";
 import { useSales } from "@/hooks/useSales";
 import { openEmailDraft } from "@/lib/emailNotifications";
 import { defaultAvatarPosition, getAvatarImageStyle, normalizeAvatarPosition } from "@/lib/avatarStyle";
+import { getAvatarSource, optimizeAvatarFile } from "@/lib/avatarUpload";
 
 export default function SettingsPage() {
   const { settings, updateProfile, toggleNotification, setAllNotifications, updateNotificationEmail, updateRegional, changePassword, updateSecurity } = useSettings();
@@ -70,7 +71,7 @@ export default function SettingsPage() {
     setProfileStatus("Profile updated successfully.");
   };
 
-  const handleAvatarChange = (e) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -84,16 +85,17 @@ export default function SettingsPage() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
+    try {
+      const optimizedAvatar = await optimizeAvatarFile(file);
       setProfileForm((prev) => ({
         ...prev,
-        avatar: String(reader.result),
-        avatarPosition: prev.avatarPosition || defaultAvatarPosition,
+        avatar: optimizedAvatar,
+        avatarPosition: defaultAvatarPosition,
       }));
       setProfileStatus("Photo selected. Click Save Changes to apply.");
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      setProfileStatus(error.message || "Unable to process the selected image.");
+    }
   };
 
   const handleAvatarPositionChange = (key, value) => {
@@ -278,7 +280,7 @@ export default function SettingsPage() {
           <div className="flex items-center gap-4 mb-8">
             <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-100 via-white to-cyan-100 p-1.5 shadow-[0_14px_30px_rgba(15,23,42,0.18)] ring-1 ring-slate-200/80 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 dark:ring-white/10">
               <img
-                src={profileForm.avatar || "/Ilwaad-manager.png"}
+                src={getAvatarSource(profileForm.avatar) || "/manager-profile.png"}
                 alt="Profile"
                 className="h-full w-full rounded-full object-cover object-center"
                 style={getAvatarImageStyle(profileForm.avatarPosition)}
