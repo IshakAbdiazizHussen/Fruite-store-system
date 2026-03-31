@@ -1,83 +1,73 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { useInventory } from "@/hooks/useInventory";
-import { getInitialTheme, subscribeToTheme } from "@/lib/theme";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
 
-const COLORS = [
-  "#ef4444",
-  "#f59e0b",
-  "#eab308",
-  "#ec4899",
-  "#14b8a6",
-  "#8b5cf6",
+const data = [
+  { name: "Apples", value: 28, color: "#f94144" },
+  { name: "Bananas", value: 22, color: "#f59e0b" },
+  { name: "Citrus", value: 18, color: "#f5b700" },
+  { name: "Berries", value: 15, color: "#e63e97" },
+  { name: "Tropical", value: 10, color: "#22b8b0" },
+  { name: "Others", value: 7, color: "#7c5cff" },
 ];
 
-export default function InventoryPie() {
-  const { items } = useInventory();
-  const [theme, setCurrentTheme] = useState("light");
-  const data = useMemo(() => {
-    const grouped = items.reduce((acc, item) => {
-      const key = item.category || "Others";
-      acc[key] = (acc[key] || 0) + Number(item.stock || 0);
-      return acc;
-    }, {});
+function renderLabel({ cx, cy, midAngle, outerRadius, name, value, index }) {
+  const radius = outerRadius + 28;
+  const x = cx + radius * Math.cos((-midAngle * Math.PI) / 180);
+  const y = cy + radius * Math.sin((-midAngle * Math.PI) / 180);
+  const isRightSide = x >= cx;
 
-    const total = Object.values(grouped).reduce((sum, value) => sum + value, 0);
-    if (!total) return [];
-
-    return Object.entries(grouped).map(([name, value]) => ({
-      name,
-      value: Math.round((value / total) * 100),
-    }));
-  }, [items]);
-
-  useEffect(() => {
-    setCurrentTheme(getInitialTheme());
-    return subscribeToTheme(setCurrentTheme);
-  }, []);
-
-  const isDark = theme === "dark";
-  const tooltipStyle = {
-    borderRadius: 12,
-    border: isDark ? "1px solid rgba(148, 163, 184, 0.16)" : "1px solid #e2e8f0",
-    backgroundColor: isDark ? "rgba(15, 23, 42, 0.96)" : "#ffffff",
-    color: isDark ? "#f8fafc" : "#0f172a",
-    boxShadow: isDark ? "0 16px 36px rgba(2, 6, 23, 0.45)" : "0 12px 30px rgba(15, 23, 42, 0.12)",
-  };
-  const renderPieLabel = ({ name, value, x, y }) => (
-    <text x={x} y={y} fill={isDark ? "#e2e8f0" : "#334155"} fontSize="12" textAnchor="middle" dominantBaseline="central">
+  return (
+    <text
+      x={x}
+      y={y}
+      fill={data[index].color}
+      fontSize="12"
+      fontWeight="500"
+      textAnchor={isRightSide ? "start" : "end"}
+      dominantBaseline="central"
+    >
       {`${name} ${value}%`}
     </text>
   );
+}
 
+export default function InventoryPie() {
   return (
     <div className="w-full">
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Inventory by Category</h3>
-      <p className="mt-0.5 mb-4 text-sm text-slate-400 dark:text-slate-500">Current stock distribution</p>
-      <div className="h-[280px] w-full">
+      <h3 className="text-[18px] font-medium text-slate-800">Inventory by Category</h3>
+      <p className="mt-2 text-[14px] text-slate-500">Distribution of fruit categories in stock</p>
+      <div className="mt-4 h-[420px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
+          <PieChart margin={{ top: 18, right: 44, bottom: 52, left: 44 }}>
             <Pie
               data={data}
               dataKey="value"
               nameKey="name"
               cx="50%"
               cy="50%"
-              outerRadius="80%"
-              label={renderPieLabel}
+              innerRadius={0}
+              outerRadius={102}
+              stroke="#ffffff"
+              strokeWidth={1}
+              labelLine={false}
+              label={renderLabel}
+              isAnimationActive={false}
             >
-              {data.map((entry, i) => (
-                <Cell key={entry.name} fill={COLORS[i % COLORS.length]} />
+              {data.map((entry) => (
+                <Cell key={entry.name} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip
-              contentStyle={tooltipStyle}
-              labelStyle={{ color: isDark ? "#f8fafc" : "#0f172a", fontWeight: 600 }}
-              formatter={(value, name) => [`${value}%`, name]}
+            <Legend
+              verticalAlign="bottom"
+              align="center"
+              iconType="square"
+              iconSize={10}
+              wrapperStyle={{ paddingTop: 20, fontSize: 12 }}
+              formatter={(value, entry) => (
+                <span style={{ color: entry.color, fontWeight: 500 }}>{value}</span>
+              )}
             />
-            <Legend formatter={(value) => <span style={{ color: isDark ? "#e2e8f0" : "#334155" }}>{value}</span>} />
           </PieChart>
         </ResponsiveContainer>
       </div>
