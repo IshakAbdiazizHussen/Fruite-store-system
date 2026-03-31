@@ -193,11 +193,13 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
           </div>
           <Link href="/dashboard/settings">
             <div className="relative shrink-0 cursor-pointer transition-transform duration-200 hover:scale-[1.02]">
-              <img
-                src={profile.avatar || "/Ilwaad-manager.png"}
-                alt="Manager"
-                className="h-11 w-11 rounded-2xl object-cover shadow-[0_10px_24px_rgba(15,23,42,0.14)] ring-2 ring-white dark:ring-gray-900"
-              />
+              <div className="flex h-14 w-12 items-center justify-center overflow-hidden rounded-[18px] bg-gradient-to-b from-emerald-50 via-white to-slate-100 p-1 shadow-[0_14px_30px_rgba(15,23,42,0.16)] ring-1 ring-slate-200/80 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 dark:ring-white/10">
+                <img
+                  src={profile.avatar || "/Ilwaad-manager.png"}
+                  alt="Manager"
+                  className="h-full w-full rounded-[14px] object-cover object-top"
+                />
+              </div>
               <span className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500 dark:border-gray-900" />
             </div>
           </Link>
