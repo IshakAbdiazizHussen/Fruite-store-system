@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { chartData as initialChartData } from "@/app/data/page";
+import { chartData as initialChartData } from "@/lib/mockData";
 import { recordActivity } from "@/lib/activityLog";
 import { apiRequest } from "@/lib/apiClient";
 import { notifyBackendDataChanged, subscribeToBackendDataChanged } from "@/lib/backendSync";

@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { FileText, TrendingUp, Calendar, Download } from "lucide-react";
-import { reports } from "@/app/data/page";
+import { reports } from "@/lib/mockData";
 import { useOrders } from "@/hooks/useOrders";
 
 export default function ReportsPage() {

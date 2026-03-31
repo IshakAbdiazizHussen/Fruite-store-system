@@ -1,5 +1,4 @@
-// order side
-export  const orders = [
+export const orders = [
   { orderId: "ORD001", customer: "Fresh Market Inc.", date: "2024-11-15", items: 3, total: 45.99, status: "Delivered" },
   { orderId: "ORD002", customer: "Healthy Foods Co.", date: "2024-11-16", items: 2, total: 32.5, status: "Processing" },
   { orderId: "ORD003", customer: "Green Grocery Store", date: "2024-11-17", items: 5, total: 78.25, status: "Pending" },
@@ -10,8 +9,6 @@ export  const orders = [
   { orderId: "ORD008", customer: "Fresh Valley", date: "2024-11-22", items: 6, total: 90.0, status: "Delivered" },
 ];
 
-// purchase side
-
 export const purchase = [
   { purchaseId: "PUR001", supplier: "Fresh Market Inc.", date: "2024-11-10", items: 100, quantity: 500, amount: 1500.0, status: "Completed" },
   { purchaseId: "PUR002", supplier: "Tropical Imports Ltd", date: "2024-11-12", items: 50, quantity: 300, amount: 900.0, status: "Pending" },
@@ -19,8 +16,6 @@ export const purchase = [
   { purchaseId: "PUR004", supplier: "Citrus Valley", date: "2024-11-16", items: 60, quantity: 350, amount: 1050.0, status: "Completed" },
   { purchaseId: "PUR005", supplier: "Farm Fresh Suppliers", date: "2024-11-18", items: 70, quantity: 320, amount: 960.0, status: "Pending" },
 ];
-
-// sales side
 
 export const reports = [
   { name: "Monthly Sales Report", type: "Sales", date: "2025-12-01", size: "2.4 MB", status: "Ready" },
@@ -30,8 +25,6 @@ export const reports = [
   { name: "Stock Movement Report", type: "Inventory", date: "2025-11-28", size: "2.7 MB", status: "Ready" },
   { name: "Customer Orders Summary", type: "Orders", date: "2025-11-28", size: "1.5 MB", status: "Ready" },
 ];
-
-
 
 export const chartData = [
   { month: "Jan", revenue: 43000, units: 12000 },
@@ -47,4 +40,3 @@ export const chartData = [
   { month: "Nov", revenue: 73000, units: 20500 },
   { month: "Dec", revenue: 80000, units: 22500 },
 ];
-
