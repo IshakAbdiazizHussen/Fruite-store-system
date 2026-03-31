@@ -64,3 +64,15 @@ npm run dev
 - The frontend calls the backend API at `http://localhost:4000/api` by default.
 - Backend environment values live in `backend/.env`.
 - Protected CMS routes require backend authentication.
+
+## Vercel Deploy
+
+This repository deploys the frontend from the repo root through the workspace scripts.
+
+Set this environment variable in Vercel:
+
+```bash
+NEXT_PUBLIC_API_URL=https://your-backend-url/api
+```
+
+Without `NEXT_PUBLIC_API_URL`, the deployed frontend will still try to call `http://localhost:4000/api`, which only works on your local machine.
