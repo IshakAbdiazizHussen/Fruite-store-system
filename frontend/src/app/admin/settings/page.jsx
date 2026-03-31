@@ -101,6 +101,12 @@ export default function AdminSettingsPage() {
   const [notificationStatus, setNotificationStatus] = useState("");
   const [passwordStatus, setPasswordStatus] = useState("");
   const [contentStatus, setContentStatus] = useState("");
+  const notificationItems = [
+    { id: "email", label: "Email Notifications", description: "Receive backend and store updates in your inbox." },
+    { id: "push", label: "Push Notifications", description: "Show instant admin alerts while you are online." },
+    { id: "lowStock", label: "Low Stock Alerts", description: "Warn the team when inventory is running low." },
+    { id: "expiry", label: "Expiry Alerts", description: "Highlight products that need attention before expiry." },
+  ];
 
   const roleOptions = ["Administrator", "Store Admin", "Manager", "Supervisor", "Sales Manager", "Inventory Manager", "Cashier"];
 
@@ -430,18 +436,26 @@ export default function AdminSettingsPage() {
 
         <SectionCard icon={Bell} iconClassName="bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200" title="Notifications">
           <div className="space-y-6">
-            <div className="flex gap-2">
-              <button onClick={() => handleAllNotifications(true)} className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
-                Enable all
-              </button>
-              <button onClick={() => handleAllNotifications(false)} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
-                Disable all
-              </button>
+            <div className="rounded-2xl border border-blue-100 bg-[linear-gradient(135deg,#eff6ff,white_55%,#f0fdf4)] p-4 dark:border-blue-400/20 dark:bg-[linear-gradient(135deg,rgba(30,41,59,0.85),rgba(15,23,42,0.92))]">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Notification Center</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Control how admin alerts and summaries reach you.</p>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => handleAllNotifications(true)} className="rounded-xl border border-blue-200 bg-white px-3 py-2 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-50 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
+                    Enable all
+                  </button>
+                  <button onClick={() => handleAllNotifications(false)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+                    Disable all
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <div>
+            <div className="rounded-2xl border border-slate-200 bg-white/70 p-4 dark:border-white/10 dark:bg-slate-950/60">
               <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Notification Email</label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-col sm:flex-row">
                 <Input type="email" value={notificationEmail} onChange={(e) => setNotificationEmail(e.target.value)} placeholder="email@example.com" />
                 <button onClick={handleNotificationEmailSave} className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
                   Save
@@ -465,37 +479,43 @@ export default function AdminSettingsPage() {
               </button>
             </div>
 
-            {[
-              { id: "email", label: "Email Notifications" },
-              { id: "push", label: "Push Notifications" },
-              { id: "lowStock", label: "Low Stock Alerts" },
-              { id: "expiry", label: "Expiry Alerts" },
-            ].map((item) => (
-              <div key={item.id} className="flex items-center justify-between">
-                <p className="font-medium text-slate-700 dark:text-slate-200">{item.label}</p>
-                <label className="relative inline-flex cursor-pointer items-center">
-                  <input
-                    type="checkbox"
-                    className="peer sr-only"
-                    checked={settings.notifications[item.id]}
-                    onChange={() => handleToggleNotification(item.id, item.label)}
-                  />
-                  <div className="relative h-7 w-12 rounded-full bg-slate-200 transition-colors peer-checked:bg-blue-500 after:absolute after:left-[2px] after:top-[2px] after:h-6 after:w-6 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-5 dark:bg-slate-700" />
-                </label>
-              </div>
-            ))}
+            <div className="space-y-3">
+              {notificationItems.map((item) => (
+                <div key={item.id} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                  <div>
+                    <p className="font-medium text-slate-700 dark:text-slate-200">{item.label}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.description}</p>
+                  </div>
+                  <label className="relative inline-flex cursor-pointer items-center self-start">
+                    <input
+                      type="checkbox"
+                      className="peer sr-only"
+                      checked={settings.notifications[item.id]}
+                      onChange={() => handleToggleNotification(item.id, item.label)}
+                    />
+                    <div className="relative h-7 w-12 rounded-full bg-slate-200 transition-colors peer-checked:bg-blue-500 after:absolute after:left-[2px] after:top-[2px] after:h-6 after:w-6 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-5 dark:bg-slate-700" />
+                  </label>
+                </div>
+              ))}
+            </div>
 
-            {notificationStatus ? <p className="text-sm text-blue-600 dark:text-blue-300">{notificationStatus}</p> : null}
+            {notificationStatus ? <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-300">{notificationStatus}</div> : null}
           </div>
         </SectionCard>
 
         <SectionCard icon={Lock} iconClassName="bg-violet-100 text-violet-700 dark:bg-violet-500/10 dark:text-violet-200" title="Security">
           <form onSubmit={handlePasswordSubmit} className="space-y-5">
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {settings.security?.lastChanged
-                ? `Last changed: ${new Date(settings.security.lastChanged).toLocaleString()}`
-                : "Password has not been changed yet."}
-            </p>
+            <div className="rounded-2xl border border-violet-100 bg-[linear-gradient(135deg,#faf5ff,white_55%,#f8fafc)] p-4 dark:border-violet-400/20 dark:bg-[linear-gradient(135deg,rgba(51,16,79,0.35),rgba(15,23,42,0.92))]">
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">Password Protection</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                {settings.security?.lastChanged
+                  ? `Last changed: ${new Date(settings.security.lastChanged).toLocaleString()}`
+                  : "Password has not been changed yet."}
+              </p>
+              <div className="mt-3 rounded-xl border border-violet-100 bg-white/80 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                Use at least 8 characters with both letters and numbers for a stronger password.
+              </div>
+            </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">New Password</label>
               <div className="relative">
@@ -529,7 +549,7 @@ export default function AdminSettingsPage() {
             <button type="submit" className="w-full rounded-2xl bg-violet-600 py-3 text-sm font-semibold text-white hover:bg-violet-700">
               Update Password
             </button>
-            {passwordStatus ? <p className="text-sm text-violet-600 dark:text-violet-300">{passwordStatus}</p> : null}
+            {passwordStatus ? <div className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 text-sm text-violet-700 dark:border-violet-400/20 dark:bg-violet-500/10 dark:text-violet-300">{passwordStatus}</div> : null}
           </form>
         </SectionCard>
       </section>

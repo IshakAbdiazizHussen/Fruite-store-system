@@ -27,7 +27,13 @@ export default function SettingsPage() {
     next: false,
     confirm: false,
   });
-  
+  const notificationItems = [
+    { id: 'email', label: 'Email Notifications', description: 'Receive store updates and summaries in your inbox.' },
+    { id: 'push', label: 'Push Notifications', description: 'Show instant alerts while you are using the dashboard.' },
+    { id: 'lowStock', label: 'Low Stock Alerts', description: 'Warn you when products are running out.' },
+    { id: 'expiry', label: 'Expiry Alerts', description: 'Remind you before items reach their expiry date.' },
+  ];
+
   const roleOptions = [ "Administrator", "Store Admin", "Manager", "Supervisor", "Sales Manager", "Inventory Manager", "Cashier" ];
 
   useEffect(() => {
@@ -377,23 +383,31 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-6">
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleAllNotifications(true)}
-                className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200 dark:hover:bg-blue-500/15"
-              >
-                Enable all
-              </button>
-              <button
-                onClick={() => handleAllNotifications(false)}
-                className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
-              >
-                Disable all
-              </button>
+            <div className="rounded-2xl border border-blue-100 bg-[linear-gradient(135deg,#eff6ff,white_55%,#f0fdf4)] p-4 dark:border-blue-400/20 dark:bg-[linear-gradient(135deg,rgba(30,41,59,0.85),rgba(15,23,42,0.92))]">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Notification Center</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Choose how you want the store to contact you.</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleAllNotifications(true)}
+                    className="rounded-xl border border-blue-200 bg-white px-3 py-2 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-50 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200"
+                  >
+                    Enable all
+                  </button>
+                  <button
+                    onClick={() => handleAllNotifications(false)}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+                  >
+                    Disable all
+                  </button>
+                </div>
+              </div>
             </div>
-            <div>
+            <div className="rounded-2xl border border-gray-200 bg-white/70 p-4 dark:border-white/10 dark:bg-slate-950/60">
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Notification Email</label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-col sm:flex-row">
                 <input
                   type="email"
                   value={notificationEmail}
@@ -409,40 +423,44 @@ export default function SettingsPage() {
                 </button>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <button
                 onClick={handleEmailDraft}
-                className="rounded-lg border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-100 dark:border-green-400/20 dark:bg-green-500/10 dark:text-green-200 dark:hover:bg-green-500/15"
+                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 hover:bg-emerald-100 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200"
               >
                 Open queued email draft
               </button>
               <button
                 onClick={() => openEmailDraft(notificationEmail.trim() || "ishakabdiaziz9060@gmail.com", "Fruit Store Test Notification")}
-                className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
               >
                 Send test email
               </button>
             </div>
-            {[
-              { id: 'email', label: 'Email Notifications' },
-              { id: 'push', label: 'Push Notifications' },
-              { id: 'lowStock', label: 'Low Stock Alerts' },
-              { id: 'expiry', label: 'Expiry Alerts' },
-            ].map((item) => (
-              <div key={item.id} className="flex items-center justify-between">
-                <p className="font-medium text-gray-700 dark:text-slate-200">{item.label}</p>
-                <label className="relative inline-flex cursor-pointer items-center">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={settings.notifications[item.id]}
-                    onChange={() => handleToggleNotification(item.id, item.label)}
-                  />
-                  <div className="relative h-7 w-12 rounded-full bg-gray-200 dark:bg-slate-700 transition-colors peer-checked:bg-blue-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:h-6 after:w-6 after:rounded-full after:bg-white dark:after:bg-slate-100 after:transition-all peer-checked:after:translate-x-5" />
-                </label>
+            <div className="space-y-3">
+              {notificationItems.map((item) => (
+                <div key={item.id} className="flex items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                  <div>
+                    <p className="font-medium text-gray-700 dark:text-slate-200">{item.label}</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">{item.description}</p>
+                  </div>
+                  <label className="relative inline-flex cursor-pointer items-center self-start">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={settings.notifications[item.id]}
+                      onChange={() => handleToggleNotification(item.id, item.label)}
+                    />
+                    <div className="relative h-7 w-12 rounded-full bg-gray-200 transition-colors peer-checked:bg-blue-500 after:absolute after:left-[2px] after:top-[2px] after:h-6 after:w-6 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-5 dark:bg-slate-700" />
+                  </label>
+                </div>
+              ))}
+            </div>
+            {notificationStatus ? (
+              <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
+                {notificationStatus}
               </div>
-            ))}
-            {notificationStatus ? <p className="text-sm text-blue-600 dark:text-blue-300">{notificationStatus}</p> : null}
+            ) : null}
           </div>
         </div>
 
@@ -456,11 +474,17 @@ export default function SettingsPage() {
           </div>
 
           <form onSubmit={handlePasswordSubmit} className="space-y-5">
-            <p className="text-xs text-gray-500 dark:text-slate-400">
-              {settings.security?.lastChanged
-                ? `Last changed: ${new Date(settings.security.lastChanged).toLocaleString()}`
-                : "Password has not been changed yet."}
-            </p>
+            <div className="rounded-2xl border border-purple-100 bg-[linear-gradient(135deg,#faf5ff,white_55%,#f8fafc)] p-4 dark:border-purple-400/20 dark:bg-[linear-gradient(135deg,rgba(51,16,79,0.35),rgba(15,23,42,0.92))]">
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">Password Protection</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                {settings.security?.lastChanged
+                  ? `Last changed: ${new Date(settings.security.lastChanged).toLocaleString()}`
+                  : "Password has not been changed yet."}
+              </p>
+              <div className="mt-3 rounded-xl border border-purple-100 bg-white/80 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                Use at least 8 characters with both letters and numbers for a stronger password.
+              </div>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">New Password</label>
               <div className="relative">
@@ -499,10 +523,14 @@ export default function SettingsPage() {
                 </button>
               </div>
             </div>
-            <button type="submit" className="w-full rounded-xl bg-purple-600 py-3 text-white font-medium hover:bg-purple-700 transition-all shadow-lg shadow-purple-100 dark:shadow-purple-950/40">
+            <button type="submit" className="w-full rounded-2xl bg-purple-600 py-3 text-white font-medium hover:bg-purple-700 transition-all shadow-lg shadow-purple-100 dark:shadow-purple-950/40">
               Update Password
             </button>
-            {passwordStatus ? <p className="text-sm text-purple-600 dark:text-purple-300">{passwordStatus}</p> : null}
+            {passwordStatus ? (
+              <div className="rounded-xl border border-purple-200 bg-purple-50 px-4 py-3 text-sm text-purple-700 dark:border-purple-400/20 dark:bg-purple-500/10 dark:text-purple-200">
+                {passwordStatus}
+              </div>
+            ) : null}
           </form>
         </div>
       </section>
