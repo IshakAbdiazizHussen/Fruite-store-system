@@ -58,6 +58,20 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
       </div>
 
       <div className="flex items-center gap-3">
+        <button
+          onClick={handleLogout}
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/5"
+        >
+          <LogOut className="h-4 w-4" />
+          Logout
+        </button>
+        <div className="h-7 w-px bg-gray-200 dark:bg-gray-700" />
+        <button
+          onClick={handleThemeToggle}
+          className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-300"
+        >
+          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </button>
         <div className="flex items-center gap-2.5 rounded-2xl border border-gray-200/80 bg-white/80 px-2.5 py-1.5 shadow-[0_8px_24px_rgba(15,23,42,0.06)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-none">
           <div className="text-right leading-tight">
             <p className="text-sm font-semibold text-slate-900 dark:text-white">{user?.name || "Admin User"}</p>
@@ -67,20 +81,6 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
             {initials}
           </div>
         </div>
-        <button
-          onClick={handleThemeToggle}
-          className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-300"
-        >
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </button>
-        <div className="h-7 w-px bg-gray-200 dark:bg-gray-700" />
-        <button
-          onClick={handleLogout}
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/5"
-        >
-          <LogOut className="h-4 w-4" />
-          Logout
-        </button>
       </div>
     </div>
   );
