@@ -349,21 +349,9 @@ export default function AdminSettingsPage() {
           }
         >
           <form onSubmit={handleProfileSubmit} className="space-y-5">
-            <div className="flex items-center gap-4">
-              <div className="flex h-20 w-20 items-center justify-center">
-                <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-100 via-white to-cyan-100 p-1.5 shadow-[0_14px_30px_rgba(15,23,42,0.18)] ring-1 ring-slate-200/80 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 dark:ring-white/10">
-                  <img
-                    src={profileForm.avatar || "/Ilwaad-manager.png"}
-                    alt="Profile"
-                    className="h-full w-full rounded-full object-cover object-center"
-                    style={getAvatarImageStyle(profileForm.avatarPosition)}
-                  />
-                </div>
-              </div>
-              <div className="flex-1">
-                <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Profile Photo</label>
-                <Input type="file" accept="image/*" onChange={handleAvatarChange} className="file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-100 file:px-3 file:py-1.5 file:text-emerald-700 dark:file:bg-emerald-500/10 dark:file:text-emerald-200" />
-              </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Profile Photo</label>
+              <Input type="file" accept="image/*" onChange={handleAvatarChange} className="file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-100 file:px-3 file:py-1.5 file:text-emerald-700 dark:file:bg-emerald-500/10 dark:file:text-emerald-200" />
             </div>
             <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-slate-950/70">
               <div className="mb-4 flex items-center justify-between">
@@ -375,16 +363,6 @@ export default function AdminSettingsPage() {
                 >
                   Reset
                 </button>
-              </div>
-              <div className="mb-4 flex justify-center">
-                <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-100 via-white to-cyan-100 p-2 shadow-[0_16px_36px_rgba(15,23,42,0.18)] ring-1 ring-slate-200/80 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 dark:ring-white/10">
-                  <img
-                    src={profileForm.avatar || "/Ilwaad-manager.png"}
-                    alt="Profile preview"
-                    className="h-full w-full rounded-full object-cover object-center"
-                    style={getAvatarImageStyle(profileForm.avatarPosition)}
-                  />
-                </div>
               </div>
               <div className="space-y-3">
                 <div>
