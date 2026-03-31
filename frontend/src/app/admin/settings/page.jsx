@@ -20,13 +20,15 @@ import { useSettings } from "@/hooks/useSettings";
 import { openEmailDraft } from "@/lib/emailNotifications";
 import { defaultAvatarPosition, getAvatarImageStyle, normalizeAvatarPosition } from "@/lib/avatarStyle";
 
-function SectionCard({ icon: Icon, iconClassName, title, children }) {
+function SectionCard({ icon: Icon, iconClassName, title, headerContent, children }) {
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-slate-900/80">
       <div className="mb-8 flex items-center gap-4">
-        <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${iconClassName}`}>
-          <Icon size={24} />
-        </div>
+        {headerContent || (
+          <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${iconClassName}`}>
+            <Icon size={24} />
+          </div>
+        )}
         <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{title}</h2>
       </div>
       {children}
@@ -331,7 +333,21 @@ export default function AdminSettingsPage() {
       </div>
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <SectionCard icon={User} iconClassName="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200" title="Profile">
+        <SectionCard
+          icon={User}
+          iconClassName="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200"
+          title="Profile"
+          headerContent={
+            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-100 via-white to-cyan-100 p-1.5 shadow-[0_12px_28px_rgba(15,23,42,0.14)] ring-1 ring-slate-200/80 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 dark:ring-white/10">
+              <img
+                src={profileForm.avatar || "/Ilwaad-manager.png"}
+                alt="Profile"
+                className="h-full w-full rounded-[14px] object-cover object-center"
+                style={getAvatarImageStyle(profileForm.avatarPosition)}
+              />
+            </div>
+          }
+        >
           <form onSubmit={handleProfileSubmit} className="space-y-5">
             <div className="flex items-center gap-4">
               <div className="flex h-20 w-20 items-center justify-center">

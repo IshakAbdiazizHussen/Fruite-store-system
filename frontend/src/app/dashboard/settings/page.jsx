@@ -254,8 +254,13 @@ export default function SettingsPage() {
         {/* Profile Section */}
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-8">
           <div className="flex items-center gap-4 mb-8">
-            <div className="h-14 w-14 rounded-2xl bg-green-100 flex items-center justify-center">
-              <User className="text-green-600" size={26} />
+            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-100 via-white to-cyan-100 p-1.5 shadow-[0_12px_28px_rgba(15,23,42,0.14)] ring-1 ring-slate-200/80 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 dark:ring-white/10">
+              <img
+                src={profileForm.avatar || "/Ilwaad-manager.png"}
+                alt="Profile"
+                className="h-full w-full rounded-[14px] object-cover object-center"
+                style={getAvatarImageStyle(profileForm.avatarPosition)}
+              />
             </div>
             <h4 className="text-xl font-medium text-slate-900 dark:text-white">Profile</h4>
           </div>
