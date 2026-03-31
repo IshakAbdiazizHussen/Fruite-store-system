@@ -18,6 +18,7 @@ import { usePurchases } from "@/hooks/usePurchases";
 import { useSales } from "@/hooks/useSales";
 import { useSettings } from "@/hooks/useSettings";
 import { openEmailDraft } from "@/lib/emailNotifications";
+import { defaultAvatarPosition, getAvatarImageStyle, normalizeAvatarPosition } from "@/lib/avatarStyle";
 
 function SectionCard({ icon: Icon, iconClassName, title, children }) {
   return (
@@ -102,7 +103,10 @@ export default function AdminSettingsPage() {
   const roleOptions = ["Administrator", "Store Admin", "Manager", "Supervisor", "Sales Manager", "Inventory Manager", "Cashier"];
 
   useEffect(() => {
-    setProfileForm(settings.profile);
+    setProfileForm({
+      ...settings.profile,
+      avatarPosition: normalizeAvatarPosition(settings.profile?.avatarPosition),
+    });
   }, [settings.profile]);
 
   useEffect(() => {
@@ -175,10 +179,24 @@ export default function AdminSettingsPage() {
 
     const reader = new FileReader();
     reader.onload = () => {
-      setProfileForm((prev) => ({ ...prev, avatar: String(reader.result) }));
+      setProfileForm((prev) => ({
+        ...prev,
+        avatar: String(reader.result),
+        avatarPosition: prev.avatarPosition || defaultAvatarPosition,
+      }));
       setProfileStatus("Photo selected. Save profile to apply.");
     };
     reader.readAsDataURL(file);
+  }
+
+  function handleAvatarPositionChange(key, value) {
+    setProfileForm((prev) => ({
+      ...prev,
+      avatarPosition: {
+        ...normalizeAvatarPosition(prev.avatarPosition),
+        [key]: Number(value),
+      },
+    }));
   }
 
   async function handleToggleNotification(id, label) {
@@ -316,14 +334,77 @@ export default function AdminSettingsPage() {
         <SectionCard icon={User} iconClassName="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200" title="Profile">
           <form onSubmit={handleProfileSubmit} className="space-y-5">
             <div className="flex items-center gap-4">
-              <img
-                src={profileForm.avatar || "/Ilwaad-manager.png"}
-                alt="Profile"
-                className="h-16 w-16 rounded-full border border-slate-200 object-cover dark:border-white/10"
-              />
+              <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-950">
+                <img
+                  src={profileForm.avatar || "/Ilwaad-manager.png"}
+                  alt="Profile"
+                  className="h-full w-full rounded-full object-cover"
+                  style={getAvatarImageStyle(profileForm.avatarPosition)}
+                />
+              </div>
               <div className="flex-1">
                 <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Profile Photo</label>
                 <Input type="file" accept="image/*" onChange={handleAvatarChange} className="file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-100 file:px-3 file:py-1.5 file:text-emerald-700 dark:file:bg-emerald-500/10 dark:file:text-emerald-200" />
+              </div>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-slate-950/70">
+              <div className="mb-4 flex items-center justify-between">
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Adjust photo position</p>
+                <button
+                  type="button"
+                  onClick={() => setProfileForm((prev) => ({ ...prev, avatarPosition: defaultAvatarPosition }))}
+                  className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200"
+                >
+                  Reset
+                </button>
+              </div>
+              <div className="mb-4 flex justify-center">
+                <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-white shadow-md dark:border-slate-900 dark:bg-slate-900">
+                  <img
+                    src={profileForm.avatar || "/Ilwaad-manager.png"}
+                    alt="Profile preview"
+                    className="h-full w-full rounded-full object-cover"
+                    style={getAvatarImageStyle(profileForm.avatarPosition)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Left / Right</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={normalizeAvatarPosition(profileForm.avatarPosition).x}
+                    onChange={(e) => handleAvatarPositionChange("x", e.target.value)}
+                    className="w-full accent-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Up / Down</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={normalizeAvatarPosition(profileForm.avatarPosition).y}
+                    onChange={(e) => handleAvatarPositionChange("y", e.target.value)}
+                    className="w-full accent-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Zoom</label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="2.2"
+                    step="0.05"
+                    value={normalizeAvatarPosition(profileForm.avatarPosition).scale}
+                    onChange={(e) => handleAvatarPositionChange("scale", e.target.value)}
+                    className="w-full accent-emerald-500"
+                  />
+                </div>
               </div>
             </div>
             <div>

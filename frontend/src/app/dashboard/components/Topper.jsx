@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Bell, Search, Menu, X, Moon, Sun } from "lucide-react";
 import { getActivities } from "@/lib/activityLog";
 import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
+import { defaultAvatarPosition, getAvatarImageStyle } from "@/lib/avatarStyle";
 
 const LAST_SEEN_KEY = "fruit_store_activity_seen_at";
 
@@ -34,6 +35,7 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
         name: parsed.profile.name || "Ilwaad Manager",
         role: parsed.profile.role || "Store Admin",
         avatar: parsed.profile.avatar || "/Ilwaad-manager.png",
+        avatarPosition: parsed.profile.avatarPosition || defaultAvatarPosition,
       });
     } catch {
       // keep defaults if localStorage is malformed
@@ -198,6 +200,7 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
                   src={profile.avatar || "/Ilwaad-manager.png"}
                   alt="Manager"
                   className="h-full w-full rounded-full object-cover object-center"
+                  style={getAvatarImageStyle(profile.avatarPosition)}
                 />
               </div>
               <span className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500 dark:border-gray-900" />

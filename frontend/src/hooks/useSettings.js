@@ -12,6 +12,11 @@ const initialSettings = {
     email: "ilwaad@admin.com",
     role: "Administrator",
     avatar: "/Ilwaad-manager.png",
+    avatarPosition: {
+      x: 50,
+      y: 50,
+      scale: 1,
+    },
   },
   notifications: {
     email: true,
