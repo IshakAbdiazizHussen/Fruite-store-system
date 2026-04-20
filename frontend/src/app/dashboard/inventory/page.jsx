@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { Suspense, useState, useMemo, useEffect } from "react";
 import { Plus, Search, Eye, Pencil, Trash2 } from "lucide-react";
 import { useInventory } from "@/hooks/useInventory";
 import { useSearchParams } from "next/navigation";
@@ -22,7 +22,7 @@ function StatusBadge({ status }) {
   );
 }
 
-export default function Page() {
+function InventoryPageContent() {
   const searchParams = useSearchParams();
   const { items, addItem, deleteItem, updateItem } = useInventory();
   const [searchTerm, setSearchTerm] = useState("");
@@ -222,5 +222,13 @@ export default function Page() {
         onClose={() => setViewItem(null)}
       />
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="px-8 py-10 text-sm text-gray-500 dark:text-slate-400">Loading inventory...</div>}>
+      <InventoryPageContent />
+    </Suspense>
   );
 }

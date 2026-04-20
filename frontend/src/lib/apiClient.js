@@ -1,7 +1,20 @@
 "use client";
 
+const DEFAULT_LOCAL_API_URL = "http://localhost:4000/api";
+
+function normalizeApiBaseUrl(value) {
+  if (!value) {
+    return DEFAULT_LOCAL_API_URL;
+  }
+
+  const trimmed = String(value).trim().replace(/\/+$/, "");
+  return trimmed.endsWith("/api") ? trimmed : `${trimmed}/api`;
+}
+
 export function getApiBaseUrl() {
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+  return normalizeApiBaseUrl(
+    process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || DEFAULT_LOCAL_API_URL
+  );
 }
 
 export async function apiRequest(path, options = {}) {

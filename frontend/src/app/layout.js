@@ -1,24 +1,30 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+function getSiteUrl() {
+  const configuredSiteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+    process.env.VERCEL_URL;
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  if (!configuredSiteUrl) {
+    return "http://localhost:3001";
+  }
+
+  return configuredSiteUrl.startsWith("http")
+    ? configuredSiteUrl
+    : `https://${configuredSiteUrl}`;
+}
+
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  metadataBase: new URL("https://fruite-store-system-frontend-nsoy.vercel.app"),
+  metadataBase: new URL(siteUrl),
   title: "Fruit Store CMS",
   description: "Inventory, orders, purchases, suppliers, reports, and settings in one fruit store dashboard.",
   openGraph: {
     title: "Fruit Store CMS",
     description: "Inventory, orders, purchases, suppliers, reports, and settings in one fruit store dashboard.",
-    url: "https://fruite-store-system-frontend-nsoy.vercel.app",
+    url: siteUrl,
     siteName: "Fruit Store CMS",
     images: [
       {
@@ -42,9 +48,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         {children}
       </body>
     </html>
