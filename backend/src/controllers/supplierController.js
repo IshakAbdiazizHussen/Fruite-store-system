@@ -4,11 +4,13 @@ const {
   deleteSupplier,
   listSuppliers,
   resetSuppliers,
+  updateSupplier,
 } = require("../services/supplierService");
 
 const baseController = createCrudController({
   list: listSuppliers,
   create: createSupplier,
+  update: updateSupplier,
   remove: deleteSupplier,
 });
 

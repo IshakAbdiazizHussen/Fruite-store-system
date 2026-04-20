@@ -36,6 +36,20 @@ export function useSuppliers() {
     });
   }, [loadSuppliers]);
 
+  const updateSupplier = useCallback(async (updatedSupplier, supplierId = updatedSupplier.supplierId || updatedSupplier.id) => {
+    await apiRequest(`/suppliers/${encodeURIComponent(String(supplierId))}`, {
+      method: "PUT",
+      body: JSON.stringify(updatedSupplier),
+    });
+    await loadSuppliers();
+    notifyBackendDataChanged();
+    recordActivity({
+      type: "update",
+      title: "Supplier updated",
+      description: `${updatedSupplier.name} supplier details were updated.`,
+    });
+  }, [loadSuppliers]);
+
   const deleteSupplier = useCallback(async (supplierId) => {
     await apiRequest(`/suppliers/${encodeURIComponent(String(supplierId))}`, {
       method: "DELETE",
@@ -63,5 +77,5 @@ export function useSuppliers() {
     });
   }, [loadSuppliers]);
 
-  return { suppliers, addSupplier, deleteSupplier, resetSuppliers };
+  return { suppliers, addSupplier, updateSupplier, deleteSupplier, resetSuppliers };
 }

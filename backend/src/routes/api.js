@@ -47,6 +47,7 @@ protectedRouter.patch("/frontend-content", frontendContentController.updateFront
 
 protectedRouter.get("/suppliers", supplierController.list);
 protectedRouter.post("/suppliers", supplierController.create);
+protectedRouter.put("/suppliers/:id", supplierController.update);
 protectedRouter.delete("/suppliers/:id", supplierController.remove);
 protectedRouter.post("/suppliers/reset", supplierController.resetSuppliers);
 

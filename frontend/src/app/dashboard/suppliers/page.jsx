@@ -1,17 +1,19 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { Users, Star, Phone, Mail, MapPin, Plus, X, Package, Calendar, ExternalLink, Trash2, RotateCcw } from 'lucide-react';
+import { Users, Star, Phone, Mail, MapPin, Plus, X, Package, Calendar, ExternalLink, Trash2, RotateCcw, Pencil } from 'lucide-react';
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { useOrders } from "@/hooks/useOrders";
 import { usePurchases } from "@/hooks/usePurchases";
 import AddSupplierModal from "../components/AddSupplierModal";
+import EditSupplierModal from "../components/EditSupplierModal";
 
 export default function SuppliersPage() {
-  const { suppliers, addSupplier, deleteSupplier, resetSuppliers } = useSuppliers();
+  const { suppliers, addSupplier, updateSupplier, deleteSupplier, resetSuppliers } = useSuppliers();
   const { orders } = useOrders();
   const { purchases } = usePurchases();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingSupplier, setEditingSupplier] = useState(null);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
@@ -226,6 +228,14 @@ export default function SuppliersPage() {
               </div>
 
               <button
+                onClick={() => setEditingSupplier(s)}
+                className="mt-3 w-full rounded-xl border border-blue-200 dark:border-blue-400/20 text-blue-700 dark:text-blue-300 py-2.5 text-sm font-medium hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors flex items-center justify-center gap-2"
+              >
+                <Pencil size={16} />
+                Edit Supplier
+              </button>
+
+              <button
                 onClick={() => handleDeleteSupplier(s)}
                 className="mt-3 w-full rounded-xl border border-red-200 dark:border-red-400/20 text-red-700 dark:text-red-300 py-2.5 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
               >
@@ -238,6 +248,15 @@ export default function SuppliersPage() {
       </section>
 
       <AddSupplierModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={addSupplier} />
+      <EditSupplierModal
+        isOpen={!!editingSupplier}
+        supplier={editingSupplier}
+        onClose={() => setEditingSupplier(null)}
+        onSave={(updatedSupplier) => {
+          updateSupplier(updatedSupplier, editingSupplier?.supplierId || editingSupplier?.id);
+          setEditingSupplier(null);
+        }}
+      />
 
       {isContactOpen && selectedSupplier ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">

@@ -23,6 +23,43 @@ async function createSupplier(payload) {
   return supplier.toObject();
 }
 
+async function updateSupplier(identifier, payload) {
+  const updates = {
+    name: payload.name,
+    contactPerson: payload.contactPerson,
+    phone: payload.phone,
+    email: payload.email,
+    location: payload.location,
+    products: payload.products,
+  };
+
+  let supplier = await Supplier.findOneAndUpdate(
+    { supplierId: identifier },
+    updates,
+    { new: true, runValidators: true }
+  );
+
+  if (!supplier && /^\d+$/.test(String(identifier))) {
+    const suppliers = await Supplier.find().sort({ createdAt: -1 }).lean();
+    const target = suppliers[Number(identifier) - 1];
+    if (target) {
+      supplier = await Supplier.findOneAndUpdate(
+        { supplierId: target.supplierId },
+        updates,
+        { new: true, runValidators: true }
+      );
+    }
+  }
+
+  if (!supplier) {
+    const error = new Error(`Supplier ${identifier} not found.`);
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return supplier.toObject();
+}
+
 async function deleteSupplier(identifier) {
   let supplier = await Supplier.findOneAndDelete({ supplierId: identifier });
 
@@ -54,4 +91,5 @@ module.exports = {
   deleteSupplier,
   listSuppliers,
   resetSuppliers,
+  updateSupplier,
 };
