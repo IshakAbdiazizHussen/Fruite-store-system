@@ -12,9 +12,9 @@ const defaultFrontendContent = {
   login: {
     eyebrow: "Admin Login",
     title: "Sign in to CMS",
-    subtitle: "Use the admin email and password you configured in `backend/.env`.",
+    subtitle: "Use the project admin email and password to continue.",
     heroTitle: "Control your store from one secure dashboard.",
-    heroDescription: "Inventory, orders, purchases, suppliers, reports, and settings now run through your backend.",
+    heroDescription: "Inventory, orders, purchases, suppliers, reports, and settings are available after you sign in.",
   },
   dashboard: {
     title: "Dashboard Overview",
