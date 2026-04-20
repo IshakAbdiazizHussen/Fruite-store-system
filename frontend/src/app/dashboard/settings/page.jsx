@@ -1,26 +1,22 @@
 "use client";
 
-import { Bell, User, Lock, Globe, Database, Eye, EyeOff } from 'lucide-react';
+import { Bell, Lock, Globe, Database, Eye, EyeOff } from 'lucide-react';
 import React, { useMemo, useState, useEffect } from 'react';
 import { useSettings } from "@/hooks/useSettings";
 import { useOrders } from "@/hooks/useOrders";
 import { usePurchases } from "@/hooks/usePurchases";
 import { useSales } from "@/hooks/useSales";
 import { openEmailDraft } from "@/lib/emailNotifications";
-import { defaultAvatarPosition, getAvatarImageStyle, normalizeAvatarPosition } from "@/lib/avatarStyle";
-import { getAvatarSource, optimizeAvatarFile } from "@/lib/avatarUpload";
 
 export default function SettingsPage() {
-  const { settings, updateProfile, toggleNotification, setAllNotifications, updateNotificationEmail, updateRegional, changePassword, updateSecurity } = useSettings();
+  const { settings, toggleNotification, setAllNotifications, updateNotificationEmail, updateRegional, changePassword, updateSecurity } = useSettings();
   const { orders } = useOrders();
   const { purchases } = usePurchases();
   const { sales, analytics } = useSales();
-  const [profileForm, setProfileForm] = useState(settings.profile);
   const [passwordForm, setPasswordForm] = useState({
     next: "",
     confirm: "",
   });
-  const [profileStatus, setProfileStatus] = useState("");
   const [notificationStatus, setNotificationStatus] = useState("");
   const [passwordStatus, setPasswordStatus] = useState("");
   const [notificationEmail, setNotificationEmail] = useState(settings.notificationEmail || "ishakabdiaziz9060@gmail.com");
@@ -40,73 +36,9 @@ export default function SettingsPage() {
     { id: "twoFactorEnabled", label: "Two-Step Verification", description: "Add an extra step before account access." },
   ];
 
-  const roleOptions = [ "Administrator", "Store Admin", "Manager", "Supervisor", "Sales Manager", "Inventory Manager", "Cashier" ];
-
-  useEffect(() => {
-    setProfileForm({
-      ...settings.profile,
-      avatarPosition: normalizeAvatarPosition(settings.profile?.avatarPosition),
-    });
-  }, [settings.profile]);
-
   useEffect(() => {
     setNotificationEmail(settings.notificationEmail || "ishakabdiaziz9060@gmail.com");
   }, [settings.notificationEmail]);
-
-  const handleProfileSubmit = async (e) => {
-    e.preventDefault();
-    setProfileStatus("");
-
-    if (!profileForm.name.trim()) {
-      setProfileStatus("Name is required.");
-      return;
-    }
-
-    if (!profileForm.email.trim()) {
-      setProfileStatus("Email is required.");
-      return;
-    }
-
-    await updateProfile(profileForm);
-    setProfileStatus("Profile updated successfully.");
-  };
-
-  const handleAvatarChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setProfileStatus("Please choose an image file.");
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setProfileStatus("Image size must be less than 5MB.");
-      return;
-    }
-
-    try {
-      const optimizedAvatar = await optimizeAvatarFile(file);
-      setProfileForm((prev) => ({
-        ...prev,
-        avatar: optimizedAvatar,
-        avatarPosition: defaultAvatarPosition,
-      }));
-      setProfileStatus("Photo selected. Click Save Changes to apply.");
-    } catch (error) {
-      setProfileStatus(error.message || "Unable to process the selected image.");
-    }
-  };
-
-  const handleAvatarPositionChange = (key, value) => {
-    setProfileForm((prev) => ({
-      ...prev,
-      avatarPosition: {
-        ...normalizeAvatarPosition(prev.avatarPosition),
-        [key]: Number(value),
-      },
-    }));
-  };
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
@@ -274,123 +206,7 @@ export default function SettingsPage() {
         <p className='font-light text-gray-500 dark:text-slate-400'>Manage your application preferences and account settings</p>
       </div>
 
-      <section className='grid grid-cols-1 lg:grid-cols-3 gap-6 px-6'>
-        {/* Profile Section */}
-        <div className="bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-8">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-100 via-white to-cyan-100 p-1.5 shadow-[0_14px_30px_rgba(15,23,42,0.18)] ring-1 ring-slate-200/80 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 dark:ring-white/10">
-              <img
-                src={getAvatarSource(profileForm.avatar) || "/manager-profile.png"}
-                alt="Profile"
-                className="h-full w-full rounded-full object-cover object-center"
-                style={getAvatarImageStyle(profileForm.avatarPosition)}
-              />
-            </div>
-            <h4 className="text-xl font-medium text-slate-900 dark:text-white">Profile</h4>
-          </div>
-
-          <form onSubmit={handleProfileSubmit} className="space-y-5">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Profile Photo</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-green-100 file:px-3 file:py-1.5 file:text-green-700 dark:border-white/10 dark:bg-slate-950 dark:text-slate-300 dark:file:bg-green-500/10 dark:file:text-green-300"
-              />
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-4 dark:border-white/10 dark:bg-slate-950/70">
-              <div className="mb-4 flex items-center justify-between">
-                <p className="text-sm font-medium text-gray-700 dark:text-slate-200">Adjust photo position</p>
-                <button
-                  type="button"
-                  onClick={() => setProfileForm((prev) => ({ ...prev, avatarPosition: defaultAvatarPosition }))}
-                  className="rounded-lg border border-green-200 bg-green-50 px-3 py-1 text-xs font-medium text-green-700 hover:bg-green-100 dark:border-green-400/20 dark:bg-green-500/10 dark:text-green-300"
-                >
-                  Reset
-                </button>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-slate-400">Left / Right</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={normalizeAvatarPosition(profileForm.avatarPosition).x}
-                    onChange={(e) => handleAvatarPositionChange("x", e.target.value)}
-                    className="w-full accent-green-500"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-slate-400">Up / Down</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={normalizeAvatarPosition(profileForm.avatarPosition).y}
-                    onChange={(e) => handleAvatarPositionChange("y", e.target.value)}
-                    className="w-full accent-green-500"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-slate-400">Zoom</label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="2.2"
-                    step="0.05"
-                    value={normalizeAvatarPosition(profileForm.avatarPosition).scale}
-                    onChange={(e) => handleAvatarPositionChange("scale", e.target.value)}
-                    className="w-full accent-green-500"
-                  />
-                </div>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Full Name</label>
-              <input
-                type="text"
-                value={profileForm.name}
-                onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                className="w-full rounded-xl border border-gray-200 dark:border-white/10 dark:bg-slate-950 dark:text-white px-4 py-2.5 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Email</label>
-              <input
-                type="email"
-                value={profileForm.email}
-                onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                className="w-full rounded-xl border border-gray-200 dark:border-white/10 dark:bg-slate-950 dark:text-white px-4 py-2.5 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Role</label>
-              <select
-                value={profileForm.role}
-                onChange={(e) => setProfileForm({ ...profileForm, role: e.target.value })}
-                className="w-full rounded-xl border border-gray-200 dark:border-white/10 dark:bg-slate-950 dark:text-white px-4 py-2.5 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
-              >
-                {roleOptions.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button
-              type="submit"
-              className="w-full rounded-xl bg-green-500 py-3 text-white font-medium hover:bg-green-600 transition-all shadow-lg shadow-green-100 dark:shadow-green-950/40"
-            >
-              Save Changes
-            </button>
-            {profileStatus ? <p className="text-sm text-green-600 dark:text-green-300">{profileStatus}</p> : null}
-          </form>
-        </div>
-
+      <section className='grid grid-cols-1 lg:grid-cols-2 gap-6 px-6'>
         {/* Notifications Section */}
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-8">
           <div className="flex items-center gap-4 mb-8">
