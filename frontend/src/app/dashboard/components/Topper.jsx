@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Search, Menu, X, Moon, Sun } from "lucide-react";
+import { Bell, Search, Menu, X, Moon, Sun, LogOut } from "lucide-react";
 import { getActivities } from "@/lib/activityLog";
 import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
 import { defaultAvatarPosition, getAvatarImageStyle } from "@/lib/avatarStyle";
 import { getAvatarSource } from "@/lib/avatarUpload";
+import { logoutAdmin } from "@/lib/authClient";
 
 const LAST_SEEN_KEY = "fruit_store_activity_seen_at";
 
@@ -110,6 +111,11 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
     persistTheme(nextTheme);
   };
 
+  async function handleLogout() {
+    await logoutAdmin();
+    router.replace("/login");
+  }
+
   const formatTime = (iso) => {
     try {
       return new Date(iso).toLocaleString();
@@ -144,6 +150,15 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
       </div>
 
       <div className="flex items-center gap-3">
+        <button
+          onClick={handleLogout}
+          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+          title="Logout"
+        >
+          <LogOut size={16} />
+          Logout
+        </button>
+
         <button
           onClick={handleThemeToggle}
           className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-300"
