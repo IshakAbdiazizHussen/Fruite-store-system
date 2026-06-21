@@ -7,7 +7,7 @@ function getSiteUrl() {
     process.env.VERCEL_URL;
 
   if (!configuredSiteUrl) {
-    return "http://localhost:3001";
+    return "http://127.0.0.1:3001";
   }
 
   return configuredSiteUrl.startsWith("http")

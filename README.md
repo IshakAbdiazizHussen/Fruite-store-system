@@ -60,9 +60,9 @@ npm run dev
 
 ## Notes
 
-- The frontend runs on `http://localhost:3001` by default.
+- The frontend runs on `http://127.0.0.1:3001` by default.
 - The frontend uses `NEXT_PUBLIC_BACKEND_URL` and calls `${NEXT_PUBLIC_BACKEND_URL}/api`.
-- If `NEXT_PUBLIC_BACKEND_URL` is not set locally, the frontend falls back to `http://localhost:4000/api`.
+- If `NEXT_PUBLIC_BACKEND_URL` is not set locally, the frontend falls back to `http://127.0.0.1:4000/api`.
 - Backend environment values live in `backend/.env`.
 - Protected CMS routes require backend authentication.
 
