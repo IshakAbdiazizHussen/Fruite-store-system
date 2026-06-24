@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { resolveBackendAssetUrl } from "@/lib/apiClient";
 
+const processedAvatarCache = new Map();
+const PROFILE_AVATAR_CACHE_PREFIX = "fruit_store_processed_avatar:";
+
 export default function ProfileAvatar({
   src,
   alt,
@@ -12,19 +15,30 @@ export default function ProfileAvatar({
   fallbackSrc = "/manager-profile.png",
 }) {
   const resolvedSrc = src ? resolveBackendAssetUrl(src) : fallbackSrc;
-  const [displaySrc, setDisplaySrc] = useState(resolvedSrc);
+  const [displaySrc, setDisplaySrc] = useState(() => getCachedAvatar(resolvedSrc) || null);
 
   useEffect(() => {
     let isCancelled = false;
+    const cachedAvatar = getCachedAvatar(resolvedSrc);
+
+    if (cachedAvatar) {
+      setDisplaySrc(cachedAvatar);
+      return () => {
+        isCancelled = true;
+      };
+    }
 
     removeEdgeConnectedWhiteBackground(resolvedSrc)
       .then((nextSrc) => {
         if (!isCancelled) {
-          setDisplaySrc(nextSrc || resolvedSrc);
+          const finalSrc = nextSrc || resolvedSrc;
+          setCachedAvatar(resolvedSrc, finalSrc);
+          setDisplaySrc(finalSrc);
         }
       })
       .catch(() => {
         if (!isCancelled) {
+          setCachedAvatar(resolvedSrc, resolvedSrc);
           setDisplaySrc(resolvedSrc);
         }
       });
@@ -39,12 +53,57 @@ export default function ProfileAvatar({
       className={`flex items-center justify-center overflow-hidden rounded-full border border-slate-200/80 bg-slate-50 p-2 shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition-[background-color,border-color,box-shadow] duration-300 ease-in-out dark:border-blue-400/20 dark:bg-slate-900 dark:shadow-[0_0_0_1px_rgba(96,165,250,0.12),0_18px_40px_rgba(2,6,23,0.45)] ${sizeClassName} ${frameClassName}`}
     >
       <img
-        src={displaySrc}
+        src={displaySrc || resolvedSrc}
         alt={alt}
-        className={`h-full w-full rounded-full object-contain object-center brightness-100 ${imageClassName}`}
+        className={`h-full w-full rounded-full object-contain object-center brightness-100 transition-opacity duration-300 ease-in-out ${displaySrc ? "opacity-100" : "opacity-0"} ${imageClassName}`}
       />
     </div>
   );
+}
+
+function getCachedAvatar(src) {
+  if (!src) {
+    return null;
+  }
+
+  const memoryCached = processedAvatarCache.get(src);
+  if (memoryCached) {
+    return memoryCached;
+  }
+
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const stored = window.localStorage.getItem(`${PROFILE_AVATAR_CACHE_PREFIX}${src}`);
+    if (stored) {
+      processedAvatarCache.set(src, stored);
+      return stored;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function setCachedAvatar(src, value) {
+  if (!src || !value) {
+    return;
+  }
+
+  processedAvatarCache.set(src, value);
+
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(`${PROFILE_AVATAR_CACHE_PREFIX}${src}`, value);
+  } catch {
+    // Ignore cache write failures to keep rendering resilient.
+  }
 }
 
 async function removeEdgeConnectedWhiteBackground(src) {

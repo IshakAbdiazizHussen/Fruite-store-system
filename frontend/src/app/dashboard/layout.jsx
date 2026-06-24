@@ -13,7 +13,11 @@ export default function DashboardLayout({ children }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!getStoredUser()) {
+    const storedUser = getStoredUser();
+
+    if (storedUser) {
+      setIsCheckingAuth(false);
+    } else {
       setIsCheckingAuth(true);
     }
 

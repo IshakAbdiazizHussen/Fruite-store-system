@@ -62,6 +62,19 @@ function mergeSettings(settings) {
   };
 }
 
+function getStoredSettings() {
+  if (typeof window === "undefined") {
+    return initialSettings;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    return raw ? mergeSettings(JSON.parse(raw)) : initialSettings;
+  } catch {
+    return initialSettings;
+  }
+}
+
 export function useSettings() {
   const [settings, setSettings] = useState(initialSettings);
 
@@ -77,6 +90,10 @@ export function useSettings() {
     const data = await apiRequest("/settings");
     syncSettings(data);
   }, [syncSettings]);
+
+  useEffect(() => {
+    setSettings(getStoredSettings());
+  }, []);
 
   useEffect(() => {
     loadSettings().catch((error) => {
