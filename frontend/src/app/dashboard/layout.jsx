@@ -28,7 +28,7 @@ export default function DashboardLayout({ children }) {
 
   if (isCheckingAuth) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#ecfccb,_#f8fafc_40%,_#dcfce7_100%)] dark:bg-[radial-gradient(circle_at_top,_#0f172a,_#111827_45%,_#052e16_100%)]">
+      <div className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#f8fafc_0%,#f1f5f9_100%)] dark:bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)]">
         <div className="rounded-2xl border border-white/60 bg-white px-6 py-4 text-sm text-slate-600 shadow-xl dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
           Loading dashboard...
         </div>
@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="h-screen overflow-hidden flex bg-[radial-gradient(circle_at_top,_#ecfccb,_#f8fafc_40%,_#dcfce7_100%)] dark:bg-[radial-gradient(circle_at_top,_#0f172a,_#111827_45%,_#052e16_100%)]">
+    <div className="h-screen overflow-hidden flex bg-[linear-gradient(180deg,#f8fafc_0%,#f1f5f9_100%)] dark:bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)]">
       {/* Sidebar fixed */}
       <aside className={`${isSidebarOpen ? "w-64" : "w-0"} shrink-0 overflow-hidden transition-all duration-300`}>
         <Sidebar />

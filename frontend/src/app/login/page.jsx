@@ -39,8 +39,8 @@ function LoginForm() {
   }
 
   return (
-    <div className="grid w-full overflow-hidden rounded-[32px] border border-white/60 bg-white shadow-2xl shadow-green-100 lg:grid-cols-[1.1fr_0.9fr]">
-      <section className="hidden bg-gradient-to-br from-green-600 via-lime-500 to-emerald-700 p-10 text-white lg:block">
+    <div className="grid w-full overflow-hidden rounded-[32px] border border-slate-200/80 bg-white shadow-2xl shadow-slate-200/70 lg:grid-cols-[1.1fr_0.9fr]">
+      <section className="hidden bg-[linear-gradient(160deg,#0f172a_0%,#1e293b_52%,#334155_100%)] p-10 text-white lg:block">
         <div className="flex items-center gap-3 text-lg font-semibold">
           <Store className="h-6 w-6" />
           {content.branding.appName}
@@ -48,14 +48,14 @@ function LoginForm() {
         <h1 className="mt-16 max-w-md text-5xl font-semibold leading-tight">
           {content.login.heroTitle}
         </h1>
-        <p className="mt-6 max-w-md text-sm text-green-50/90">
+        <p className="mt-6 max-w-md text-sm text-slate-200/90">
           {content.login.heroDescription}
         </p>
       </section>
 
       <section className="p-8 sm:p-12">
         <div className="max-w-md">
-          <p className="text-sm font-medium uppercase tracking-[0.28em] text-green-600">
+          <p className="text-sm font-medium uppercase tracking-[0.28em] text-slate-600">
             {content.login.eyebrow}
           </p>
           <h2 className="mt-3 text-3xl font-semibold text-gray-900">{content.login.title}</h2>
@@ -95,7 +95,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-2xl bg-green-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-70"
+              className="w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSubmitting ? "Signing in..." : "Sign In"}
             </button>
@@ -108,9 +108,9 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#ecfccb,_#f8fafc_40%,_#dcfce7_100%)] px-4 py-10">
+    <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#f1f5f9_100%)] px-4 py-10">
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-5xl items-center justify-center">
-        <Suspense fallback={<div className="h-[640px] w-full rounded-[32px] border border-white/60 bg-white shadow-2xl shadow-green-100" />}>
+        <Suspense fallback={<div className="h-[640px] w-full rounded-[32px] border border-slate-200/80 bg-white shadow-2xl shadow-slate-200/70" />}>
           <LoginForm />
         </Suspense>
       </div>
