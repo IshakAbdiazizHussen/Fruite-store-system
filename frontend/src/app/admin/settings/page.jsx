@@ -368,7 +368,7 @@ export default function AdminSettingsPage() {
               src={getAvatarSource(profileForm.avatar)}
               alt="Profile"
               sizeClassName="h-24 w-24"
-              frameClassName="bg-white p-3"
+              frameClassName="bg-white p-3 dark:bg-slate-950"
             />
           }
         >

@@ -347,7 +347,7 @@ export default function SettingsPage() {
                   src={profileImageUrl}
                   alt={currentUser?.name || "Profile picture"}
                   sizeClassName="h-32 w-32"
-                  frameClassName="bg-white p-3"
+                  frameClassName="bg-white p-3 dark:bg-slate-950"
                 />
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-300">

@@ -234,7 +234,7 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
                 src={avatarSource}
                 alt="Manager"
                 sizeClassName="h-14 w-14"
-                frameClassName="bg-white p-2 shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
+                frameClassName="bg-white p-2 shadow-[0_14px_30px_rgba(15,23,42,0.14)] dark:bg-slate-950"
               />
               <span className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500 dark:border-gray-900" />
             </div>

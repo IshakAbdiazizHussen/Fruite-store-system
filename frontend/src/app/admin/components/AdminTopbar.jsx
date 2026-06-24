@@ -92,7 +92,7 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
               src={user.profile_image_url}
               alt={user?.name || "Admin User"}
               sizeClassName="h-11 w-11"
-              frameClassName="rounded-2xl bg-white p-1.5"
+              frameClassName="rounded-2xl bg-white p-1.5 dark:bg-slate-950"
               imageClassName="rounded-xl"
             />
           ) : (
