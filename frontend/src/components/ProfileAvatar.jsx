@@ -86,8 +86,46 @@ async function removeEdgeConnectedWhiteBackground(src) {
     enqueueNeighbor(x, y + 1, width, height, queue, visited);
   }
 
+  softenWhiteHalo(data, width, height);
+
   context.putImageData(imageData, 0, 0);
   return canvas.toDataURL("image/png");
+}
+
+function softenWhiteHalo(data, width, height) {
+  const nextAlpha = new Uint8ClampedArray(width * height);
+
+  for (let index = 0; index < width * height; index += 1) {
+    nextAlpha[index] = data[index * 4 + 3];
+  }
+
+  for (let y = 1; y < height - 1; y += 1) {
+    for (let x = 1; x < width - 1; x += 1) {
+      const index = y * width + x;
+      const offset = index * 4;
+      const alpha = data[offset + 3];
+
+      if (!alpha || !touchesTransparentNeighbor(data, x, y, width, height)) {
+        continue;
+      }
+
+      const red = data[offset];
+      const green = data[offset + 1];
+      const blue = data[offset + 2];
+
+      if (!isSoftWhiteHalo(red, green, blue, alpha)) {
+        continue;
+      }
+
+      const whiteness = (red + green + blue) / 3;
+      const retainedAlpha = Math.max(0, Math.min(255, Math.round(255 - (whiteness - 210) * 5.5)));
+      nextAlpha[index] = Math.min(nextAlpha[index], retainedAlpha);
+    }
+  }
+
+  for (let index = 0; index < width * height; index += 1) {
+    data[index * 4 + 3] = nextAlpha[index];
+  }
 }
 
 function enqueueBorderPixels(width, height, queue, visited, data) {
@@ -133,6 +171,32 @@ function enqueueNeighbor(x, y, width, height, queue, visited) {
 
 function isNearWhite(red, green, blue, alpha) {
   return alpha > 0 && red >= 240 && green >= 240 && blue >= 240;
+}
+
+function isSoftWhiteHalo(red, green, blue, alpha) {
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  const saturation = max - min;
+  const brightness = (red + green + blue) / 3;
+
+  return alpha > 0 && brightness >= 225 && saturation <= 28;
+}
+
+function touchesTransparentNeighbor(data, x, y, width, height) {
+  for (let offsetY = -1; offsetY <= 1; offsetY += 1) {
+    for (let offsetX = -1; offsetX <= 1; offsetX += 1) {
+      if (offsetX === 0 && offsetY === 0) {
+        continue;
+      }
+
+      const neighborIndex = ((y + offsetY) * width + (x + offsetX)) * 4;
+      if (data[neighborIndex + 3] === 0) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 function loadImage(src) {
