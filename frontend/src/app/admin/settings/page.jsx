@@ -12,13 +12,14 @@ import {
   Save,
   User,
 } from "lucide-react";
+import ProfileAvatar from "@/components/ProfileAvatar";
 import { useFrontendContent } from "@/hooks/useFrontendContent";
 import { useOrders } from "@/hooks/useOrders";
 import { usePurchases } from "@/hooks/usePurchases";
 import { useSales } from "@/hooks/useSales";
 import { useSettings } from "@/hooks/useSettings";
 import { openEmailDraft } from "@/lib/emailNotifications";
-import { defaultAvatarPosition, getAvatarImageStyle, normalizeAvatarPosition } from "@/lib/avatarStyle";
+import { defaultAvatarPosition, normalizeAvatarPosition } from "@/lib/avatarStyle";
 import { getAvatarSource, optimizeAvatarFile } from "@/lib/avatarUpload";
 
 function SectionCard({ icon: Icon, iconClassName, title, headerContent, children }) {
@@ -363,14 +364,12 @@ export default function AdminSettingsPage() {
           iconClassName="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200"
           title="Profile"
           headerContent={
-            <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-100 via-white to-cyan-100 p-1.5 shadow-[0_14px_30px_rgba(15,23,42,0.18)] ring-1 ring-slate-200/80 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 dark:ring-white/10">
-              <img
-                src={getAvatarSource(profileForm.avatar) || "/manager-profile.png"}
-                alt="Profile"
-                className="h-full w-full rounded-full object-cover object-center"
-                style={getAvatarImageStyle(profileForm.avatarPosition)}
-              />
-            </div>
+            <ProfileAvatar
+              src={getAvatarSource(profileForm.avatar)}
+              alt="Profile"
+              sizeClassName="h-24 w-24"
+              frameClassName="bg-white p-3"
+            />
           }
         >
           <form onSubmit={handleProfileSubmit} className="space-y-5">

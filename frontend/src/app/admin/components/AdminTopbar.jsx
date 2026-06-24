@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut, Menu, Moon, Sun, X } from "lucide-react";
-import { getStoredUser, logoutAdmin } from "@/lib/authClient";
+import ProfileAvatar from "@/components/ProfileAvatar";
+import { getStoredUser, logoutAdmin, subscribeToAuthSession } from "@/lib/authClient";
 import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
 
 export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
   const router = useRouter();
-  const user = getStoredUser();
+  const [user, setUser] = useState(getStoredUser());
   const [theme, setTheme] = useState("light");
 
   useEffect(() => {
@@ -16,10 +17,19 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
     setTheme(initialTheme);
     applyTheme(initialTheme);
 
-    return subscribeToTheme((nextTheme) => {
+    const unsubscribeTheme = subscribeToTheme((nextTheme) => {
       setTheme(nextTheme);
       applyTheme(nextTheme);
     });
+
+    const unsubscribeAuth = subscribeToAuthSession((nextUser) => {
+      setUser(nextUser);
+    });
+
+    return () => {
+      unsubscribeTheme();
+      unsubscribeAuth();
+    };
   }, []);
 
   async function handleLogout() {
@@ -77,9 +87,19 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
             <p className="text-sm font-semibold text-slate-900 dark:text-white">{user?.name || "Admin User"}</p>
             <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{user?.email || "admin@fruitstore.com"}</p>
           </div>
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(16,185,129,0.28)]">
-            {initials}
-          </div>
+          {user?.profile_image_url ? (
+            <ProfileAvatar
+              src={user.profile_image_url}
+              alt={user?.name || "Admin User"}
+              sizeClassName="h-11 w-11"
+              frameClassName="rounded-2xl bg-white p-1.5"
+              imageClassName="rounded-xl"
+            />
+          ) : (
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(16,185,129,0.28)]">
+              {initials}
+            </div>
+          )}
         </div>
       </div>
     </div>

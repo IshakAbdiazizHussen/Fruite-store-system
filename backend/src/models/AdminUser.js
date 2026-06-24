@@ -8,6 +8,7 @@ const adminUserSchema = new mongoose.Schema(
     role: { type: String, default: "Administrator", trim: true },
     isActive: { type: Boolean, default: true },
     lastLoginAt: { type: Date, default: null },
+    profile_image_url: { type: String, default: null, trim: true },
   },
   { timestamps: true, versionKey: false }
 );

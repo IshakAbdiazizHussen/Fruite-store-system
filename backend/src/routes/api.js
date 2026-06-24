@@ -11,6 +11,7 @@ const purchaseController = require("../controllers/purchaseController");
 const salesController = require("../controllers/salesController");
 const settingsController = require("../controllers/settingsController");
 const supplierController = require("../controllers/supplierController");
+const { profileImageUpload } = require("../middleware/profileImageUpload");
 
 const router = express.Router();
 const protectedRouter = express.Router();
@@ -23,6 +24,9 @@ router.get("/frontend-content", frontendContentController.getFrontendContent);
 protectedRouter.use(authenticate);
 protectedRouter.get("/auth/me", authController.me);
 protectedRouter.post("/auth/logout", authController.logout);
+protectedRouter.post("/auth/me/profile-image", profileImageUpload, authController.uploadImage);
+protectedRouter.put("/auth/me/profile-image", profileImageUpload, authController.replaceImage);
+protectedRouter.delete("/auth/me/profile-image", authController.removeImage);
 
 protectedRouter.get("/inventory", inventoryController.list);
 protectedRouter.post("/inventory", inventoryController.create);

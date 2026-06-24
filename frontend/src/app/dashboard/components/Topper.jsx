@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, Search, Menu, X, Moon, Sun, LogOut } from "lucide-react";
+import ProfileAvatar from "@/components/ProfileAvatar";
 import { getActivities } from "@/lib/activityLog";
 import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
-import { defaultAvatarPosition, getAvatarImageStyle } from "@/lib/avatarStyle";
+import { defaultAvatarPosition } from "@/lib/avatarStyle";
 import { getAvatarSource } from "@/lib/avatarUpload";
-import { logoutAdmin } from "@/lib/authClient";
+import { getStoredUser, logoutAdmin, subscribeToAuthSession } from "@/lib/authClient";
 
 const LAST_SEEN_KEY = "fruit_store_activity_seen_at";
 
@@ -27,20 +28,34 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
   const [lastSeenAt, setLastSeenAt] = useState(0);
 
   const loadProfile = () => {
+    const storedUser = getStoredUser();
     const saved = localStorage.getItem("fruit_store_settings");
-    if (!saved) return;
+    const fallbackProfile = {
+      name: storedUser?.name || "Ilwaad Manager",
+      role: storedUser?.role || "Store Admin",
+      avatar: storedUser?.profile_image_url || "/Ilwaad-manager.png",
+      avatarPosition: defaultAvatarPosition,
+    };
+
+    if (!saved) {
+      setProfile(fallbackProfile);
+      return;
+    }
 
     try {
       const parsed = JSON.parse(saved);
-      if (!parsed?.profile) return;
+      if (!parsed?.profile) {
+        setProfile(fallbackProfile);
+        return;
+      }
       setProfile({
-        name: parsed.profile.name || "Ilwaad Manager",
-        role: parsed.profile.role || "Store Admin",
-        avatar: parsed.profile.avatar || "/Ilwaad-manager.png",
+        name: storedUser?.name || parsed.profile.name || "Ilwaad Manager",
+        role: storedUser?.role || parsed.profile.role || "Store Admin",
+        avatar: storedUser?.profile_image_url || parsed.profile.avatar || "/Ilwaad-manager.png",
         avatarPosition: parsed.profile.avatarPosition || defaultAvatarPosition,
       });
     } catch {
-      // keep defaults if localStorage is malformed
+      setProfile(fallbackProfile);
     }
   };
 
@@ -73,6 +88,7 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
       setTheme(nextTheme);
       applyTheme(nextTheme);
     });
+    const unsubscribeAuth = subscribeToAuthSession(() => loadProfile());
 
     return () => {
       window.removeEventListener("fruit-store-activity-updated", onActivity);
@@ -80,6 +96,7 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
       window.removeEventListener("storage", onActivity);
       document.removeEventListener("mousedown", onClickOutside);
       unsubscribeTheme();
+      unsubscribeAuth();
     };
   }, []);
 
@@ -123,6 +140,8 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
       return iso;
     }
   };
+
+  const avatarSource = getAvatarSource(profile.avatar);
 
   return (
     <div className="flex items-center justify-between border-b border-gray-100 bg-white px-5 py-2.5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
@@ -211,14 +230,12 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
           </div>
           <Link href="/dashboard/settings">
             <div className="relative shrink-0 cursor-pointer transition-transform duration-200 hover:scale-[1.02]">
-              <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-100 via-white to-cyan-100 p-1.5 shadow-[0_14px_30px_rgba(15,23,42,0.18)] ring-1 ring-slate-200/80 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 dark:ring-white/10">
-                <img
-                  src={getAvatarSource(profile.avatar) || "/manager-profile.png"}
-                  alt="Manager"
-                  className="h-full w-full rounded-full object-cover object-center"
-                  style={getAvatarImageStyle(profile.avatarPosition)}
-                />
-              </div>
+              <ProfileAvatar
+                src={avatarSource}
+                alt="Manager"
+                sizeClassName="h-14 w-14"
+                frameClassName="bg-white p-2 shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
+              />
               <span className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500 dark:border-gray-900" />
             </div>
           </Link>

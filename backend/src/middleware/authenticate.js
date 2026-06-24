@@ -1,6 +1,7 @@
 const AdminUser = require("../models/AdminUser");
 const { authConfig } = require("../config/auth");
 const { verifyToken } = require("../utils/password");
+const { toSafeUser } = require("../utils/userView");
 
 async function authenticate(req, _res, next) {
   try {
@@ -26,12 +27,7 @@ async function authenticate(req, _res, next) {
 
     req.auth = {
       token,
-      user: {
-        id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user: toSafeUser(user),
     };
 
     next();

@@ -17,9 +17,22 @@ export function getApiBaseUrl() {
   );
 }
 
+export function getBackendOrigin() {
+  const apiBaseUrl = getApiBaseUrl();
+  return apiBaseUrl.replace(/\/api$/, "");
+}
+
+export function resolveBackendAssetUrl(value) {
+  if (!value) return value;
+  if (/^https?:\/\//i.test(value)) return value;
+  return `${getBackendOrigin()}${value.startsWith("/") ? value : `/${value}`}`;
+}
+
 export async function apiRequest(path, options = {}) {
   const authToken =
     typeof window !== "undefined" ? window.localStorage.getItem("fruit_store_token") : null;
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
 
   let response;
 
@@ -28,8 +41,8 @@ export async function apiRequest(path, options = {}) {
       cache: "no-store",
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
         ...(options.headers || {}),
       },
       ...options,

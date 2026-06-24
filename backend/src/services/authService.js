@@ -1,17 +1,7 @@
 const AdminUser = require("../models/AdminUser");
 const { authConfig } = require("../config/auth");
 const { createToken, verifyPassword } = require("../utils/password");
-
-function toSafeUser(user) {
-  return {
-    id: user._id.toString(),
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    isActive: user.isActive,
-    lastLoginAt: user.lastLoginAt,
-  };
-}
+const { toSafeUser } = require("../utils/userView");
 
 async function loginAdmin({ email, password }) {
   const normalizedEmail = String(email || "").trim().toLowerCase();
@@ -45,4 +35,5 @@ async function loginAdmin({ email, password }) {
 
 module.exports = {
   loginAdmin,
+  toSafeUser,
 };

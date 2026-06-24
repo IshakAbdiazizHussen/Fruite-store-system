@@ -1,18 +1,43 @@
 "use client";
 
-import { Bell, Lock, Globe, Database, Eye, EyeOff } from 'lucide-react';
-import React, { useMemo, useState, useEffect } from 'react';
+import { Bell, Camera, Database, Eye, EyeOff, Globe, LoaderCircle, Lock, Trash2, UserCircle2 } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import ProfileAvatar from "@/components/ProfileAvatar";
 import { useSettings } from "@/hooks/useSettings";
 import { useOrders } from "@/hooks/useOrders";
 import { usePurchases } from "@/hooks/usePurchases";
 import { useSales } from "@/hooks/useSales";
 import { openEmailDraft } from "@/lib/emailNotifications";
+import {
+  fetchCurrentUser,
+  getStoredUser,
+  removeProfileImage,
+  replaceProfileImage,
+  subscribeToAuthSession,
+  uploadProfileImage,
+} from "@/lib/authClient";
+const MAX_PROFILE_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
 
 export default function SettingsPage() {
-  const { settings, toggleNotification, setAllNotifications, updateNotificationEmail, updateRegional, changePassword, updateSecurity } = useSettings();
+  const {
+    settings,
+    toggleNotification,
+    setAllNotifications,
+    updateNotificationEmail,
+    updateRegional,
+    changePassword,
+    updateSecurity,
+  } = useSettings();
   const { orders } = useOrders();
   const { purchases } = usePurchases();
   const { sales, analytics } = useSales();
+  const [currentUser, setCurrentUser] = useState(getStoredUser());
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isRemovingImage, setIsRemovingImage] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState(null);
+  const [profileStatus, setProfileStatus] = useState("");
   const [passwordForm, setPasswordForm] = useState({
     next: "",
     confirm: "",
@@ -25,10 +50,10 @@ export default function SettingsPage() {
     confirm: false,
   });
   const notificationItems = [
-    { id: 'email', label: 'Email Notifications', description: 'Receive store updates and summaries in your inbox.' },
-    { id: 'push', label: 'Push Notifications', description: 'Show instant alerts while you are using the dashboard.' },
-    { id: 'lowStock', label: 'Low Stock Alerts', description: 'Warn you when products are running out.' },
-    { id: 'expiry', label: 'Expiry Alerts', description: 'Remind you before items reach their expiry date.' },
+    { id: "email", label: "Email Notifications", description: "Receive store updates and summaries in your inbox." },
+    { id: "push", label: "Push Notifications", description: "Show instant alerts while you are using the dashboard." },
+    { id: "lowStock", label: "Low Stock Alerts", description: "Warn you when products are running out." },
+    { id: "expiry", label: "Expiry Alerts", description: "Remind you before items reach their expiry date." },
   ];
   const securityItems = [
     { id: "loginAlerts", label: "Login Alerts", description: "Email me whenever a new sign-in is detected." },
@@ -39,6 +64,44 @@ export default function SettingsPage() {
   useEffect(() => {
     setNotificationEmail(settings.notificationEmail || "ishakabdiaziz9060@gmail.com");
   }, [settings.notificationEmail]);
+
+  useEffect(() => {
+    return () => {
+      if (previewImageUrl) {
+        URL.revokeObjectURL(previewImageUrl);
+      }
+    };
+  }, [previewImageUrl]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetchCurrentUser()
+      .then((user) => {
+        if (isMounted) {
+          setCurrentUser(user);
+        }
+      })
+      .catch((error) => {
+        if (isMounted) {
+          setProfileStatus(error.message || "Unable to load your profile.");
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoadingProfile(false);
+        }
+      });
+
+    const unsubscribe = subscribeToAuthSession((user) => {
+      setCurrentUser(user);
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
@@ -112,6 +175,73 @@ export default function SettingsPage() {
     await updateSecurity({ sessionTimeoutMinutes: Number(value) });
     setPasswordStatus(`Session timeout set to ${value} minutes.`);
   };
+
+  async function handleProfileImageSelection(event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+      setProfileStatus("Only jpg, jpeg, png, and webp images are allowed.");
+      return;
+    }
+
+    if (file.size > MAX_PROFILE_IMAGE_SIZE_BYTES) {
+      setProfileStatus("Profile image must be 5MB or smaller.");
+      return;
+    }
+
+    if (previewImageUrl) {
+      URL.revokeObjectURL(previewImageUrl);
+    }
+
+    const nextPreviewImageUrl = URL.createObjectURL(file);
+    setPreviewImageUrl(nextPreviewImageUrl);
+    setIsUploadingImage(true);
+    setProfileStatus("Live preview ready. Uploading your new profile photo...");
+
+    try {
+      const nextUser = currentUser?.profile_image_url
+        ? await replaceProfileImage(file)
+        : await uploadProfileImage(file);
+
+      setCurrentUser(nextUser);
+      URL.revokeObjectURL(nextPreviewImageUrl);
+      setPreviewImageUrl(null);
+      setProfileStatus(currentUser?.profile_image_url ? "Profile picture updated." : "Profile picture uploaded.");
+    } catch (error) {
+      setProfileStatus(error.message || "Unable to upload your profile picture.");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  }
+
+  async function handleRemoveImage() {
+    if (!currentUser?.profile_image_url) {
+      setProfileStatus("There is no profile picture to remove.");
+      return;
+    }
+
+    setIsRemovingImage(true);
+    setProfileStatus("");
+
+    try {
+      const nextUser = await removeProfileImage();
+      setCurrentUser(nextUser);
+      if (previewImageUrl) {
+        URL.revokeObjectURL(previewImageUrl);
+      }
+      setPreviewImageUrl(null);
+      setProfileStatus("Profile picture removed.");
+    } catch (error) {
+      setProfileStatus(error.message || "Unable to remove your profile picture.");
+    } finally {
+      setIsRemovingImage(false);
+    }
+  }
 
   const reportSummary = useMemo(() => {
     const delivered = orders.filter((o) => o.status === "Delivered").length;
@@ -199,18 +329,88 @@ export default function SettingsPage() {
     downloadFile(`fruit-store-report-${Date.now()}.csv`, csv, "text/csv;charset=utf-8");
   };
 
+  const profileImageUrl = previewImageUrl || currentUser?.profile_image_url || null;
+
   return (
     <>
-      <div className='p-6'>
-        <h1 className='text-3xl font-medium text-slate-900 dark:text-white'>Settings</h1>
-        <p className='font-light text-gray-500 dark:text-slate-400'>Manage your application preferences and account settings</p>
+      <div className="p-6">
+        <h1 className="text-3xl font-medium text-slate-900 dark:text-white">Settings</h1>
+        <p className="font-light text-gray-500 dark:text-slate-400">Manage your application preferences and account settings</p>
       </div>
 
-      <section className='grid grid-cols-1 lg:grid-cols-2 gap-6 px-6'>
-        {/* Notifications Section */}
-        <div className="bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-8">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-14 w-14 rounded-2xl bg-blue-100 flex items-center justify-center">
+      <section className="px-6">
+        <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900/80">
+          <div className="bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_52%,#eef2ff_100%)] p-8 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.94),rgba(17,24,39,0.92),rgba(30,41,59,0.94))]">
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex items-center gap-5">
+                <ProfileAvatar
+                  src={profileImageUrl}
+                  alt={currentUser?.name || "Profile picture"}
+                  sizeClassName="h-32 w-32"
+                  frameClassName="bg-white p-3"
+                />
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                    <UserCircle2 className="h-3.5 w-3.5" />
+                    Profile Picture
+                  </div>
+                  <h2 className="mt-4 text-2xl font-semibold text-slate-900 dark:text-white">
+                    {currentUser?.name || "Your account"}
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    {currentUser?.email || "Loading account information..."}
+                  </p>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                    {currentUser?.role || "Administrator"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-white/10 dark:bg-slate-950/50">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">Profile Picture</p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Your profile photo will be visible across your account.
+                </p>
+                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                  <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70">
+                    {isUploadingImage ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+                    Upload New Photo
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={handleProfileImageSelection}
+                      disabled={isUploadingImage || isRemovingImage || isLoadingProfile}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    disabled={!currentUser?.profile_image_url || isUploadingImage || isRemovingImage || isLoadingProfile}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+                  >
+                    {isRemovingImage ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    Remove image
+                  </button>
+                </div>
+                <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                  JPG, PNG, or WebP. Max 5MB.
+                </p>
+                {profileStatus ? (
+                  <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+                    {profileStatus}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 gap-6 px-6 pt-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-md dark:border-white/10 dark:bg-slate-900/80">
+          <div className="mb-8 flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100">
               <Bell className="text-blue-600" size={26} />
             </div>
             <h4 className="text-xl font-medium text-slate-900 dark:text-white">Notifications</h4>
@@ -240,13 +440,13 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-white/70 p-4 dark:border-white/10 dark:bg-slate-950/60">
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Notification Email</label>
-              <div className="flex gap-2 flex-col sm:flex-row">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Notification Email</label>
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <input
                   type="email"
                   value={notificationEmail}
                   onChange={(e) => setNotificationEmail(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 dark:border-white/10 dark:bg-slate-950 dark:text-white px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-slate-950 dark:text-white"
                   placeholder="email@example.com"
                 />
                 <button
@@ -257,7 +457,7 @@ export default function SettingsPage() {
                 </button>
               </div>
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={handleEmailDraft}
                 className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 hover:bg-emerald-100 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200"
@@ -281,7 +481,7 @@ export default function SettingsPage() {
                   <label className="relative inline-flex cursor-pointer items-center self-start">
                     <input
                       type="checkbox"
-                      className="sr-only peer"
+                      className="peer sr-only"
                       checked={settings.notifications[item.id]}
                       onChange={() => handleToggleNotification(item.id, item.label)}
                     />
@@ -298,10 +498,9 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Security Section */}
-        <div className="bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-8">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-14 w-14 rounded-2xl bg-purple-100 flex items-center justify-center">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-md dark:border-white/10 dark:bg-slate-900/80">
+          <div className="mb-8 flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-100">
               <Lock className="text-purple-600" size={26} />
             </div>
             <h4 className="text-xl font-medium text-slate-900 dark:text-white">Security</h4>
@@ -329,7 +528,7 @@ export default function SettingsPage() {
                   <label className="relative inline-flex cursor-pointer items-center self-start">
                     <input
                       type="checkbox"
-                      className="sr-only peer"
+                      className="peer sr-only"
                       checked={Boolean(settings.security?.[item.id])}
                       onChange={() => handleSecurityToggle(item.id)}
                     />
@@ -358,14 +557,14 @@ export default function SettingsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">New Password</label>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">New Password</label>
               <div className="relative">
                 <input
                   type={showPassword.next ? "text" : "password"}
                   value={passwordForm.next}
                   onChange={(e) => setPasswordForm((prev) => ({ ...prev, next: e.target.value }))}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-gray-200 dark:border-white/10 dark:bg-slate-950 dark:text-white px-4 pr-11 py-2.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 pr-11 outline-none transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-white/10 dark:bg-slate-950 dark:text-white"
                 />
                 <button
                   type="button"
@@ -377,14 +576,14 @@ export default function SettingsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Confirm New Password</label>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Confirm New Password</label>
               <div className="relative">
                 <input
                   type={showPassword.confirm ? "text" : "password"}
                   value={passwordForm.confirm}
                   onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirm: e.target.value }))}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-gray-200 dark:border-white/10 dark:bg-slate-950 dark:text-white px-4 pr-11 py-2.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 pr-11 outline-none transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-white/10 dark:bg-slate-950 dark:text-white"
                 />
                 <button
                   type="button"
@@ -395,7 +594,7 @@ export default function SettingsPage() {
                 </button>
               </div>
             </div>
-            <button type="submit" className="w-full rounded-2xl bg-purple-600 py-3 text-white font-medium hover:bg-purple-700 transition-all shadow-lg shadow-purple-100 dark:shadow-purple-950/40">
+            <button type="submit" className="w-full rounded-2xl bg-purple-600 py-3 text-white font-medium transition-all hover:bg-purple-700 shadow-lg shadow-purple-100 dark:shadow-purple-950/40">
               Update Password
             </button>
             {passwordStatus ? (
@@ -407,11 +606,10 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-6 mt-6 mb-12">
-        {/* Regional Settings */}
-        <div className="bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-8">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-14 w-14 rounded-2xl bg-orange-100 flex items-center justify-center">
+      <section className="mb-12 mt-6 grid grid-cols-1 gap-6 px-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-md dark:border-white/10 dark:bg-slate-900/80">
+          <div className="mb-8 flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100">
               <Globe className="text-orange-600" size={26} />
             </div>
             <h4 className="text-xl font-medium text-slate-900 dark:text-white">Regional</h4>
@@ -419,11 +617,11 @@ export default function SettingsPage() {
 
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Language</label>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Language</label>
               <select
-                className="w-full rounded-xl border border-gray-200 dark:border-white/10 dark:bg-slate-950 dark:text-white px-4 py-2.5 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-white/10 dark:bg-slate-950 dark:text-white"
                 value={settings.regional.language}
-                onChange={(e) => updateRegional('language', e.target.value)}
+                onChange={(e) => updateRegional("language", e.target.value)}
               >
                 <option value="en-us">English (US)</option>
                 <option value="so">Somali</option>
@@ -431,11 +629,11 @@ export default function SettingsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Currency</label>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Currency</label>
               <select
-                className="w-full rounded-xl border border-gray-200 dark:border-white/10 dark:bg-slate-950 dark:text-white px-4 py-2.5 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-white/10 dark:bg-slate-950 dark:text-white"
                 value={settings.regional.currency}
-                onChange={(e) => updateRegional('currency', e.target.value)}
+                onChange={(e) => updateRegional("currency", e.target.value)}
               >
                 <option value="usd">USD ($)</option>
                 <option value="eur">EUR (€)</option>
@@ -445,10 +643,9 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Data Management */}
-        <div className="bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-8">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-14 w-14 rounded-2xl bg-red-100 flex items-center justify-center">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-md dark:border-white/10 dark:bg-slate-900/80">
+          <div className="mb-8 flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100">
               <Database className="text-red-600" size={26} />
             </div>
             <h4 className="text-xl font-medium text-slate-900 dark:text-white">Data & System</h4>
@@ -457,28 +654,28 @@ export default function SettingsPage() {
           <div className="grid grid-cols-2 gap-4">
             <button
               onClick={handleExportData}
-              className="rounded-xl border border-gray-200 dark:border-white/10 py-3 text-gray-700 dark:text-slate-200 font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+              className="rounded-xl border border-gray-200 py-3 font-medium text-gray-700 transition-all hover:bg-gray-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/5"
             >
               Export data
             </button>
             <button
               onClick={handleBackup}
-              className="rounded-xl border border-gray-200 dark:border-white/10 py-3 text-gray-700 dark:text-slate-200 font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+              className="rounded-xl border border-gray-200 py-3 font-medium text-gray-700 transition-all hover:bg-gray-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/5"
             >
               Backup
             </button>
             <button
               onClick={handleDownloadReport}
-              className="col-span-2 rounded-xl border border-green-500 py-3 text-green-600 dark:text-green-300 font-medium hover:bg-green-50 dark:hover:bg-green-500/10 transition-all"
+              className="col-span-2 rounded-xl border border-green-500 py-3 font-medium text-green-600 transition-all hover:bg-green-50 dark:text-green-300 dark:hover:bg-green-500/10"
             >
               Download reports
             </button>
-            <button className="col-span-2 mt-4 rounded-xl border-2 border-red-500 py-3 text-red-500 dark:text-red-300 font-medium hover:bg-red-50 dark:hover:bg-red-500/10 transition-all">
+            <button className="col-span-2 mt-4 rounded-xl border-2 border-red-500 py-3 font-medium text-red-500 transition-all hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-500/10">
               Delete Account
             </button>
           </div>
         </div>
       </section>
     </>
-  )
+  );
 }
