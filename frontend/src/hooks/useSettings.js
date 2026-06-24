@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { recordActivity } from "@/lib/activityLog";
 import { apiRequest } from "@/lib/apiClient";
-
-const STORAGE_KEY = "fruit_store_settings";
+import { useCachedCollection } from "@/lib/useCachedCollection";
 
 const initialSettings = {
   profile: {
@@ -62,52 +61,28 @@ function mergeSettings(settings) {
   };
 }
 
-function getStoredSettings() {
-  if (typeof window === "undefined") {
-    return initialSettings;
-  }
-
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? mergeSettings(JSON.parse(raw)) : initialSettings;
-  } catch {
-    return initialSettings;
-  }
-}
-
 export function useSettings() {
-  const [settings, setSettings] = useState(initialSettings);
-
-  const syncSettings = useCallback((nextSettings) => {
-    const merged = mergeSettings(nextSettings);
-    setSettings(merged);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-    window.dispatchEvent(new Event("fruit-store-settings-updated"));
-    return merged;
-  }, []);
-
   const loadSettings = useCallback(async () => {
-    const data = await apiRequest("/settings");
-    syncSettings(data);
-  }, [syncSettings]);
-
-  useEffect(() => {
-    setSettings(getStoredSettings());
+    return apiRequest("/settings");
   }, []);
 
-  useEffect(() => {
-    loadSettings().catch((error) => {
-      console.error("Failed to load settings", error);
-    });
-  }, [loadSettings]);
+  const { data, error, isLoading, isRefreshing, refresh, updateCachedData } = useCachedCollection({
+    cacheKey: "settings",
+    fetcher: loadSettings,
+    normalize: mergeSettings,
+    initialData: initialSettings,
+    staleTimeMs: 45_000,
+  });
 
   const patchSettings = useCallback(async (patch) => {
     const nextSettings = await apiRequest("/settings", {
       method: "PATCH",
       body: JSON.stringify(patch),
     });
-    return syncSettings(nextSettings);
-  }, [syncSettings]);
+    const merged = updateCachedData(nextSettings);
+    window.dispatchEvent(new Event("fruit-store-settings-updated"));
+    return merged;
+  }, [updateCachedData]);
 
   const updateProfile = useCallback(async (profile) => {
     const next = await patchSettings({ profile });
@@ -120,10 +95,10 @@ export function useSettings() {
   }, [patchSettings]);
 
   const toggleNotification = useCallback(async (id) => {
-    const nextValue = !settings.notifications[id];
+    const nextValue = !data.notifications[id];
     await patchSettings({
       notifications: {
-        ...settings.notifications,
+        ...data.notifications,
         [id]: nextValue,
       },
     });
@@ -133,10 +108,10 @@ export function useSettings() {
       description: `${id} notifications were ${nextValue ? "enabled" : "disabled"}.`,
     });
     return nextValue;
-  }, [patchSettings, settings.notifications]);
+  }, [data.notifications, patchSettings]);
 
   const setAllNotifications = useCallback(async (enabled) => {
-    const nextNotifications = Object.keys(settings.notifications || {}).reduce((acc, key) => {
+    const nextNotifications = Object.keys(data.notifications || {}).reduce((acc, key) => {
       acc[key] = enabled;
       return acc;
     }, {});
@@ -147,12 +122,12 @@ export function useSettings() {
       title: "Notification settings updated",
       description: `All notifications were ${enabled ? "enabled" : "disabled"}.`,
     });
-  }, [patchSettings, settings.notifications]);
+  }, [data.notifications, patchSettings]);
 
   const updateRegional = useCallback(async (key, value) => {
     await patchSettings({
       regional: {
-        ...settings.regional,
+        ...data.regional,
         [key]: value,
       },
     });
@@ -161,7 +136,7 @@ export function useSettings() {
       title: "Regional setting changed",
       description: `${key} updated to ${value}.`,
     });
-  }, [patchSettings, settings.regional]);
+  }, [data.regional, patchSettings]);
 
   const updateNotificationEmail = useCallback(async (email) => {
     await patchSettings({ notificationEmail: email });
@@ -173,7 +148,7 @@ export function useSettings() {
   }, [patchSettings]);
 
   const changePassword = useCallback(async (newPassword) => {
-    const existingPassword = settings.security?.password || initialSettings.security.password;
+    const existingPassword = data.security?.password || initialSettings.security.password;
     if (existingPassword === newPassword) {
       return {
         ok: false,
@@ -183,7 +158,7 @@ export function useSettings() {
 
     await patchSettings({
       security: {
-        ...settings.security,
+        ...data.security,
         password: newPassword,
         lastChanged: new Date().toISOString(),
       },
@@ -199,12 +174,12 @@ export function useSettings() {
       ok: true,
       error: "",
     };
-  }, [patchSettings, settings.security]);
+  }, [data.security, patchSettings]);
 
   const updateSecurity = useCallback(async (patch) => {
     await patchSettings({
       security: {
-        ...settings.security,
+        ...data.security,
         ...patch,
       },
     });
@@ -213,10 +188,10 @@ export function useSettings() {
       title: "Security settings updated",
       description: "Account protection preferences were updated.",
     });
-  }, [patchSettings, settings.security]);
+  }, [data.security, patchSettings]);
 
   return {
-    settings,
+    settings: data,
     updateProfile,
     toggleNotification,
     setAllNotifications,
@@ -224,5 +199,9 @@ export function useSettings() {
     updateRegional,
     changePassword,
     updateSecurity,
+    error,
+    isLoading,
+    isRefreshing,
+    reload: refresh,
   };
 }

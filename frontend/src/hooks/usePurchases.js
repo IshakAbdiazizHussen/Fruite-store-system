@@ -1,33 +1,31 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { recordActivity } from "@/lib/activityLog";
 import { apiRequest } from "@/lib/apiClient";
 import { notifyBackendDataChanged, subscribeToBackendDataChanged } from "@/lib/backendSync";
+import { useCachedCollection } from "@/lib/useCachedCollection";
 
 export function usePurchases() {
-  const [purchases, setPurchases] = useState([]);
-
   const loadPurchases = useCallback(async () => {
-    const data = await apiRequest("/purchases");
-    setPurchases(Array.isArray(data) ? data : []);
+    return apiRequest("/purchases");
   }, []);
 
-  useEffect(() => {
-    loadPurchases().catch((error) => {
-      console.error("Failed to load purchases", error);
-    });
-    return subscribeToBackendDataChanged(() => {
-      loadPurchases().catch(() => {});
-    });
-  }, [loadPurchases]);
+  const { data, error, isLoading, isRefreshing, refresh } = useCachedCollection({
+    cacheKey: "purchases",
+    fetcher: loadPurchases,
+    normalize: (next) => (Array.isArray(next) ? next : []),
+    initialData: [],
+    staleTimeMs: 20_000,
+    subscribe: subscribeToBackendDataChanged,
+  });
 
   const addPurchase = useCallback(async (newPurchase) => {
     await apiRequest("/purchases", {
       method: "POST",
       body: JSON.stringify(newPurchase),
     });
-    await loadPurchases();
+    await refresh({ force: true });
     notifyBackendDataChanged();
 
     recordActivity({
@@ -35,38 +33,38 @@ export function usePurchases() {
       title: "Purchase added",
       description: `New purchase was created for ${newPurchase.supplier}.`,
     });
-  }, [loadPurchases]);
+  }, [refresh]);
 
   const updatePurchaseStatus = useCallback(async (purchaseId, status) => {
-    const target = purchases.find((purchase) => purchase.purchaseId === purchaseId);
+    const target = data.find((purchase) => purchase.purchaseId === purchaseId);
     if (!target) return;
 
     await apiRequest(`/purchases/${encodeURIComponent(purchaseId)}`, {
       method: "PUT",
       body: JSON.stringify({ ...target, status }),
     });
-    await loadPurchases();
+    await refresh({ force: true });
     notifyBackendDataChanged();
     recordActivity({
       type: "update",
       title: "Purchase status updated",
       description: `${purchaseId} changed to ${status}.`,
     });
-  }, [loadPurchases, purchases]);
+  }, [data, refresh]);
 
   const updatePurchase = useCallback(async (updatedPurchase) => {
     await apiRequest(`/purchases/${encodeURIComponent(updatedPurchase.purchaseId)}`, {
       method: "PUT",
       body: JSON.stringify(updatedPurchase),
     });
-    await loadPurchases();
+    await refresh({ force: true });
     notifyBackendDataChanged();
     recordActivity({
       type: "update",
       title: "Purchase updated",
       description: `${updatedPurchase.purchaseId} was edited.`,
     });
-  }, [loadPurchases]);
+  }, [refresh]);
 
-  return { purchases, addPurchase, updatePurchaseStatus, updatePurchase };
+  return { purchases: data, addPurchase, updatePurchaseStatus, updatePurchase, error, isLoading, isRefreshing, reload: refresh };
 }

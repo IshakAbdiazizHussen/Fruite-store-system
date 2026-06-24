@@ -1,67 +1,66 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { recordActivity } from "@/lib/activityLog";
 import { apiRequest } from "@/lib/apiClient";
 import { notifyBackendDataChanged, subscribeToBackendDataChanged } from "@/lib/backendSync";
+import { useCachedCollection } from "@/lib/useCachedCollection";
 
 export function useInventory() {
-  const [items, setItems] = useState([]);
-
   const loadItems = useCallback(async () => {
-    const data = await apiRequest("/inventory");
-    setItems(Array.isArray(data) ? data : []);
+    return apiRequest("/inventory");
   }, []);
 
-  useEffect(() => {
-    loadItems().catch((error) => {
-      console.error("Failed to load inventory", error);
-    });
-    return subscribeToBackendDataChanged(() => {
-      loadItems().catch(() => {});
-    });
-  }, [loadItems]);
+  const { data, error, isLoading, isRefreshing, refresh, updateCachedData } = useCachedCollection({
+    cacheKey: "inventory",
+    fetcher: loadItems,
+    normalize: (next) => (Array.isArray(next) ? next : []),
+    initialData: [],
+    staleTimeMs: 20_000,
+    subscribe: subscribeToBackendDataChanged,
+  });
 
   const addItem = useCallback(async (newItem) => {
     await apiRequest("/inventory", {
       method: "POST",
       body: JSON.stringify(newItem),
     });
-    await loadItems();
+    await refresh({ force: true });
     notifyBackendDataChanged();
     recordActivity({
       type: "create",
       title: "Inventory item added",
       description: `${newItem.name} was added to inventory.`,
     });
-  }, [loadItems]);
+  }, [refresh]);
 
   const deleteItem = useCallback(async (name) => {
     await apiRequest(`/inventory/${encodeURIComponent(name)}`, {
       method: "DELETE",
     });
-    await loadItems();
+    updateCachedData(data.filter((item) => item.name !== name));
+    await refresh({ force: true });
     notifyBackendDataChanged();
     recordActivity({
       type: "delete",
       title: "Inventory item deleted",
       description: `${name} was removed from inventory.`,
     });
-  }, [loadItems]);
+  }, [data, refresh, updateCachedData]);
 
   const updateItem = useCallback(async (updatedItem, originalName = updatedItem.name) => {
     await apiRequest(`/inventory/${encodeURIComponent(originalName)}`, {
       method: "PUT",
       body: JSON.stringify(updatedItem),
     });
-    await loadItems();
+    await refresh({ force: true });
     notifyBackendDataChanged();
     recordActivity({
       type: "update",
       title: "Inventory item updated",
       description: `${updatedItem.name} was updated.`,
     });
-  }, [loadItems]);
+  }, [refresh]);
 
-  return { items, addItem, deleteItem, updateItem };
+  return { items: data, addItem, deleteItem, updateItem, error, isLoading, isRefreshing, reload: refresh };
 }

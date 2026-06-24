@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { apiRequest } from "@/lib/apiClient";
+import { primeCachedResource } from "@/lib/resourceCache";
+import { useCachedCollection } from "@/lib/useCachedCollection";
 
 const defaultFrontendContent = {
   branding: {
@@ -52,54 +54,51 @@ function mergeContent(content) {
 }
 
 export function useFrontendContent({ authenticated = false } = {}) {
-  const [content, setContent] = useState(defaultFrontendContent);
-  const [isBackendAvailable, setIsBackendAvailable] = useState(true);
-  const [error, setError] = useState("");
-
   const loadContent = useCallback(async () => {
     try {
       const data = await apiRequest("/frontend-content", {
+        cache: authenticated ? "no-store" : "force-cache",
         headers: authenticated ? undefined : {},
       });
-      setContent(mergeContent(data));
-      setIsBackendAvailable(true);
-      setError("");
       return data;
     } catch {
-      // Keep the UI usable with local defaults while the backend is offline.
-      setContent(mergeContent(defaultFrontendContent));
-      setIsBackendAvailable(false);
-      setError("Backend content service is unavailable.");
       return defaultFrontendContent;
     }
   }, [authenticated]);
 
-  useEffect(() => {
-    loadContent();
-  }, [loadContent]);
+  const {
+    data,
+    error,
+    isLoading,
+    isRefreshing,
+    refresh,
+    updateCachedData,
+  } = useCachedCollection({
+    cacheKey: "frontend-content",
+    fetcher: loadContent,
+    normalize: mergeContent,
+    initialData: defaultFrontendContent,
+    staleTimeMs: 60_000,
+    persist: authenticated ? "none" : "session",
+  });
 
   const updateContent = useCallback(async (patch) => {
-    try {
-      const next = await apiRequest("/frontend-content", {
-        method: "PATCH",
-        body: JSON.stringify(patch),
-      });
-      setContent(mergeContent(next));
-      setIsBackendAvailable(true);
-      setError("");
-      return next;
-    } catch (updateError) {
-      setIsBackendAvailable(false);
-      setError(updateError.message || "Unable to save backend content.");
-      throw updateError;
-    }
-  }, []);
+    const next = await apiRequest("/frontend-content", {
+      method: "PATCH",
+      body: JSON.stringify(patch),
+    });
+    updateCachedData(next);
+    primeCachedResource("frontend-content", next, { persist: "session" });
+    return next;
+  }, [updateCachedData]);
 
   return {
-    content,
+    content: data,
     error,
-    isBackendAvailable,
+    isBackendAvailable: !error,
+    isLoading,
+    isRefreshing,
     updateContent,
-    reloadContent: loadContent,
+    reloadContent: refresh,
   };
 }

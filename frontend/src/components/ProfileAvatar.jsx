@@ -55,6 +55,9 @@ export default function ProfileAvatar({
       <img
         src={displaySrc || resolvedSrc}
         alt={alt}
+        loading="lazy"
+        decoding="async"
+        sizes="(max-width: 768px) 96px, 128px"
         className={`h-full w-full rounded-full object-contain object-center brightness-100 transition-opacity duration-300 ease-in-out ${displaySrc ? "opacity-100" : "opacity-0"} ${imageClassName}`}
       />
     </div>

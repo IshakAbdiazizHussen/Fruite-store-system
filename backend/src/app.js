@@ -13,7 +13,14 @@ const app = express();
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
-app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
+app.use(
+  "/uploads",
+  express.static(path.resolve(__dirname, "../uploads"), {
+    etag: true,
+    immutable: true,
+    maxAge: "30d",
+  })
+);
 
 app.use("/api", apiRoutes);
 

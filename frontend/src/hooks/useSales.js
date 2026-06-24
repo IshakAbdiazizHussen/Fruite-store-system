@@ -1,43 +1,45 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { chartData as initialChartData } from "@/lib/mockData";
 import { recordActivity } from "@/lib/activityLog";
 import { apiRequest } from "@/lib/apiClient";
 import { notifyBackendDataChanged, subscribeToBackendDataChanged } from "@/lib/backendSync";
+import { useCachedCollection } from "@/lib/useCachedCollection";
 
 export function useSales() {
-  const [sales, setSales] = useState([]);
-  const [analytics, setAnalytics] = useState(initialChartData);
-
   const loadSales = useCallback(async () => {
-    const data = await apiRequest("/sales");
-    setSales(Array.isArray(data?.sales) ? data.sales : []);
-    setAnalytics(Array.isArray(data?.analytics) ? data.analytics : []);
+    return apiRequest("/sales");
   }, []);
 
-  useEffect(() => {
-    loadSales().catch((error) => {
-      console.error("Failed to load sales", error);
-    });
-    return subscribeToBackendDataChanged(() => {
-      loadSales().catch(() => {});
-    });
-  }, [loadSales]);
+  const { data, error, isLoading, isRefreshing, refresh } = useCachedCollection({
+    cacheKey: "sales",
+    fetcher: loadSales,
+    normalize: (next) => ({
+      sales: Array.isArray(next?.sales) ? next.sales : [],
+      analytics: Array.isArray(next?.analytics) ? next.analytics : initialChartData,
+    }),
+    initialData: {
+      sales: [],
+      analytics: initialChartData,
+    },
+    staleTimeMs: 20_000,
+    subscribe: subscribeToBackendDataChanged,
+  });
 
   const addSale = useCallback(async (newSale) => {
     await apiRequest("/sales", {
       method: "POST",
       body: JSON.stringify(newSale),
     });
-    await loadSales();
+    await refresh({ force: true });
     notifyBackendDataChanged();
     recordActivity({
       type: "create",
       title: "Sale recorded",
       description: `A sale was recorded for ${newSale.name}.`,
     });
-  }, [loadSales]);
+  }, [refresh]);
 
-  return { sales, analytics, addSale };
+  return { sales: data.sales, analytics: data.analytics, addSale, error, isLoading, isRefreshing, reload: refresh };
 }

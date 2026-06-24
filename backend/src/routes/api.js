@@ -1,6 +1,7 @@
 const express = require("express");
 
 const authenticate = require("../middleware/authenticate");
+const { noStore, publicCache } = require("../middleware/cacheControl");
 const authController = require("../controllers/authController");
 const frontendContentController = require("../controllers/frontendContentController");
 const { healthCheck } = require("../controllers/healthController");
@@ -19,9 +20,10 @@ const protectedRouter = express.Router();
 router.get("/", apiInfo);
 router.get("/health", healthCheck);
 router.post("/auth/login", authController.login);
-router.get("/frontend-content", frontendContentController.getFrontendContent);
+router.get("/frontend-content", publicCache("public, max-age=60, stale-while-revalidate=300"), frontendContentController.getFrontendContent);
 
 protectedRouter.use(authenticate);
+protectedRouter.use(noStore);
 protectedRouter.get("/auth/me", authController.me);
 protectedRouter.post("/auth/logout", authController.logout);
 protectedRouter.post("/auth/me/profile-image", profileImageUpload, authController.uploadImage);
