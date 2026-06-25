@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Bell, Menu, X, Moon, Sun, LogOut } from "lucide-react";
 import GlobalSearchPalette from "@/components/GlobalSearchPalette";
 import ProfileAvatar from "@/components/ProfileAvatar";
@@ -15,6 +16,7 @@ import { globalSearchItems } from "@/lib/globalSearchItems";
 const LAST_SEEN_KEY = "fruit_store_activity_seen_at";
 
 export default function Topper({ onToggleSidebar, isSidebarOpen }) {
+  const pathname = usePathname();
   const bellRef = useRef(null);
   const [isBellOpen, setIsBellOpen] = useState(false);
   const [theme, setTheme] = useState("light");
@@ -134,6 +136,7 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
   };
 
   const avatarSource = getAvatarSource(profile.avatar);
+  const isInventoryRoute = pathname === "/dashboard/inventory";
 
   return (
     <div className="flex items-center justify-between border-b border-gray-100 bg-white px-5 py-2.5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
@@ -150,6 +153,8 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
           items={globalSearchItems}
           triggerMode="input"
           triggerPlaceholder="Search pages, reports, settings..."
+          hint={isInventoryRoute ? "" : "Press / or Cmd/Ctrl K"}
+          keyboardShortcutsEnabled={!isInventoryRoute}
         />
       </div>
 

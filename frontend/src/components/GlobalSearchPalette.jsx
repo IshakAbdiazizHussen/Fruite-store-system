@@ -10,6 +10,7 @@ export default function GlobalSearchPalette({
   triggerClassName = "",
   triggerPlaceholder = "Search menu...",
   hint = "Press / or Cmd/Ctrl K",
+  keyboardShortcutsEnabled = true,
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -39,6 +40,10 @@ export default function GlobalSearchPalette({
   }, [isOpen, query]);
 
   useEffect(() => {
+    if (!keyboardShortcutsEnabled) {
+      return undefined;
+    }
+
     const onGlobalShortcut = (event) => {
       if (shouldIgnoreShortcut(event.target)) {
         return;
@@ -62,7 +67,7 @@ export default function GlobalSearchPalette({
 
     window.addEventListener("keydown", onGlobalShortcut);
     return () => window.removeEventListener("keydown", onGlobalShortcut);
-  }, [isOpen]);
+  }, [isOpen, keyboardShortcutsEnabled]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -132,9 +137,11 @@ export default function GlobalSearchPalette({
         >
           <Search className="shrink-0 text-gray-400 dark:text-gray-500" size={16} />
           <span className="flex-1 text-sm text-gray-400 dark:text-gray-500">{triggerPlaceholder}</span>
-          <span className="hidden shrink-0 rounded-lg border border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-gray-400 dark:border-gray-700 dark:bg-slate-900 dark:text-slate-500 lg:inline-flex">
-            {hint}
-          </span>
+          {hint ? (
+            <span className="hidden shrink-0 rounded-lg border border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-gray-400 dark:border-gray-700 dark:bg-slate-900 dark:text-slate-500 lg:inline-flex">
+              {hint}
+            </span>
+          ) : null}
         </button>
       ) : (
         <button
