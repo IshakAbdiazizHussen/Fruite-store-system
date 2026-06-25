@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut, Menu, Moon, Sun, X } from "lucide-react";
+import GlobalSearchPalette from "@/components/GlobalSearchPalette";
 import ProfileAvatar from "@/components/ProfileAvatar";
 import { getStoredUser, logoutAdmin, subscribeToAuthSession } from "@/lib/authClient";
+import { globalSearchItems } from "@/lib/globalSearchItems";
 import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
 
 export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
@@ -68,6 +70,12 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
       </div>
 
       <div className="flex items-center gap-3">
+        <GlobalSearchPalette
+          items={globalSearchItems}
+          triggerMode="button"
+          triggerPlaceholder="Search"
+          triggerClassName="hidden lg:inline-flex"
+        />
         <button
           onClick={handleLogout}
           className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/5"

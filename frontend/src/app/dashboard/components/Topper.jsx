@@ -2,22 +2,20 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Bell, Search, Menu, X, Moon, Sun, LogOut } from "lucide-react";
+import { Bell, Menu, X, Moon, Sun, LogOut } from "lucide-react";
+import GlobalSearchPalette from "@/components/GlobalSearchPalette";
 import ProfileAvatar from "@/components/ProfileAvatar";
 import { getActivities } from "@/lib/activityLog";
 import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
 import { defaultAvatarPosition } from "@/lib/avatarStyle";
 import { getAvatarSource } from "@/lib/avatarUpload";
 import { getStoredUser, logoutAdmin, subscribeToAuthSession } from "@/lib/authClient";
+import { globalSearchItems } from "@/lib/globalSearchItems";
 
 const LAST_SEEN_KEY = "fruit_store_activity_seen_at";
 
 export default function Topper({ onToggleSidebar, isSidebarOpen }) {
-  const router = useRouter();
   const bellRef = useRef(null);
-  const searchInputRef = useRef(null);
-  const [searchText, setSearchText] = useState("");
   const [isBellOpen, setIsBellOpen] = useState(false);
   const [theme, setTheme] = useState("light");
   const [activities, setActivities] = useState([]);
@@ -80,28 +78,10 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
         setIsBellOpen(false);
       }
     };
-    const onGlobalShortcut = (event) => {
-      if (shouldIgnoreShortcut(event.target)) {
-        return;
-      }
-
-      const isSlashShortcut = event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey;
-      const isCommandPaletteShortcut =
-        event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey);
-
-      if (!isSlashShortcut && !isCommandPaletteShortcut) {
-        return;
-      }
-
-      event.preventDefault();
-      searchInputRef.current?.focus();
-      searchInputRef.current?.select();
-    };
 
     window.addEventListener("fruit-store-activity-updated", onActivity);
     window.addEventListener("fruit-store-settings-updated", onSettings);
     window.addEventListener("storage", onActivity);
-    window.addEventListener("keydown", onGlobalShortcut);
     document.addEventListener("mousedown", onClickOutside);
     const unsubscribeTheme = subscribeToTheme((nextTheme) => {
       setTheme(nextTheme);
@@ -113,7 +93,6 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
       window.removeEventListener("fruit-store-activity-updated", onActivity);
       window.removeEventListener("fruit-store-settings-updated", onSettings);
       window.removeEventListener("storage", onActivity);
-      window.removeEventListener("keydown", onGlobalShortcut);
       document.removeEventListener("mousedown", onClickOutside);
       unsubscribeTheme();
       unsubscribeAuth();
@@ -124,20 +103,6 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
     if (!activities.length) return false;
     return new Date(activities[0].timestamp).getTime() > lastSeenAt;
   }, [activities, lastSeenAt]);
-
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-    const query = searchText.trim();
-    if (!query) return;
-    router.push(`/dashboard/inventory?search=${encodeURIComponent(query)}`);
-  };
-
-  const handleSearchKeyDown = (event) => {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      event.currentTarget.blur();
-    }
-  };
 
   const handleBellClick = () => {
     const next = !isBellOpen;
@@ -181,23 +146,11 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
           {isSidebarOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
 
-        <form
-          onSubmit={handleSearchSubmit}
-          className="flex items-center gap-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2 w-full max-w-md"
-        >
-          <Search className="text-gray-400 dark:text-gray-500 shrink-0" size={16} />
-          <input
-            ref={searchInputRef}
-            className="w-full outline-none text-sm text-gray-600 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 bg-transparent"
-            placeholder="Search fruits..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-          />
-          <span className="hidden shrink-0 rounded-lg border border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-gray-400 dark:border-gray-700 dark:bg-slate-900 dark:text-slate-500 lg:inline-flex">
-            Press / or Cmd/Ctrl K
-          </span>
-        </form>
+        <GlobalSearchPalette
+          items={globalSearchItems}
+          triggerMode="input"
+          triggerPlaceholder="Search pages, reports, settings..."
+        />
       </div>
 
       <div className="flex items-center gap-3">
@@ -274,21 +227,5 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
         </div>
       </div>
     </div>
-  );
-}
-
-function shouldIgnoreShortcut(target) {
-  if (!(target instanceof HTMLElement)) {
-    return false;
-  }
-
-  const tagName = target.tagName.toLowerCase();
-  return (
-    tagName === "input" ||
-    tagName === "textarea" ||
-    tagName === "select" ||
-    target.isContentEditable ||
-    target.closest("[contenteditable='true']") !== null ||
-    target.closest("[role='textbox']") !== null
   );
 }

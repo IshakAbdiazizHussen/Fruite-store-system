@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { Suspense, useState, useMemo, useEffect } from "react";
+import React, { Suspense, useState, useMemo, useEffect, useRef } from "react";
 import { Plus, Search, Eye, Pencil, Trash2 } from "lucide-react";
 import { useInventory } from "@/hooks/useInventory";
 import { useSearchParams } from "next/navigation";
@@ -25,6 +25,7 @@ function StatusBadge({ status }) {
 function InventoryPageContent() {
   const searchParams = useSearchParams();
   const { items, addItem, deleteItem, updateItem } = useInventory();
+  const searchInputRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("All");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -35,6 +36,34 @@ function InventoryPageContent() {
     const fromNavbar = searchParams.get("search") || "";
     setSearchTerm(fromNavbar);
   }, [searchParams]);
+
+  useEffect(() => {
+    const onInventoryShortcut = (event) => {
+      if (shouldIgnoreInventoryShortcut(event.target)) {
+        return;
+      }
+
+      const isSlashShortcut =
+        event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey;
+      const isCommandShortcut =
+        event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey);
+
+      if (!isSlashShortcut && !isCommandShortcut) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === "function") {
+        event.stopImmediatePropagation();
+      }
+      searchInputRef.current?.focus();
+      searchInputRef.current?.select();
+    };
+
+    window.addEventListener("keydown", onInventoryShortcut, true);
+    return () => window.removeEventListener("keydown", onInventoryShortcut, true);
+  }, []);
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
@@ -101,10 +130,17 @@ function InventoryPageContent() {
           <div className="flex items-center gap-3 flex-1 border border-gray-200 rounded-xl px-3 py-2 dark:border-white/10 dark:bg-slate-950/60">
             <Search className="text-gray-400 dark:text-slate-500 shrink-0" size={18} />
             <input
+              ref={searchInputRef}
               className="w-full bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-400 dark:text-slate-200 dark:placeholder:text-slate-500"
               placeholder="Search by name or category..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  event.preventDefault();
+                  event.currentTarget.blur();
+                }
+              }}
             />
           </div>
           <div className="flex items-center gap-2">
@@ -222,6 +258,22 @@ function InventoryPageContent() {
         onClose={() => setViewItem(null)}
       />
     </>
+  );
+}
+
+function shouldIgnoreInventoryShortcut(target) {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  const tagName = target.tagName.toLowerCase();
+  return (
+    tagName === "input" ||
+    tagName === "textarea" ||
+    tagName === "select" ||
+    target.isContentEditable ||
+    target.closest("[contenteditable='true']") !== null ||
+    target.closest("[role='textbox']") !== null
   );
 }
 
