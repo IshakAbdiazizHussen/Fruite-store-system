@@ -153,8 +153,10 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
           items={globalSearchItems}
           triggerMode="input"
           triggerPlaceholder="Search pages, reports, settings..."
-          hint={isInventoryRoute ? "" : "Press / or Cmd/Ctrl K"}
-          keyboardShortcutsEnabled={!isInventoryRoute}
+          hint={isInventoryRoute ? "⌘ K" : "Press / or Cmd/Ctrl K"}
+          keyboardShortcutsEnabled
+          slashShortcutEnabled={!isInventoryRoute}
+          commandOnlyShortcut={isInventoryRoute}
         />
       </div>
 

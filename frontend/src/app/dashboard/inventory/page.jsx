@@ -43,12 +43,10 @@ function InventoryPageContent() {
         return;
       }
 
-      const isMainInventoryShortcut =
-        event.key.toLowerCase() === "k" && event.metaKey && !event.ctrlKey && !event.altKey;
       const isIngredientShortcut =
         event.key.toLowerCase() === "i" && event.metaKey && !event.ctrlKey && !event.altKey;
 
-      if (!isMainInventoryShortcut && !isIngredientShortcut) {
+      if (!isIngredientShortcut) {
         return;
       }
 
@@ -143,7 +141,7 @@ function InventoryPageContent() {
               }}
             />
             <span className="shrink-0 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-[11px] font-medium text-gray-400 dark:border-white/10 dark:bg-white/5 dark:text-slate-500">
-              ⌘ K
+              ⌘ I
             </span>
           </div>
           <div className="flex items-center gap-2">

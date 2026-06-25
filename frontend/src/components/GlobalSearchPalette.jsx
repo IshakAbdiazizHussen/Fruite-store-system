@@ -11,6 +11,8 @@ export default function GlobalSearchPalette({
   triggerPlaceholder = "Search menu...",
   hint = "Press / or Cmd/Ctrl K",
   keyboardShortcutsEnabled = true,
+  slashShortcutEnabled = true,
+  commandOnlyShortcut = false,
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -49,9 +51,15 @@ export default function GlobalSearchPalette({
         return;
       }
 
-      const isSlashShortcut = event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey;
-      const isCommandPaletteShortcut =
-        event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey);
+      const isSlashShortcut =
+        slashShortcutEnabled &&
+        event.key === "/" &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.altKey;
+      const isCommandPaletteShortcut = commandOnlyShortcut
+        ? event.key.toLowerCase() === "k" && event.metaKey && !event.ctrlKey && !event.altKey
+        : event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey);
 
       if (!isSlashShortcut && !isCommandPaletteShortcut) {
         if (isOpen && event.key === "Escape") {
@@ -67,7 +75,7 @@ export default function GlobalSearchPalette({
 
     window.addEventListener("keydown", onGlobalShortcut);
     return () => window.removeEventListener("keydown", onGlobalShortcut);
-  }, [isOpen, keyboardShortcutsEnabled]);
+  }, [isOpen, keyboardShortcutsEnabled, slashShortcutEnabled, commandOnlyShortcut]);
 
   useEffect(() => {
     if (!isOpen) {
