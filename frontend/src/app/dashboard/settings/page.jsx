@@ -28,12 +28,10 @@ export default function SettingsPage() {
     updateRegional,
     changePassword,
     updateSecurity,
-    isLoading: isSettingsLoading,
-    isRefreshing: isSettingsRefreshing,
   } = useSettings();
-  const { orders, isRefreshing: isOrdersRefreshing } = useOrders();
-  const { purchases, isRefreshing: isPurchasesRefreshing } = usePurchases();
-  const { sales, analytics, isRefreshing: isSalesRefreshing } = useSales();
+  const { orders } = useOrders();
+  const { purchases } = usePurchases();
+  const { sales, analytics } = useSales();
   const [currentUser, setCurrentUser] = useState(getStoredUser());
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -332,8 +330,6 @@ export default function SettingsPage() {
   };
 
   const profileImageUrl = previewImageUrl || currentUser?.profile_image_url || null;
-  const isRefreshingData =
-    isSettingsRefreshing || isOrdersRefreshing || isPurchasesRefreshing || isSalesRefreshing;
 
   return (
     <>
@@ -341,22 +337,6 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-medium text-slate-900 dark:text-white">Settings</h1>
         <p className="font-light text-gray-500 dark:text-slate-400">Manage your application preferences and account settings</p>
       </div>
-
-      {isSettingsLoading ? (
-        <div className="px-6">
-          <div className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-600 shadow-sm dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-300">
-            Loading settings...
-          </div>
-        </div>
-      ) : null}
-
-      {isRefreshingData && !isSettingsLoading ? (
-        <div className="px-6">
-          <div className="rounded-2xl border border-blue-200 bg-blue-50/80 px-4 py-3 text-sm text-blue-700 shadow-sm dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
-            Refreshing cached settings data...
-          </div>
-        </div>
-      ) : null}
 
       <section className="px-6">
         <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900/80">

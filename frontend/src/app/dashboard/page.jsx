@@ -13,14 +13,10 @@ import { useOrders } from "@/hooks/useOrders";
 import { useFrontendContent } from "@/hooks/useFrontendContent";
 
 export default function DashboardPage() {
-  const { items, isLoading: isInventoryLoading, isRefreshing: isInventoryRefreshing } = useInventory();
-  const { sales, isLoading: isSalesLoading, isRefreshing: isSalesRefreshing } = useSales();
-  const { orders, isLoading: isOrdersLoading, isRefreshing: isOrdersRefreshing } = useOrders();
-  const { content, isLoading: isContentLoading, isRefreshing: isContentRefreshing } = useFrontendContent({ authenticated: true });
-  const isLoading =
-    isInventoryLoading || isSalesLoading || isOrdersLoading || isContentLoading;
-  const isRefreshing =
-    isInventoryRefreshing || isSalesRefreshing || isOrdersRefreshing || isContentRefreshing;
+  const { items } = useInventory();
+  const { sales } = useSales();
+  const { orders } = useOrders();
+  const { content } = useFrontendContent({ authenticated: true });
 
   const stats = useMemo(() => {
     const inventoryValue = items.reduce((acc, item) => acc + item.stock * item.price, 0);
@@ -48,18 +44,6 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{content.dashboard.title}</h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{content.dashboard.subtitle}</p>
       </div>
-
-      {isLoading ? (
-        <div className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-600 shadow-sm dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-300">
-          Loading dashboard data...
-        </div>
-      ) : null}
-
-      {isRefreshing && !isLoading ? (
-        <div className="rounded-2xl border border-blue-200 bg-blue-50/80 px-4 py-3 text-sm text-blue-700 shadow-sm dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
-          Refreshing cached dashboard data...
-        </div>
-      ) : null}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         <StatCard type="sales" title="Today's Sales" value={`$${stats.todaySales.toLocaleString()}`} badge="+12.5%" />
