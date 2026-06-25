@@ -43,10 +43,12 @@ function InventoryPageContent() {
         return;
       }
 
-      const isCommandShortcut =
+      const isMainInventoryShortcut =
         event.key.toLowerCase() === "k" && event.metaKey && !event.ctrlKey && !event.altKey;
+      const isIngredientShortcut =
+        event.key.toLowerCase() === "i" && event.metaKey && !event.ctrlKey && !event.altKey;
 
-      if (!isCommandShortcut) {
+      if (!isMainInventoryShortcut && !isIngredientShortcut) {
         return;
       }
 
