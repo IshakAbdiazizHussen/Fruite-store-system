@@ -55,6 +55,8 @@ function InventoryPageContent() {
       if (typeof event.stopImmediatePropagation === "function") {
         event.stopImmediatePropagation();
       }
+      setSearchTerm("");
+      searchInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       searchInputRef.current?.focus();
       searchInputRef.current?.select();
     };
