@@ -16,6 +16,7 @@ const LAST_SEEN_KEY = "fruit_store_activity_seen_at";
 export default function Topper({ onToggleSidebar, isSidebarOpen }) {
   const router = useRouter();
   const bellRef = useRef(null);
+  const searchInputRef = useRef(null);
   const [searchText, setSearchText] = useState("");
   const [isBellOpen, setIsBellOpen] = useState(false);
   const [theme, setTheme] = useState("light");
@@ -79,10 +80,28 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
         setIsBellOpen(false);
       }
     };
+    const onGlobalShortcut = (event) => {
+      if (shouldIgnoreShortcut(event.target)) {
+        return;
+      }
+
+      const isSlashShortcut = event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey;
+      const isCommandPaletteShortcut =
+        event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey);
+
+      if (!isSlashShortcut && !isCommandPaletteShortcut) {
+        return;
+      }
+
+      event.preventDefault();
+      searchInputRef.current?.focus();
+      searchInputRef.current?.select();
+    };
 
     window.addEventListener("fruit-store-activity-updated", onActivity);
     window.addEventListener("fruit-store-settings-updated", onSettings);
     window.addEventListener("storage", onActivity);
+    window.addEventListener("keydown", onGlobalShortcut);
     document.addEventListener("mousedown", onClickOutside);
     const unsubscribeTheme = subscribeToTheme((nextTheme) => {
       setTheme(nextTheme);
@@ -94,6 +113,7 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
       window.removeEventListener("fruit-store-activity-updated", onActivity);
       window.removeEventListener("fruit-store-settings-updated", onSettings);
       window.removeEventListener("storage", onActivity);
+      window.removeEventListener("keydown", onGlobalShortcut);
       document.removeEventListener("mousedown", onClickOutside);
       unsubscribeTheme();
       unsubscribeAuth();
@@ -110,6 +130,13 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
     const query = searchText.trim();
     if (!query) return;
     router.push(`/dashboard/inventory?search=${encodeURIComponent(query)}`);
+  };
+
+  const handleSearchKeyDown = (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.currentTarget.blur();
+    }
   };
 
   const handleBellClick = () => {
@@ -160,11 +187,16 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
         >
           <Search className="text-gray-400 dark:text-gray-500 shrink-0" size={16} />
           <input
+            ref={searchInputRef}
             className="w-full outline-none text-sm text-gray-600 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 bg-transparent"
             placeholder="Search fruits..."
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
           />
+          <span className="hidden shrink-0 rounded-lg border border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-gray-400 dark:border-gray-700 dark:bg-slate-900 dark:text-slate-500 lg:inline-flex">
+            Press / or Cmd/Ctrl K
+          </span>
         </form>
       </div>
 
@@ -242,5 +274,21 @@ export default function Topper({ onToggleSidebar, isSidebarOpen }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function shouldIgnoreShortcut(target) {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  const tagName = target.tagName.toLowerCase();
+  return (
+    tagName === "input" ||
+    tagName === "textarea" ||
+    tagName === "select" ||
+    target.isContentEditable ||
+    target.closest("[contenteditable='true']") !== null ||
+    target.closest("[role='textbox']") !== null
   );
 }
