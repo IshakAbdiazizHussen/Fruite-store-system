@@ -6,7 +6,7 @@ import { LogOut, Menu, Moon, Sun, X } from "lucide-react";
 import GlobalSearchPalette from "@/components/GlobalSearchPalette";
 import ProfileAvatar from "@/components/ProfileAvatar";
 import { getStoredUser, logoutAdmin, subscribeToAuthSession } from "@/lib/authClient";
-import { globalSearchItems } from "@/lib/globalSearchItems";
+import { adminSearchItems } from "@/lib/globalSearchItems";
 import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
 
 export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
@@ -71,10 +71,13 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
 
       <div className="flex items-center gap-3">
         <GlobalSearchPalette
-          items={globalSearchItems}
+          items={adminSearchItems}
           triggerMode="button"
           triggerPlaceholder="Search"
+          hint="⌘ K"
           triggerClassName="hidden lg:inline-flex"
+          slashShortcutEnabled={false}
+          commandOnlyShortcut
         />
         <button
           onClick={handleLogout}

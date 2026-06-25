@@ -9,7 +9,7 @@ export default function GlobalSearchPalette({
   triggerMode = "input",
   triggerClassName = "",
   triggerPlaceholder = "Search menu...",
-  hint = "Press / or Cmd/Ctrl K",
+  hint = "⌘ K",
   keyboardShortcutsEnabled = true,
   slashShortcutEnabled = true,
   commandOnlyShortcut = false,
@@ -160,7 +160,7 @@ export default function GlobalSearchPalette({
           <Search size={16} />
           <span>{triggerPlaceholder}</span>
           <span className="hidden rounded-lg border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] font-medium text-gray-400 dark:border-gray-700 dark:bg-slate-800 dark:text-slate-500 lg:inline-flex">
-            Cmd/Ctrl K
+            ⌘ K
           </span>
         </button>
       )}
@@ -254,7 +254,7 @@ export default function GlobalSearchPalette({
               <div className="flex items-center gap-3">
                 <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 dark:border-white/10 dark:bg-slate-800">
                   <Command className="h-3 w-3" />
-                  Cmd/Ctrl K
+                  ⌘ K
                 </span>
                 <span>Open search</span>
               </div>
