@@ -28,20 +28,13 @@ export default function SalesPage() {
 
   return (
     <>
-      <div className="p-6 flex justify-between items-start">
+      <div className="p-6">
         <div>
           <h1 className="text-2xl font-medium text-slate-900 dark:text-white">Sales Analytics</h1>
           <p className="text-gray-600 dark:text-slate-400 font-light">
             Track your sales performance and revenue
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-xl hover:bg-green-600 transition-colors shadow-lg shadow-green-200 dark:shadow-none"
-        >
-          <Plus size={20} />
-          Record Sale
-        </button>
       </div>
 
       <section className="flex flex-wrap gap-6 w-full px-8">
@@ -132,8 +125,19 @@ export default function SalesPage() {
         </div>
 
         <div className="flex-1 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-6 text-2xl font-light">
-          <h3 className="text-xl font-medium text-slate-900 dark:text-white mb-1">Recent Transactions</h3>
-          <p className="text-gray-500 dark:text-slate-400 text-sm font-light mb-4">Latest sales activity</p>
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-medium text-slate-900 dark:text-white mb-1">Recent Transactions</h3>
+              <p className="text-gray-500 dark:text-slate-400 text-sm font-light">Latest sales activity</p>
+            </div>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 rounded-xl bg-green-500 px-4 py-2 text-sm text-white transition-colors hover:bg-green-600 shadow-lg shadow-green-200 dark:shadow-none"
+            >
+              <Plus size={18} />
+              Record Sale
+            </button>
+          </div>
           <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
             {sales.map((s) => (
               <div key={s.saleId || s.id} className="flex justify-between items-center p-3 rounded-xl bg-gray-50 dark:bg-white/5">
