@@ -13,10 +13,10 @@ function StatusBadge({ status }) {
     <span
       className={cn(
         "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold",
-        status === "Delivered" && "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-300",
-        status === "Processing" && "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300",
-        status === "Pending" && "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-300",
-        !["Delivered", "Processing", "Pending"].includes(status) && "bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-slate-300"
+        status === "Delivered" && "bg-green-100 text-green-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+        status === "Processing" && "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300",
+        status === "Pending" && "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
+        !["Delivered", "Processing", "Pending"].includes(status) && "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-300"
       )}
     >
       {status}
@@ -82,13 +82,13 @@ export default function OrderPage() {
 
       {/* Table */}
       <div className="px-8 pb-8">
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-white/10 dark:bg-slate-900/80">
-          <div className="px-6 py-4 border-b border-gray-50 dark:border-white/10 flex items-center justify-between">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-slate-700 dark:bg-[#111827]">
+          <div className="px-6 py-4 border-b border-gray-50 dark:border-slate-700 flex items-center justify-between">
             <h3 className="font-semibold text-gray-900 dark:text-white">All Orders</h3>
-            <span className="text-sm text-gray-400 dark:text-slate-500">{orders.length} orders</span>
+            <span className="text-sm text-gray-400 dark:text-slate-400">{orders.length} orders</span>
           </div>
           <table className="w-full text-left">
-            <thead className="bg-green-50 dark:bg-white/5 text-gray-500 dark:text-slate-400 text-xs uppercase font-semibold tracking-wider">
+            <thead className="bg-green-50 dark:bg-[#1f2937] text-gray-500 dark:text-slate-300 text-xs uppercase font-semibold tracking-wider">
               <tr>
                 <th className="px-6 py-4">Order ID</th>
                 <th className="px-6 py-4">Customer</th>
@@ -99,13 +99,13 @@ export default function OrderPage() {
                 <th className="px-6 py-4 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-white/10 text-gray-700 dark:text-slate-300">
+            <tbody className="divide-y divide-gray-100 dark:divide-slate-700 text-gray-700 dark:text-slate-300">
               {orders.map((o) => (
-                <tr key={o.orderId} className="hover:bg-green-50/30 dark:hover:bg-white/5 transition-colors">
+                <tr key={o.orderId} className="hover:bg-green-50/30 dark:bg-slate-900 dark:hover:bg-slate-800/60 transition-colors">
                   <td className="px-6 py-4 text-blue-600 font-semibold text-sm">{o.orderId}</td>
                   <td className="px-6 py-4 font-medium text-sm text-gray-900 dark:text-white">{o.customer}</td>
                   <td className="px-6 py-4 text-gray-500 dark:text-slate-400 text-sm">{o.date}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-slate-400">{o.items} items</td>
+                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-slate-300">{o.items} items</td>
                   <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">${o.total.toFixed(2)}</td>
                   <td className="px-6 py-4">
                     <StatusBadge status={o.status} />
@@ -114,21 +114,21 @@ export default function OrderPage() {
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => setViewOrder(o)}
-                        className="p-2 text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
+                        className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
                         title="View Details"
                       >
                         <Eye size={16} />
                       </button>
                       <button
                         onClick={() => setEditOrder(o)}
-                        className="p-2 text-green-600 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-500/10 rounded-lg transition-colors"
+                        className="p-2 text-green-600 dark:text-emerald-400 hover:bg-green-50 dark:hover:bg-green-500/10 rounded-lg transition-colors"
                         title="Edit Order"
                       >
                         <Pencil size={16} />
                       </button>
                       <button
                         onClick={() => deleteOrder(o.orderId)}
-                        className="p-2 text-red-500 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                        className="p-2 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                         title="Delete Order"
                       >
                         <Trash2 size={16} />
