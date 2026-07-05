@@ -57,24 +57,24 @@ export default function OrderPage() {
       {/* KPI Cards */}
       <section className="px-8 mb-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 dark:bg-slate-900/80">
+          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
             <CircleCheckBig className="bg-green-100 p-2 rounded-xl text-green-600 h-11 w-11 mb-4" size={28} />
-            <p className="text-gray-500 dark:text-slate-400 text-sm font-medium">Delivered</p>
+            <p className="text-gray-500 dark:text-slate-300 text-sm font-medium">Delivered</p>
             <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.delivered}</p>
           </div>
-          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 dark:bg-slate-900/80">
+          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
             <Clock4 className="bg-blue-100 p-2 rounded-xl text-blue-600 h-11 w-11 mb-4" size={28} />
-            <p className="text-gray-500 dark:text-slate-400 text-sm font-medium">Processing</p>
+            <p className="text-gray-500 dark:text-slate-300 text-sm font-medium">Processing</p>
             <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.processing}</p>
           </div>
-          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 dark:bg-slate-900/80">
+          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
             <Package className="bg-orange-100 p-2 rounded-xl text-orange-600 h-11 w-11 mb-4" size={28} />
-            <p className="text-gray-500 dark:text-slate-400 text-sm font-medium">Pending</p>
+            <p className="text-gray-500 dark:text-slate-300 text-sm font-medium">Pending</p>
             <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.pending}</p>
           </div>
-          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 dark:bg-slate-900/80">
-            <Package className="bg-gray-100 dark:bg-white/10 p-2 rounded-xl text-gray-600 dark:text-slate-300 h-11 w-11 mb-4" size={28} />
-            <p className="text-gray-500 dark:text-slate-400 text-sm font-medium">Total Orders</p>
+          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
+            <Package className="bg-gray-100 dark:bg-slate-800 p-2 rounded-xl text-gray-600 dark:text-slate-300 h-11 w-11 mb-4" size={28} />
+            <p className="text-gray-500 dark:text-slate-300 text-sm font-medium">Total Orders</p>
             <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.total}</p>
           </div>
         </div>
