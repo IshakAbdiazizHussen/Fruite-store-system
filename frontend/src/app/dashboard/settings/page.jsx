@@ -607,7 +607,7 @@ export default function SettingsPage() {
       </section>
 
       <section className="mb-12 mt-6 grid grid-cols-1 gap-6 px-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-md dark:border-white/10 dark:bg-slate-900/80">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-md dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
           <div className="mb-8 flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100">
               <Globe className="text-orange-600" size={26} />
@@ -619,7 +619,7 @@ export default function SettingsPage() {
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Language</label>
               <select
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 value={settings.regional.language}
                 onChange={(e) => updateRegional("language", e.target.value)}
               >
@@ -631,7 +631,7 @@ export default function SettingsPage() {
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Currency</label>
               <select
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 value={settings.regional.currency}
                 onChange={(e) => updateRegional("currency", e.target.value)}
               >
@@ -643,7 +643,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-md dark:border-white/10 dark:bg-slate-900/80">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-md dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
           <div className="mb-8 flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100">
               <Database className="text-red-600" size={26} />
@@ -654,23 +654,23 @@ export default function SettingsPage() {
           <div className="grid grid-cols-2 gap-4">
             <button
               onClick={handleExportData}
-              className="rounded-xl border border-gray-200 py-3 font-medium text-gray-700 transition-all hover:bg-gray-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/5"
+              className="rounded-xl border border-gray-200 bg-white py-3 font-medium text-gray-700 transition-all hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
             >
               Export data
             </button>
             <button
               onClick={handleBackup}
-              className="rounded-xl border border-gray-200 py-3 font-medium text-gray-700 transition-all hover:bg-gray-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/5"
+              className="rounded-xl border border-gray-200 bg-white py-3 font-medium text-gray-700 transition-all hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
             >
               Backup
             </button>
             <button
               onClick={handleDownloadReport}
-              className="col-span-2 rounded-xl border border-green-500 py-3 font-medium text-green-600 transition-all hover:bg-green-50 dark:text-green-300 dark:hover:bg-green-500/10"
+              className="col-span-2 rounded-xl border border-green-500 py-3 font-medium text-green-600 transition-all hover:bg-green-50 dark:border-emerald-500/60 dark:bg-slate-900 dark:text-emerald-300 dark:hover:bg-slate-800"
             >
               Download reports
             </button>
-            <button className="col-span-2 mt-4 rounded-xl border-2 border-red-500 py-3 font-medium text-red-500 transition-all hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-500/10">
+            <button className="col-span-2 mt-4 rounded-xl border-2 border-red-500 py-3 font-medium text-red-500 transition-all hover:bg-red-50 dark:border-red-500/70 dark:bg-slate-900 dark:text-red-300 dark:hover:bg-slate-800">
               Delete Account
             </button>
           </div>
