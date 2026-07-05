@@ -15,7 +15,7 @@ function StatusBadge({ status }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold
-      ${low ? "bg-orange-100 text-orange-600 dark:bg-orange-500/10 dark:text-orange-300" : "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-300"}`}
+      ${low ? "bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-300" : "bg-green-100 text-green-700 dark:bg-emerald-500/15 dark:text-emerald-300"}`}
     >
       {status}
     </span>
@@ -167,9 +167,9 @@ function InventoryPageContent() {
 
       {/* TABLE */}
       <div className="px-8 pb-8">
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-white/10 dark:bg-slate-900/80">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-slate-700 dark:bg-[#111827]">
           <table className="w-full text-left">
-            <thead className="bg-green-50 text-gray-500 text-xs uppercase font-semibold tracking-wider dark:bg-white/5 dark:text-slate-400">
+            <thead className="bg-green-50 text-gray-500 text-xs uppercase font-semibold tracking-wider dark:bg-[#1f2937] dark:text-slate-300">
               <tr>
                 <th className="px-6 py-4">Name</th>
                 <th className="px-6 py-4">Category</th>
@@ -180,11 +180,11 @@ function InventoryPageContent() {
                 <th className="px-6 py-4 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 text-gray-700 dark:divide-white/10 dark:text-slate-300">
+            <tbody className="divide-y divide-gray-100 text-gray-700 dark:divide-slate-700 dark:text-slate-300">
               {filteredItems.map((item) => {
                 const low = item.status === "Low Stock";
                 return (
-                  <tr key={item.name} className="hover:bg-green-50/30 transition-colors dark:hover:bg-white/5">
+                  <tr key={item.name} className="hover:bg-green-50/30 transition-colors dark:bg-slate-900 dark:hover:bg-slate-800/60">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
@@ -193,8 +193,8 @@ function InventoryPageContent() {
                         <span className="font-semibold text-gray-900 dark:text-white text-sm">{item.name}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-slate-400">{item.category}</td>
-                    <td className={`px-6 py-4 text-sm font-semibold ${low ? "text-orange-500" : "text-gray-900 dark:text-white"}`}>
+                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-slate-300">{item.category}</td>
+                    <td className={`px-6 py-4 text-sm font-semibold ${low ? "text-orange-500 dark:text-orange-400" : "text-gray-900 dark:text-white"}`}>
                       {item.stock} {item.unit}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-white font-medium">${item.price.toFixed(2)}</td>
@@ -206,21 +206,21 @@ function InventoryPageContent() {
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => setViewItem(item)}
-                          className="p-2 text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
+                          className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
                           title="View Details"
                         >
                           <Eye size={16} />
                         </button>
                         <button
                           onClick={() => setEditItem(item)}
-                          className="p-2 text-green-600 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-500/10 rounded-lg transition-colors"
+                          className="p-2 text-green-600 dark:text-emerald-400 hover:bg-green-50 dark:hover:bg-green-500/10 rounded-lg transition-colors"
                           title="Edit Item"
                         >
                           <Pencil size={16} />
                         </button>
                         <button
                           onClick={() => deleteItem(item.name)}
-                          className="p-2 text-red-500 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                          className="p-2 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                           title="Delete Item"
                         >
                           <Trash2 size={16} />
