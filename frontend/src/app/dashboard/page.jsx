@@ -58,10 +58,10 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-slate-900/80">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
           <InventoryPie />
         </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-slate-900/80">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
           <WeeklySalesChart />
         </div>
       </div>

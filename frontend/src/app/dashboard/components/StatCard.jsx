@@ -10,19 +10,20 @@ const iconMap = {
 };
 
 const badgeColor = {
-  "+12.5%": "text-green-500 dark:text-green-300",
-  "+5.2%": "text-blue-500 dark:text-blue-300",
-  "Critical": "text-red-500 dark:text-red-300",
-  "urgent": "text-red-500 dark:text-red-300",
+  "+12.5%": "text-green-500 dark:text-emerald-300",
+  "+5.2%": "text-blue-500 dark:text-sky-300",
+  "Critical": "text-red-500 dark:text-rose-300",
+  "Urgent": "text-green-500 dark:text-emerald-300",
+  "urgent": "text-red-500 dark:text-rose-300",
 };
 
 export default function StatCard({ title, value, badge, type = "sales" }) {
   const { Icon, bg, color } = iconMap[type] || iconMap.sales;
 
   return (
-    <div className="flex flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-white/10 dark:bg-slate-900/80">
+    <div className="flex flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
       <div className="flex items-start justify-between">
-        <div className={`rounded-xl p-2.5 ${bg} dark:bg-white/10`}>
+        <div className={`rounded-xl p-2.5 ${bg} dark:bg-slate-800`}>
           <Icon size={20} className={color} />
         </div>
         {badge && (
@@ -32,7 +33,7 @@ export default function StatCard({ title, value, badge, type = "sales" }) {
         )}
       </div>
       <div className="mt-2">
-        <p className="text-sm font-medium text-gray-500 dark:text-slate-400">{title}</p>
+        <p className="text-sm font-medium text-gray-500 dark:text-slate-300">{title}</p>
         <h2 className="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{value}</h2>
       </div>
     </div>

@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+import { getInitialTheme, subscribeToTheme } from "@/lib/theme";
 
 const data = [
   { name: "Apples", value: 28, color: "#f94144" },
@@ -33,10 +35,23 @@ function renderLabel({ cx, cy, midAngle, outerRadius, name, value, index }) {
 }
 
 export default function InventoryPie() {
+  const [theme, setTheme] = useState("light");
+
+  useEffect(() => {
+    const initialTheme = getInitialTheme();
+    setTheme(initialTheme);
+
+    return subscribeToTheme((nextTheme) => {
+      setTheme(nextTheme);
+    });
+  }, []);
+
+  const isDark = theme === "dark";
+
   return (
     <div className="w-full">
-      <h3 className="text-[18px] font-medium text-slate-800">Inventory by Category</h3>
-      <p className="mt-2 text-[14px] text-slate-500">Distribution of fruit categories in stock</p>
+      <h3 className="text-[18px] font-medium text-slate-800 dark:text-slate-100">Inventory by Category</h3>
+      <p className="mt-2 text-[14px] text-slate-500 dark:text-slate-300">Distribution of fruit categories in stock</p>
       <div className="mt-4 h-[420px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart margin={{ top: 18, right: 44, bottom: 52, left: 44 }}>
@@ -63,7 +78,11 @@ export default function InventoryPie() {
               align="center"
               iconType="square"
               iconSize={10}
-              wrapperStyle={{ paddingTop: 20, fontSize: 12 }}
+              wrapperStyle={{
+                paddingTop: 20,
+                fontSize: 12,
+                color: isDark ? "#cbd5e1" : "#475569",
+              }}
               formatter={(value, entry) => (
                 <span style={{ color: entry.color, fontWeight: 500 }}>{value}</span>
               )}
