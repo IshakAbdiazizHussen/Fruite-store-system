@@ -149,26 +149,26 @@ export default function SuppliersPage() {
       </div>
 
       <section className="flex flex-wrap gap-6 w-full px-8 mb-8">
-        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 flex-1 min-w-[260px]">
+        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20 flex-1 min-w-[260px]">
           <Users className="bg-green-100 p-2 rounded-lg text-green-600 h-12 w-11" size={33} />
           <div className="mt-4">
-            <h4 className="text-gray-500 dark:text-slate-400 font-light text-sm">Total Suppliers</h4>
+            <h4 className="text-gray-500 dark:text-slate-300 font-light text-sm">Total Suppliers</h4>
             <h3 className="text-3xl text-slate-900 dark:text-white font-medium mt-1">{stats.total}</h3>
           </div>
         </div>
 
-        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 flex-1 min-w-[260px]">
+        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20 flex-1 min-w-[260px]">
           <Users className="bg-blue-100 p-2 rounded-lg text-blue-600 h-12 w-11" size={33} />
           <div className="mt-4">
-            <h4 className="text-gray-500 dark:text-slate-400 font-light text-sm">Active Partnerships</h4>
+            <h4 className="text-gray-500 dark:text-slate-300 font-light text-sm">Active Partnerships</h4>
             <h3 className="text-3xl text-slate-900 dark:text-white font-medium mt-1">{stats.active}</h3>
           </div>
         </div>
 
-        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 flex-1 min-w-[260px]">
+        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20 flex-1 min-w-[260px]">
           <Users className="bg-orange-100 p-2 rounded-lg text-orange-600 h-12 w-11" size={33} />
           <div className="mt-4">
-            <h4 className="text-gray-500 dark:text-slate-400 font-light text-sm">Total Orders</h4>
+            <h4 className="text-gray-500 dark:text-slate-300 font-light text-sm">Total Orders</h4>
             <h3 className="text-3xl text-slate-900 dark:text-white font-medium mt-1">{stats.orders}</h3>
           </div>
         </div>
