@@ -49,42 +49,42 @@ export default function ReportsPage() {
       <div className="p-6">
         <h1 className="mb-4 text-2xl font-medium text-slate-900 dark:text-white">Reports & Analytics</h1>
         <section className="flex w-full flex-wrap gap-6">
-          <div className="min-w-[240px] flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-white/10 dark:bg-slate-900/80">
+          <div className="min-w-[240px] flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
             <section className="flex items-start justify-between">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-500/10">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 dark:bg-slate-800">
                 <FileText className="text-blue-600" size={24} />
               </div>
-              <p className="font-light text-gray-500 dark:text-slate-400">Delivered</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-slate-300">Delivered</p>
             </section>
             <h3 className="mt-4 text-3xl font-medium text-slate-900 dark:text-white">{stats.delivered}</h3>
           </div>
 
-          <div className="min-w-[240px] flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-white/10 dark:bg-slate-900/80">
+          <div className="min-w-[240px] flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
             <section className="flex items-start justify-between">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 dark:bg-green-500/10">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 dark:bg-slate-800">
                 <TrendingUp className="text-green-600" size={24} />
               </div>
-              <p className="font-light text-gray-500 dark:text-slate-400">Processing</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-slate-300">Processing</p>
             </section>
             <h3 className="mt-4 text-3xl font-medium text-slate-900 dark:text-white">{stats.processing}</h3>
           </div>
 
-          <div className="min-w-[240px] flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-white/10 dark:bg-slate-900/80">
+          <div className="min-w-[240px] flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
             <section className="flex items-start justify-between">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-500/10">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 dark:bg-slate-800">
                 <FileText className="text-purple-600" size={24} />
               </div>
-              <p className="font-light text-gray-500 dark:text-slate-400">Pending</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-slate-300">Pending</p>
             </section>
             <h3 className="mt-4 text-3xl font-medium text-slate-900 dark:text-white">{stats.pending}</h3>
           </div>
 
-          <div className="min-w-[240px] flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-white/10 dark:bg-slate-900/80">
+          <div className="min-w-[240px] flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
             <section className="flex items-start justify-between">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-500/10">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100 dark:bg-slate-800">
                 <Calendar className="text-orange-600" size={24} />
               </div>
-              <p className="font-light text-gray-500 dark:text-slate-400">Total Orders</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-slate-300">Total Orders</p>
             </section>
             <h3 className="mt-4 text-3xl font-medium text-slate-900 dark:text-white">{stats.total}</h3>
           </div>
