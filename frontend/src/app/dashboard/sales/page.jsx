@@ -1,13 +1,38 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { DollarSign, ShoppingBag, TrendingUp, Users, Plus } from "lucide-react";
 import { ResponsiveContainer, LineChart, BarChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { useSales } from "@/hooks/useSales";
 import RecordSaleModal from "../components/RecordSaleModal";
+import { getInitialTheme, subscribeToTheme } from "@/lib/theme";
 export default function SalesPage() {
   const { sales, analytics, addSale } = useSales();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [theme, setTheme] = useState("light");
+
+  useEffect(() => {
+    const initialTheme = getInitialTheme();
+    setTheme(initialTheme);
+
+    return subscribeToTheme((nextTheme) => {
+      setTheme(nextTheme);
+    });
+  }, []);
+
+  const isDark = theme === "dark";
+  const axisTickColor = isDark ? "#cbd5e1" : "#64748b";
+  const gridColor = isDark ? "rgba(148, 163, 184, 0.35)" : "#f0f0f0";
+  const tooltipStyle = {
+    borderRadius: 12,
+    border: isDark ? "1px solid rgba(148, 163, 184, 0.28)" : "1px solid #e2e8f0",
+    backgroundColor: isDark ? "#0f172a" : "#ffffff",
+    color: isDark ? "#e2e8f0" : "#0f172a",
+    boxShadow: isDark
+      ? "0 12px 30px rgba(0, 0, 0, 0.35)"
+      : "0 12px 30px rgba(15, 23, 42, 0.12)",
+  };
+  const legendStyle = { color: isDark ? "#cbd5e1" : "#475569", fontWeight: 500 };
 
   const stats = useMemo(() => {
     const totalRevenue = sales.reduce((acc, sale) => acc + Number(sale.total || 0), 0);
@@ -88,17 +113,24 @@ export default function SalesPage() {
       </section>
 
       <section className="px-8 mt-8">
-        <div className="bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-6">
+        <div className="bg-white rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20 p-6">
           <h3 className="text-xl font-medium text-slate-900 dark:text-white">Monthly Sales Performance</h3>
-          <p className="text-gray-500 dark:text-slate-400 font-light mb-6">Revenue and unit distribution by month</p>
+          <p className="text-gray-500 dark:text-slate-300 font-light mb-6">Revenue and unit distribution by month</p>
           <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={analytics}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} />
-                <YAxis axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Legend />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: axisTickColor, fontSize: 12 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: axisTickColor, fontSize: 12 }} />
+                <Tooltip
+                  contentStyle={tooltipStyle}
+                  labelStyle={{ color: isDark ? "#f8fafc" : "#0f172a", fontWeight: 600 }}
+                  itemStyle={{ color: isDark ? "#e2e8f0" : "#0f172a" }}
+                />
+                <Legend
+                  wrapperStyle={{ color: isDark ? "#cbd5e1" : "#475569" }}
+                  formatter={(value) => <span style={legendStyle}>{value}</span>}
+                />
                 <Line type="monotone" dataKey="revenue" stroke="#f59e0b" strokeWidth={4} dot={{ r: 6, fill: "#f59e0b" }} activeDot={{ r: 8 }} />
                 <Line type="monotone" dataKey="units" stroke="#10b981" strokeWidth={4} dot={{ r: 6, fill: "#10b981" }} activeDot={{ r: 8 }} />
               </LineChart>
