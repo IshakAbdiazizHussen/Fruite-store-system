@@ -104,22 +104,22 @@ function InventoryPageContent() {
       {/* KPI Cards */}
       <section className="px-8 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900/80">
-            <p className="text-sm font-medium text-gray-500 dark:text-slate-400">Total Items</p>
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
+            <p className="text-sm font-medium text-gray-500 dark:text-slate-300">Total Items</p>
             <p className="mt-2 text-3xl font-bold text-gray-800 dark:text-white">{totalItems}</p>
-            <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">Products in inventory</p>
+            <p className="mt-1 text-xs text-gray-400 dark:text-slate-400">Products in inventory</p>
           </div>
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900/80">
-            <p className="text-sm font-medium text-gray-500 dark:text-slate-400">Total Stock Value</p>
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
+            <p className="text-sm font-medium text-gray-500 dark:text-slate-300">Total Stock Value</p>
             <p className="mt-2 text-3xl font-bold text-gray-800 dark:text-white">
               ${totalStockValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
-            <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">Current inventory valuation</p>
+            <p className="mt-1 text-xs text-gray-400 dark:text-slate-400">Current inventory valuation</p>
           </div>
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900/80">
-            <p className="text-sm font-medium text-gray-500 dark:text-slate-400">Low Stock Alerts</p>
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
+            <p className="text-sm font-medium text-gray-500 dark:text-slate-300">Low Stock Alerts</p>
             <p className="mt-2 text-3xl font-bold text-orange-500">{lowStockCount}</p>
-            <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">Items needing restock</p>
+            <p className="mt-1 text-xs text-gray-400 dark:text-slate-400">Items needing restock</p>
           </div>
         </div>
       </section>
