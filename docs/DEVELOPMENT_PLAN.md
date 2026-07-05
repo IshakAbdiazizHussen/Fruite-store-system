@@ -30,6 +30,8 @@ Long-term focus:
 
 Prioritize features that improve daily operations with low to medium implementation effort.
 
+Before any development work starts, this document must be reviewed first. Every new feature, bug fix, UI change, API change, database update, or refactor must follow the workflow and ROI priority rules defined here.
+
 Highest likely ROI areas:
 
 - Inventory accuracy improvements
