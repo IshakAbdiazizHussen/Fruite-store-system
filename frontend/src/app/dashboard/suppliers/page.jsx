@@ -177,15 +177,15 @@ export default function SuppliersPage() {
       <section className="mx-8 mb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {suppliers.map((s) => (
-            <div key={s.supplierId || s.id} className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 flex flex-col h-full">
+            <div key={s.supplierId || s.id} className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20 flex flex-col h-full">
               <div className="flex items-start gap-4 mb-6">
                 <div className={`h-16 w-16 rounded-2xl ${s.color || 'bg-green-500'} flex items-center justify-center text-white shrink-0`}>
                   <Users size={30} />
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-white truncate">{s.name}</h3>
-                  <p className="text-gray-500 dark:text-slate-400 text-sm">{s.contactPerson}</p>
-                  <div className="mt-2 flex items-center gap-1.5 text-sm text-gray-500 dark:text-slate-400">
+                  <p className="text-gray-500 dark:text-slate-300 text-sm">{s.contactPerson}</p>
+                  <div className="mt-2 flex items-center gap-1.5 text-sm text-gray-500 dark:text-slate-300">
                     <Star size={14} className="text-yellow-400 fill-current" />
                     <span className="font-medium">{s.rating}</span>
                     <span className="text-xs">({purchaseOrderCountMap[s.name.trim().toLowerCase()] || s.orders || 0} orders)</span>
@@ -193,35 +193,35 @@ export default function SuppliersPage() {
                 </div>
               </div>
 
-              <div className="space-y-3 text-sm text-gray-600 dark:text-slate-400 flex-grow">
+              <div className="space-y-3 text-sm text-gray-600 dark:text-slate-300 flex-grow">
                 <div className="flex items-center gap-3">
-                  <Phone size={16} className="text-gray-400 dark:text-slate-500" />
+                  <Phone size={16} className="text-gray-400 dark:text-slate-400" />
                   <span>{s.phone}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Mail size={16} className="text-gray-400 dark:text-slate-500" />
+                  <Mail size={16} className="text-gray-400 dark:text-slate-400" />
                   <span className="truncate">{s.email}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <MapPin size={16} className="text-gray-400 dark:text-slate-500" />
+                  <MapPin size={16} className="text-gray-400 dark:text-slate-400" />
                   <span className="truncate">{s.location}</span>
                 </div>
-                <div className="mt-4 pt-4 border-t border-gray-50 dark:border-white/10">
-                  <p className="text-gray-400 dark:text-slate-500 text-xs uppercase font-medium">Main Products</p>
-                  <p className="mt-1 text-gray-700 dark:text-slate-200 font-medium">{s.products}</p>
+                <div className="mt-4 pt-4 border-t border-gray-50 dark:border-slate-700">
+                  <p className="text-gray-400 dark:text-slate-400 text-xs uppercase font-medium">Main Products</p>
+                  <p className="mt-1 text-gray-700 dark:text-white font-medium">{s.products}</p>
                 </div>
               </div>
 
               <div className="mt-6 grid grid-cols-2 gap-3">
                 <button
                   onClick={() => openContact(s)}
-                  className="rounded-xl bg-gray-50 dark:bg-white/5 dark:text-slate-200 py-2.5 text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                  className="rounded-xl bg-gray-50 dark:bg-slate-800 dark:text-slate-200 py-2.5 text-sm font-medium hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
                 >
                   Contact
                 </button>
                 <button
                   onClick={() => openOrders(s)}
-                  className="rounded-xl border border-green-500 py-2.5 text-sm font-medium text-green-600 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-500/10 transition-colors"
+                  className="rounded-xl border border-green-500 py-2.5 text-sm font-medium text-green-600 dark:text-emerald-300 hover:bg-green-50 dark:hover:bg-green-500/10 transition-colors"
                 >
                   View Orders
                 </button>
@@ -229,7 +229,7 @@ export default function SuppliersPage() {
 
               <button
                 onClick={() => setEditingSupplier(s)}
-                className="mt-3 w-full rounded-xl border border-blue-200 dark:border-blue-400/20 text-blue-700 dark:text-blue-300 py-2.5 text-sm font-medium hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors flex items-center justify-center gap-2"
+                className="mt-3 w-full rounded-xl border border-blue-200 dark:border-blue-400/20 text-blue-700 dark:text-blue-400 py-2.5 text-sm font-medium hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors flex items-center justify-center gap-2"
               >
                 <Pencil size={16} />
                 Edit Supplier
@@ -237,7 +237,7 @@ export default function SuppliersPage() {
 
               <button
                 onClick={() => handleDeleteSupplier(s)}
-                className="mt-3 w-full rounded-xl border border-red-200 dark:border-red-400/20 text-red-700 dark:text-red-300 py-2.5 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
+                className="mt-3 w-full rounded-xl border border-red-200 dark:border-red-400/20 text-red-700 dark:text-red-400 py-2.5 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
               >
                 <Trash2 size={16} />
                 Delete Supplier
