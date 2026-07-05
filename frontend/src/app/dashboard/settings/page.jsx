@@ -339,18 +339,18 @@ export default function SettingsPage() {
       </div>
 
       <section className="px-6">
-        <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900/80">
-          <div className="bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_52%,#eef2ff_100%)] p-8 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.94),rgba(17,24,39,0.92),rgba(30,41,59,0.94))]">
+        <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
+          <div className="bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_52%,#eef2ff_100%)] p-8 dark:bg-[linear-gradient(135deg,#111827_0%,#162033_52%,#1f2937_100%)]">
             <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-center gap-5">
                 <ProfileAvatar
                   src={profileImageUrl}
                   alt={currentUser?.name || "Profile picture"}
                   sizeClassName="h-32 w-32"
-                  frameClassName="bg-white p-3 dark:bg-slate-950"
+                  frameClassName="bg-white p-3 dark:bg-slate-900"
                 />
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-200">
                     <UserCircle2 className="h-3.5 w-3.5" />
                     Profile Picture
                   </div>
@@ -366,13 +366,13 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-white/10 dark:bg-slate-950/50">
+              <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                 <p className="text-sm font-semibold text-slate-900 dark:text-white">Profile Picture</p>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
                   Your profile photo will be visible across your account.
                 </p>
                 <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                  <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70">
+                  <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-slate-800 dark:hover:bg-slate-700">
                     {isUploadingImage ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
                     Upload New Photo
                     <input
@@ -387,17 +387,17 @@ export default function SettingsPage() {
                     type="button"
                     onClick={handleRemoveImage}
                     disabled={!currentUser?.profile_image_url || isUploadingImage || isRemovingImage || isLoadingProfile}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                   >
                     {isRemovingImage ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     Remove image
                   </button>
                 </div>
-                <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                <p className="mt-3 text-xs text-slate-500 dark:text-slate-300">
                   JPG, PNG, or WebP. Max 5MB.
                 </p>
                 {profileStatus ? (
-                  <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+                  <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                     {profileStatus}
                   </div>
                 ) : null}
