@@ -38,51 +38,51 @@ export default function SalesPage() {
       </div>
 
       <section className="flex flex-wrap gap-6 w-full px-8">
-        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 flex-1 min-w-[260px]">
+        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20 flex-1 min-w-[260px]">
           <section className="flex items-start justify-between">
             <DollarSign className="bg-green-100 p-2 rounded-lg text-green-600 h-12 w-11" size={33} />
             <p className="text-green-600 font-medium">+18.2%</p>
           </section>
           <section className="mt-4">
-            <p className="text-gray-500 dark:text-slate-400 text-sm font-light">Total Revenue</p>
+            <p className="text-gray-500 dark:text-slate-300 text-sm font-light">Total Revenue</p>
             <h3 className="text-3xl font-medium text-slate-900 dark:text-white mt-1">${stats.revenue.toLocaleString()}</h3>
-            <p className="text-gray-400 dark:text-slate-500 text-xs mt-2 font-light">Updated just now</p>
+            <p className="text-gray-400 dark:text-slate-400 text-xs mt-2 font-light">Updated just now</p>
           </section>
         </div>
 
-        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 flex-1 min-w-[260px]">
+        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20 flex-1 min-w-[260px]">
           <section className="flex items-start justify-between">
             <ShoppingBag className="bg-blue-100 p-2 rounded-lg text-blue-600 h-12 w-11" size={33} />
             <p className="text-blue-600 font-medium">+12.5%</p>
           </section>
           <section className="mt-4">
-            <p className="text-gray-500 dark:text-slate-400 text-sm font-light">Total Sales</p>
+            <p className="text-gray-500 dark:text-slate-300 text-sm font-light">Total Sales</p>
             <h3 className="text-3xl font-medium text-slate-900 dark:text-white mt-1">{stats.units.toLocaleString()}</h3>
-            <p className="text-gray-400 dark:text-slate-500 text-xs mt-2 font-light">Units sold</p>
+            <p className="text-gray-400 dark:text-slate-400 text-xs mt-2 font-light">Units sold</p>
           </section>
         </div>
 
-        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 flex-1 min-w-[260px]">
+        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20 flex-1 min-w-[260px]">
           <section className="flex items-start justify-between">
             <TrendingUp className="bg-orange-100 p-2 rounded-lg text-orange-600 h-12 w-11" size={33} />
             <p className="text-orange-600 font-medium">+8.4%</p>
           </section>
           <section className="mt-4">
-            <p className="text-gray-500 dark:text-slate-400 text-sm font-light">Average Order</p>
+            <p className="text-gray-500 dark:text-slate-300 text-sm font-light">Average Order</p>
             <h3 className="text-3xl font-medium text-slate-900 dark:text-white mt-1">${(stats.revenue / stats.units || 0).toFixed(2)}</h3>
-            <p className="text-gray-400 dark:text-slate-500 text-xs mt-2 font-light">Per transaction</p>
+            <p className="text-gray-400 dark:text-slate-400 text-xs mt-2 font-light">Per transaction</p>
           </section>
         </div>
 
-        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 flex-1 min-w-[260px]">
+        <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20 flex-1 min-w-[260px]">
           <section className="flex items-start justify-between">
             <Users className="bg-purple-100 p-2 rounded-lg text-purple-600 h-12 w-11" size={33} />
             <p className="text-purple-600 font-medium">+22.1%</p>
           </section>
           <section className="mt-4">
-            <p className="text-gray-500 dark:text-slate-400 text-sm font-light">Customers</p>
+            <p className="text-gray-500 dark:text-slate-300 text-sm font-light">Customers</p>
             <h3 className="text-3xl font-medium text-slate-900 dark:text-white mt-1">1,847</h3>
-            <p className="text-gray-400 dark:text-slate-500 text-xs mt-2 font-light">Active buyers</p>
+            <p className="text-gray-400 dark:text-slate-400 text-xs mt-2 font-light">Active buyers</p>
           </section>
         </div>
       </section>
