@@ -91,14 +91,14 @@ export default function ReportsPage() {
         </section>
       </div>
 
-      <section className="mx-8 mt-2 mb-12 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-colors dark:border-white/10 dark:bg-slate-900/80">
-        <div className="border-b border-gray-50 p-6 dark:border-white/10">
+      <section className="mx-8 mt-2 mb-12 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-colors dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
+        <div className="border-b border-gray-50 p-6 dark:border-slate-700">
           <h3 className="text-xl font-medium text-slate-900 dark:text-white">Available Reports</h3>
-          <p className="mt-1 text-sm font-light text-gray-500 dark:text-slate-400">Download and view system-generated reports</p>
+          <p className="mt-1 text-sm font-light text-gray-500 dark:text-slate-300">Download and view system-generated reports</p>
         </div>
 
-        <div className="border-b border-gray-100 bg-gray-50 dark:border-white/10 dark:bg-white/5">
-          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-6 py-4 text-xs font-medium uppercase text-gray-500 dark:text-slate-400">
+        <div className="border-b border-gray-100 bg-gray-50 dark:border-slate-700 dark:bg-slate-800">
+          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-6 py-4 text-xs font-medium uppercase text-gray-500 dark:text-slate-300">
             <p>Report Name</p>
             <p>Type</p>
             <p>Generated</p>
@@ -108,19 +108,19 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div className="divide-y divide-gray-50 dark:divide-white/10">
+        <div className="divide-y divide-gray-50 dark:divide-slate-700">
           {reports.map((r) => (
-            <div key={r.name} className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 px-6 py-5 transition-colors hover:bg-gray-50 dark:hover:bg-white/5">
+            <div key={r.name} className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 px-6 py-5 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/60">
               <div className="flex items-center gap-4 min-w-0">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 dark:bg-green-500/10">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 dark:bg-slate-800">
                   <FileText className="text-green-600" size={18} />
                 </div>
                 <p className="truncate font-medium text-gray-900 dark:text-white">{r.name}</p>
               </div>
-              <div><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">{r.type}</span></div>
-              <p className="whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">{r.date}</p>
-              <p className="whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">{r.size}</p>
-              <div className="text-center"><span className="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-500/10 dark:text-green-300">{r.status}</span></div>
+              <div><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600 dark:bg-blue-500/15 dark:text-blue-300">{r.type}</span></div>
+              <p className="whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">{r.date}</p>
+              <p className="whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">{r.size}</p>
+              <div className="text-center"><span className="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-emerald-500/15 dark:text-emerald-300">{r.status}</span></div>
               <div className="text-right">
                 <button
                   onClick={() => downloadReport(r)}
