@@ -408,7 +408,7 @@ export default function SettingsPage() {
       </section>
 
       <section className="grid grid-cols-1 gap-6 px-6 pt-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-md dark:border-white/10 dark:bg-slate-900/80">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-md dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
           <div className="mb-8 flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100">
               <Bell className="text-blue-600" size={26} />
@@ -417,41 +417,41 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-6">
-            <div className="rounded-2xl border border-blue-100 bg-[linear-gradient(135deg,#eff6ff,white_55%,#f0fdf4)] p-4 dark:border-blue-400/20 dark:bg-[linear-gradient(135deg,rgba(30,41,59,0.85),rgba(15,23,42,0.92))]">
+            <div className="rounded-2xl border border-blue-100 bg-[linear-gradient(135deg,#eff6ff,white_55%,#f0fdf4)] p-4 dark:border-slate-700 dark:bg-[linear-gradient(135deg,#1f2937,#162033)]">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-semibold text-slate-900 dark:text-white">Notification Center</p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Choose how you want the store to contact you.</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">Choose how you want the store to contact you.</p>
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleAllNotifications(true)}
-                    className="rounded-xl border border-blue-200 bg-white px-3 py-2 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-50 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200"
+                    className="rounded-xl border border-blue-200 bg-white px-3 py-2 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-50 dark:border-blue-400/20 dark:bg-slate-800 dark:text-blue-300 dark:hover:bg-slate-700"
                   >
                     Enable all
                   </button>
                   <button
                     onClick={() => handleAllNotifications(false)}
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                   >
                     Disable all
                   </button>
                 </div>
               </div>
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-white/70 p-4 dark:border-white/10 dark:bg-slate-950/60">
+            <div className="rounded-2xl border border-gray-200 bg-white/70 p-4 dark:border-slate-700 dark:bg-slate-900">
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Notification Email</label>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <input
                   type="email"
                   value={notificationEmail}
                   onChange={(e) => setNotificationEmail(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   placeholder="email@example.com"
                 />
                 <button
                   onClick={handleNotificationEmailSave}
-                  className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200 dark:hover:bg-blue-500/15"
+                  className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-400/20 dark:bg-slate-800 dark:text-blue-300 dark:hover:bg-slate-700"
                 >
                   Save
                 </button>
@@ -460,23 +460,23 @@ export default function SettingsPage() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={handleEmailDraft}
-                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 hover:bg-emerald-100 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200"
+                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 hover:bg-emerald-100 dark:border-emerald-400/20 dark:bg-slate-800 dark:text-emerald-300 dark:hover:bg-slate-700"
               >
                 Open queued email draft
               </button>
               <button
                 onClick={() => openEmailDraft(notificationEmail.trim() || "ishakabdiaziz9060@gmail.com", "Fruit Store Test Notification")}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
               >
                 Send test email
               </button>
             </div>
             <div className="space-y-3">
               {notificationItems.map((item) => (
-                <div key={item.id} className="flex items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                <div key={item.id} className="flex items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-3 dark:border-slate-700 dark:bg-slate-800">
                   <div>
                     <p className="font-medium text-gray-700 dark:text-slate-200">{item.label}</p>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">{item.description}</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-slate-300">{item.description}</p>
                   </div>
                   <label className="relative inline-flex cursor-pointer items-center self-start">
                     <input
@@ -485,20 +485,20 @@ export default function SettingsPage() {
                       checked={settings.notifications[item.id]}
                       onChange={() => handleToggleNotification(item.id, item.label)}
                     />
-                    <div className="relative h-7 w-12 rounded-full bg-gray-200 transition-colors peer-checked:bg-blue-500 after:absolute after:left-[2px] after:top-[2px] after:h-6 after:w-6 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-5 dark:bg-slate-700" />
+                    <div className="relative h-7 w-12 rounded-full bg-gray-200 transition-colors peer-checked:bg-blue-500 after:absolute after:left-[2px] after:top-[2px] after:h-6 after:w-6 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-5 dark:bg-slate-600" />
                   </label>
                 </div>
               ))}
             </div>
             {notificationStatus ? (
-              <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
+              <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700 dark:border-blue-400/20 dark:bg-slate-800 dark:text-blue-300">
                 {notificationStatus}
               </div>
             ) : null}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-md dark:border-white/10 dark:bg-slate-900/80">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-md dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20">
           <div className="mb-8 flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-100">
               <Lock className="text-purple-600" size={26} />
@@ -507,23 +507,23 @@ export default function SettingsPage() {
           </div>
 
           <form onSubmit={handlePasswordSubmit} className="space-y-5">
-            <div className="rounded-2xl border border-purple-100 bg-[linear-gradient(135deg,#faf5ff,white_55%,#f8fafc)] p-4 dark:border-purple-400/20 dark:bg-[linear-gradient(135deg,rgba(51,16,79,0.35),rgba(15,23,42,0.92))]">
+            <div className="rounded-2xl border border-purple-100 bg-[linear-gradient(135deg,#faf5ff,white_55%,#f8fafc)] p-4 dark:border-slate-700 dark:bg-[linear-gradient(135deg,#241b3b,#162033)]">
               <p className="text-sm font-semibold text-slate-900 dark:text-white">Password Protection</p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
                 {settings.security?.lastChanged
                   ? `Last changed: ${new Date(settings.security.lastChanged).toLocaleString()}`
                   : "Password has not been changed yet."}
               </p>
-              <div className="mt-3 rounded-xl border border-purple-100 bg-white/80 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+              <div className="mt-3 rounded-xl border border-purple-100 bg-white/80 px-3 py-2 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                 Use at least 8 characters with both letters and numbers for a stronger password.
               </div>
             </div>
             <div className="space-y-3">
               {securityItems.map((item) => (
-                <div key={item.id} className="flex items-center justify-between gap-4 rounded-2xl border border-purple-100 bg-purple-50/60 px-4 py-3 dark:border-purple-400/20 dark:bg-purple-500/10">
+                <div key={item.id} className="flex items-center justify-between gap-4 rounded-2xl border border-purple-100 bg-purple-50/60 px-4 py-3 dark:border-slate-700 dark:bg-slate-800">
                   <div>
                     <p className="font-medium text-slate-900 dark:text-white">{item.label}</p>
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.description}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">{item.description}</p>
                   </div>
                   <label className="relative inline-flex cursor-pointer items-center self-start">
                     <input
@@ -532,18 +532,18 @@ export default function SettingsPage() {
                       checked={Boolean(settings.security?.[item.id])}
                       onChange={() => handleSecurityToggle(item.id)}
                     />
-                    <div className="relative h-7 w-12 rounded-full bg-purple-100 transition-colors peer-checked:bg-purple-600 after:absolute after:left-[2px] after:top-[2px] after:h-6 after:w-6 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-5 dark:bg-slate-700" />
+                    <div className="relative h-7 w-12 rounded-full bg-purple-100 transition-colors peer-checked:bg-purple-600 after:absolute after:left-[2px] after:top-[2px] after:h-6 after:w-6 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-5 dark:bg-slate-600" />
                   </label>
                 </div>
               ))}
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-white/70 p-4 dark:border-white/10 dark:bg-slate-950/60">
+            <div className="rounded-2xl border border-gray-200 bg-white/70 p-4 dark:border-slate-700 dark:bg-slate-900">
               <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Session Timeout</label>
               <div className="flex items-center gap-3">
                 <select
                   value={settings.security?.sessionTimeoutMinutes || 30}
                   onChange={(e) => handleSessionTimeoutChange(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-purple-500 dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-purple-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 >
                   <option value="15">15 minutes</option>
                   <option value="30">30 minutes</option>
@@ -551,7 +551,7 @@ export default function SettingsPage() {
                   <option value="60">60 minutes</option>
                   <option value="120">120 minutes</option>
                 </select>
-                <span className="rounded-xl bg-purple-50 px-3 py-2 text-xs font-semibold text-purple-700 dark:bg-purple-500/10 dark:text-purple-200">
+                <span className="rounded-xl bg-purple-50 px-3 py-2 text-xs font-semibold text-purple-700 dark:bg-slate-800 dark:text-purple-200">
                   {settings.security?.sessionTimeoutMinutes || 30} min
                 </span>
               </div>
@@ -564,7 +564,7 @@ export default function SettingsPage() {
                   value={passwordForm.next}
                   onChange={(e) => setPasswordForm((prev) => ({ ...prev, next: e.target.value }))}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 pr-11 outline-none transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 pr-11 outline-none transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 />
                 <button
                   type="button"
@@ -583,7 +583,7 @@ export default function SettingsPage() {
                   value={passwordForm.confirm}
                   onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirm: e.target.value }))}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 pr-11 outline-none transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 pr-11 outline-none transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 />
                 <button
                   type="button"
@@ -598,7 +598,7 @@ export default function SettingsPage() {
               Update Password
             </button>
             {passwordStatus ? (
-              <div className="rounded-xl border border-purple-200 bg-purple-50 px-4 py-3 text-sm text-purple-700 dark:border-purple-400/20 dark:bg-purple-500/10 dark:text-purple-200">
+              <div className="rounded-xl border border-purple-200 bg-purple-50 px-4 py-3 text-sm text-purple-700 dark:border-purple-400/20 dark:bg-slate-800 dark:text-purple-200">
                 {passwordStatus}
               </div>
             ) : null}
