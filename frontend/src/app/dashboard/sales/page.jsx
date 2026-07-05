@@ -140,27 +140,38 @@ export default function SalesPage() {
       </section>
 
       <section className="px-8 mt-8 mb-8 flex gap-6">
-        <div className="flex-[1.5] bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-6 text-2xl font-light">
+        <div className="flex-[1.5] bg-white rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20 p-6 text-2xl font-light">
           <h3 className="text-xl font-medium text-slate-900 dark:text-white mb-1">Top Selling Products</h3>
-          <p className="text-gray-500 dark:text-slate-400 text-sm font-light mb-6">Best performers this month</p>
+          <p className="text-gray-500 dark:text-slate-300 text-sm font-light mb-6">Best performers this month</p>
           <div className="h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={topSellingData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={gridColor} />
                 <XAxis type="number" hide />
-                <YAxis type="category" dataKey="name" width={100} axisLine={false} tickLine={false} />
-                <Tooltip />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  width={100}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: axisTickColor, fontSize: 12 }}
+                />
+                <Tooltip
+                  contentStyle={tooltipStyle}
+                  labelStyle={{ color: isDark ? "#f8fafc" : "#0f172a", fontWeight: 600 }}
+                  itemStyle={{ color: isDark ? "#e2e8f0" : "#0f172a" }}
+                />
                 <Bar dataKey="sales" fill="#10b981" radius={[0, 8, 8, 0]} barSize={30} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="flex-1 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-white/10 dark:bg-slate-900/80 p-6 text-2xl font-light">
+        <div className="flex-1 bg-white rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 dark:bg-[#111827] dark:shadow-lg dark:shadow-black/20 p-6 text-2xl font-light">
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
               <h3 className="text-xl font-medium text-slate-900 dark:text-white mb-1">Recent Transactions</h3>
-              <p className="text-gray-500 dark:text-slate-400 text-sm font-light">Latest sales activity</p>
+              <p className="text-gray-500 dark:text-slate-300 text-sm font-light">Latest sales activity</p>
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
@@ -172,14 +183,14 @@ export default function SalesPage() {
           </div>
           <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
             {sales.map((s) => (
-              <div key={s.saleId || s.id} className="flex justify-between items-center p-3 rounded-xl bg-gray-50 dark:bg-white/5">
+              <div key={s.saleId || s.id} className="flex justify-between items-center p-3 rounded-xl bg-gray-50 dark:bg-slate-800/80">
                 <div>
                   <p className="font-medium text-sm text-slate-900 dark:text-white">{s.name}</p>
-                  <p className="text-xs text-gray-400 dark:text-slate-500">{s.date}</p>
+                  <p className="text-xs text-gray-400 dark:text-slate-400">{s.date}</p>
                 </div>
                 <div className="text-right text-sm">
                   <p className="font-semibold text-green-600">+${s.total.toFixed(2)}</p>
-                  <p className="text-xs text-gray-400 dark:text-slate-500">{s.units} units</p>
+                  <p className="text-xs text-gray-400 dark:text-slate-400">{s.units} units</p>
                 </div>
               </div>
             ))}
