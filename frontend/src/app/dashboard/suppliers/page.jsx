@@ -133,7 +133,7 @@ export default function SuppliersPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={handleResetSuppliers}
-            className="flex items-center gap-2 border border-orange-300 text-orange-700 dark:text-orange-300 px-4 py-2.5 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors"
+            className="flex items-center gap-2 rounded-xl border border-red-300 px-4 py-2.5 text-red-700 transition-colors hover:bg-red-50 dark:border-red-500/60 dark:text-red-300 dark:hover:bg-red-500/10"
           >
             <RotateCcw size={18} />
             Reset Suppliers
