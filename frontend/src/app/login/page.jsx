@@ -7,19 +7,14 @@ import { loginAdmin } from "@/lib/authClient";
 import { useFrontendContent } from "@/hooks/useFrontendContent";
 import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
 
-const DEFAULT_ADMIN = {
-  email: "admin@fruitstore.com",
-  password: "admin12345",
-};
-
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { content } = useFrontendContent();
   const [theme, setTheme] = useState("light");
   const [form, setForm] = useState({
-    email: DEFAULT_ADMIN.email,
-    password: DEFAULT_ADMIN.password,
+    email: "",
+    password: "",
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -144,13 +139,14 @@ function LoginForm() {
             Sign in to continue to your dashboard.
           </p>
 
-          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+          <form className="mt-8 space-y-5" onSubmit={handleSubmit} autoComplete="off">
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">Email</span>
               <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3.5 shadow-sm shadow-emerald-100/40 transition focus-within:border-emerald-400 focus-within:ring-4 focus-within:ring-emerald-100 dark:border-emerald-500/20 dark:bg-[#101915] dark:shadow-none dark:focus-within:border-emerald-400/70 dark:focus-within:ring-emerald-500/15">
                 <Mail className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
                 <input
                   type="email"
+                  autoComplete="off"
                   className="w-full border-0 bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-slate-500"
                   value={form.email}
                   onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
@@ -164,6 +160,7 @@ function LoginForm() {
                 <LockKeyhole className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
                 <input
                   type="password"
+                  autoComplete="new-password"
                   className="w-full border-0 bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-slate-500"
                   value={form.password}
                   onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
