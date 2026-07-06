@@ -60,15 +60,16 @@ function AppleIcon() {
   );
 }
 
-function SocialButton({ href, label, icon: Icon, className = "" }) {
+function SocialButton({ onClick, label, icon: Icon, className = "" }) {
   return (
-    <a
-      href={href}
+    <button
+      type="button"
+      onClick={onClick}
       className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-white/95 px-4 py-3 text-sm font-medium text-slate-700 shadow-[0_12px_28px_rgba(16,185,129,0.08)] transition hover:border-emerald-300 hover:bg-emerald-50 hover:shadow-[0_14px_30px_rgba(16,185,129,0.12)] dark:border-white/10 dark:bg-[#101915] dark:text-slate-100 dark:shadow-none dark:hover:border-emerald-400/40 dark:hover:bg-[#14211b] ${className}`}
     >
       <Icon />
       <span>{label}</span>
-    </a>
+    </button>
   );
 }
 
@@ -142,6 +143,16 @@ function LoginForm() {
     if (nextMode === "signup") {
       setSignUpSuccess("");
     }
+  }
+
+  function redirectToOauth(provider) {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const baseUrl = getBackendOrigin();
+    const oauthUrl = `${baseUrl}/api/auth/${provider}?next=${encodeURIComponent(oauthNextPath)}`;
+    window.location.href = oauthUrl;
   }
 
   async function handleSignInSubmit(event) {
@@ -385,12 +396,12 @@ function LoginForm() {
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <SocialButton
-                    href={`${getBackendOrigin()}/api/auth/google?next=${encodeURIComponent(oauthNextPath)}`}
+                    onClick={() => redirectToOauth("google")}
                     label="Google"
                     icon={GoogleIcon}
                   />
                   <SocialButton
-                    href={`${getBackendOrigin()}/api/auth/apple?next=${encodeURIComponent(oauthNextPath)}`}
+                    onClick={() => redirectToOauth("apple")}
                     label="Apple"
                     icon={AppleIcon}
                     className="dark:text-white"

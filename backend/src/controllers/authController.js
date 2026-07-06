@@ -48,6 +48,33 @@ function buildFrontendRedirectUrl(pathname, message) {
   return url.toString();
 }
 
+function buildOauthSuccessRedirectUrl(result, nextPath) {
+  const url = new URL("/oauth/callback", authConfig.frontendBaseUrl);
+  url.searchParams.set("token", result.token);
+  url.searchParams.set(
+    "user",
+    Buffer.from(JSON.stringify(result.user || {}), "utf8").toString("base64url")
+  );
+  url.searchParams.set("next", getSafeRedirectPath(nextPath));
+  return url.toString();
+}
+
+function parseAppleProfileName(userPayload) {
+  if (!userPayload) {
+    return "";
+  }
+
+  try {
+    const parsed =
+      typeof userPayload === "string" ? JSON.parse(userPayload) : userPayload;
+    const firstName = String(parsed?.name?.firstName || "").trim();
+    const lastName = String(parsed?.name?.lastName || "").trim();
+    return [firstName, lastName].filter(Boolean).join(" ").trim();
+  } catch {
+    return "";
+  }
+}
+
 function validateOauthState(requestState, storedState, provider) {
   if (!requestState || !storedState || requestState !== storedState) {
     return null;
@@ -83,17 +110,26 @@ const forgotPassword = asyncHandler(async (req, res) => {
 });
 
 const startGoogleOauth = asyncHandler(async (req, res) => {
-  const state = createOauthState({
-    provider: "google",
-    nextPath: getSafeRedirectPath(req.query?.next),
-  });
-  const authorizationUrl = createGoogleOauthUrl(state);
+  try {
+    const state = createOauthState({
+      provider: "google",
+      nextPath: getSafeRedirectPath(req.query?.next),
+    });
+    const authorizationUrl = createGoogleOauthUrl(state);
 
-  res.cookie(authConfig.oauthStateCookieName, state, oauthStateCookieOptions);
-  res.redirect(302, authorizationUrl);
+    res.cookie(authConfig.oauthStateCookieName, state, oauthStateCookieOptions);
+    res.redirect(302, authorizationUrl);
+  } catch (error) {
+    res.redirect(302, buildFrontendRedirectUrl("/login", error.message));
+  }
 });
 
 const googleOauthCallback = asyncHandler(async (req, res) => {
+  if (req.query?.error) {
+    const providerMessage = req.query?.error_description || "Google sign-in was cancelled.";
+    return res.redirect(302, buildFrontendRedirectUrl("/login", providerMessage));
+  }
+
   const requestState = String(req.query?.state || "");
   const storedState = req.cookies?.[authConfig.oauthStateCookieName];
   const parsedState = validateOauthState(requestState, storedState, "google");
@@ -114,7 +150,7 @@ const googleOauthCallback = asyncHandler(async (req, res) => {
     });
 
     res.cookie(authConfig.cookieName, result.token, cookieOptions);
-    return res.redirect(302, buildFrontendRedirectUrl(parsedState.nextPath));
+    return res.redirect(302, buildOauthSuccessRedirectUrl(result, parsedState.nextPath));
   } catch (error) {
     return res.redirect(
       302,
@@ -124,17 +160,29 @@ const googleOauthCallback = asyncHandler(async (req, res) => {
 });
 
 const startAppleOauth = asyncHandler(async (req, res) => {
-  const state = createOauthState({
-    provider: "apple",
-    nextPath: getSafeRedirectPath(req.query?.next),
-  });
-  const authorizationUrl = createAppleOauthUrl(state);
+  try {
+    const state = createOauthState({
+      provider: "apple",
+      nextPath: getSafeRedirectPath(req.query?.next),
+    });
+    const authorizationUrl = createAppleOauthUrl(state);
 
-  res.cookie(authConfig.oauthStateCookieName, state, oauthStateCookieOptions);
-  res.redirect(302, authorizationUrl);
+    res.cookie(authConfig.oauthStateCookieName, state, oauthStateCookieOptions);
+    res.redirect(302, authorizationUrl);
+  } catch (error) {
+    res.redirect(302, buildFrontendRedirectUrl("/login", error.message));
+  }
 });
 
 const appleOauthCallback = asyncHandler(async (req, res) => {
+  if (req.query?.error || req.body?.error) {
+    const providerMessage =
+      req.query?.error_description ||
+      req.body?.error_description ||
+      "Apple sign-in was cancelled.";
+    return res.redirect(302, buildFrontendRedirectUrl("/login", providerMessage));
+  }
+
   const requestState = String(req.query?.state || req.body?.state || "");
   const storedState = req.cookies?.[authConfig.oauthStateCookieName];
   const parsedState = validateOauthState(requestState, storedState, "apple");
@@ -152,10 +200,12 @@ const appleOauthCallback = asyncHandler(async (req, res) => {
     const result = await completeOauthLogin({
       provider: "apple",
       code: req.query?.code || req.body?.code,
+      identityToken: req.query?.id_token || req.body?.id_token,
+      profileName: parseAppleProfileName(req.body?.user),
     });
 
     res.cookie(authConfig.cookieName, result.token, cookieOptions);
-    return res.redirect(302, buildFrontendRedirectUrl(parsedState.nextPath));
+    return res.redirect(302, buildOauthSuccessRedirectUrl(result, parsedState.nextPath));
   } catch (error) {
     return res.redirect(
       302,

@@ -14,6 +14,39 @@ function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
 
+function getMissingConfigValueNames(provider) {
+  if (provider === "google") {
+    return [
+      ["GOOGLE_CLIENT_ID", authConfig.googleClientId],
+      ["GOOGLE_CLIENT_SECRET", authConfig.googleClientSecret],
+      ["GOOGLE_CALLBACK_URL", authConfig.googleCallbackUrl],
+    ]
+      .filter(([, value]) => !String(value || "").trim())
+      .map(([key]) => key);
+  }
+
+  return [
+    ["APPLE_CLIENT_ID", authConfig.appleClientId],
+    ["APPLE_TEAM_ID", authConfig.appleTeamId],
+    ["APPLE_KEY_ID", authConfig.appleKeyId],
+    ["APPLE_PRIVATE_KEY", authConfig.applePrivateKey],
+    ["APPLE_CALLBACK_URL", authConfig.appleCallbackUrl],
+  ]
+    .filter(([, value]) => !String(value || "").trim())
+    .map(([key]) => key);
+}
+
+function ensureOauthConfig(provider) {
+  const missingValues = getMissingConfigValueNames(provider);
+  if (missingValues.length > 0) {
+    const providerLabel = provider === "google" ? "Google" : "Apple";
+    throw createHttpError(
+      `${providerLabel} OAuth is not configured. Missing: ${missingValues.join(", ")}.`,
+      500
+    );
+  }
+}
+
 function buildSession(user) {
   const safeUser = toSafeUser(user);
   const token = createToken(
@@ -68,9 +101,7 @@ function parseOauthState(state) {
 }
 
 function createGoogleOauthUrl(state) {
-  if (!authConfig.googleClientId || !authConfig.googleCallbackUrl) {
-    throw createHttpError("Google OAuth is not configured.", 500);
-  }
+  ensureOauthConfig("google");
 
   const params = new URLSearchParams({
     client_id: authConfig.googleClientId,
@@ -78,6 +109,7 @@ function createGoogleOauthUrl(state) {
     response_type: "code",
     scope: "openid email profile",
     prompt: "select_account",
+    access_type: "offline",
     state,
   });
 
@@ -85,14 +117,7 @@ function createGoogleOauthUrl(state) {
 }
 
 function createAppleClientSecret() {
-  if (
-    !authConfig.appleClientId ||
-    !authConfig.appleTeamId ||
-    !authConfig.appleKeyId ||
-    !authConfig.applePrivateKey
-  ) {
-    throw createHttpError("Apple OAuth is not configured.", 500);
-  }
+  ensureOauthConfig("apple");
 
   const now = Math.floor(Date.now() / 1000);
   const header = Buffer.from(
@@ -122,16 +147,16 @@ function createAppleClientSecret() {
 }
 
 function createAppleOauthUrl(state) {
-  if (!authConfig.appleClientId || !authConfig.appleCallbackUrl) {
-    throw createHttpError("Apple OAuth is not configured.", 500);
-  }
+  ensureOauthConfig("apple");
+  const parsedState = parseOauthState(state);
 
   const params = new URLSearchParams({
     client_id: authConfig.appleClientId,
     redirect_uri: authConfig.appleCallbackUrl,
-    response_type: "code",
-    response_mode: "query",
+    response_type: "code id_token",
+    response_mode: "form_post",
     scope: "name email",
+    nonce: parsedState?.nonce || crypto.randomBytes(16).toString("hex"),
     state,
   });
 
@@ -139,6 +164,7 @@ function createAppleOauthUrl(state) {
 }
 
 async function exchangeGoogleCode(code) {
+  ensureOauthConfig("google");
   const response = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -186,28 +212,35 @@ function decodeJwtPayload(token) {
   return JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
 }
 
-async function exchangeAppleCode(code) {
-  const clientSecret = createAppleClientSecret();
-  const response = await fetch("https://appleid.apple.com/auth/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      client_id: authConfig.appleClientId,
-      client_secret: clientSecret,
-      code,
-      grant_type: "authorization_code",
-      redirect_uri: authConfig.appleCallbackUrl,
-    }),
-  });
+async function exchangeAppleCode(code, identityToken) {
+  ensureOauthConfig("apple");
+  let resolvedIdentityToken = identityToken;
 
-  if (!response.ok) {
-    throw createHttpError("Apple sign-in could not be completed.", 400);
+  if (!resolvedIdentityToken) {
+    const clientSecret = createAppleClientSecret();
+    const response = await fetch("https://appleid.apple.com/auth/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        client_id: authConfig.appleClientId,
+        client_secret: clientSecret,
+        code,
+        grant_type: "authorization_code",
+        redirect_uri: authConfig.appleCallbackUrl,
+      }),
+    });
+
+    if (!response.ok) {
+      throw createHttpError("Apple sign-in could not be completed.", 400);
+    }
+
+    const tokenPayload = await response.json();
+    resolvedIdentityToken = tokenPayload.id_token;
   }
 
-  const tokenPayload = await response.json();
-  const idTokenPayload = decodeJwtPayload(tokenPayload.id_token);
+  const idTokenPayload = decodeJwtPayload(resolvedIdentityToken);
 
   if (idTokenPayload.aud !== authConfig.appleClientId) {
     throw createHttpError("Apple sign-in audience is invalid.", 400);
@@ -223,6 +256,22 @@ async function exchangeAppleCode(code) {
     email: normalizeEmail(idTokenPayload.email),
     name: idTokenPayload.email || "Apple User",
   };
+}
+
+function buildOauthDisplayName({ name, profileName, email, fallback }) {
+  if (String(name || "").trim()) {
+    return String(name).trim();
+  }
+
+  if (String(profileName || "").trim()) {
+    return String(profileName).trim();
+  }
+
+  if (String(email || "").trim()) {
+    return String(email).trim();
+  }
+
+  return fallback;
 }
 
 async function findOrCreateOauthUser({ provider, providerId, email, name }) {
@@ -264,13 +313,24 @@ async function findOrCreateOauthUser({ provider, providerId, email, name }) {
   });
 }
 
-async function completeOauthLogin({ provider, code }) {
+async function completeOauthLogin({ provider, code, identityToken, profileName }) {
   if (!code) {
     throw createHttpError("OAuth authorization code is missing.", 400);
   }
 
-  const profile =
-    provider === "google" ? await exchangeGoogleCode(code) : await exchangeAppleCode(code);
+  let profile;
+  if (provider === "google") {
+    profile = await exchangeGoogleCode(code);
+  } else {
+    profile = await exchangeAppleCode(code, identityToken);
+    profile.name = buildOauthDisplayName({
+      name: profile.name,
+      profileName,
+      email: profile.email,
+      fallback: "Apple User",
+    });
+  }
+
   const user = await findOrCreateOauthUser(profile);
   return buildSession(user);
 }
