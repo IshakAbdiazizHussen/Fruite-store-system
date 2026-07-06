@@ -260,37 +260,12 @@ function LoginForm() {
               : "Register with your own email and password to access the dashboard."}
           </p>
 
-          <div className="mt-8 grid grid-cols-2 rounded-2xl border border-emerald-100 bg-emerald-50/80 p-1 dark:border-emerald-500/20 dark:bg-[#101915]/80">
-            <button
-              type="button"
-              onClick={() => switchMode("signin")}
-              className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
-                mode === "signin"
-                  ? "bg-emerald-600 text-white shadow-[0_12px_24px_rgba(22,163,74,0.22)] dark:bg-emerald-500"
-                  : "text-emerald-700 hover:bg-white/80 dark:text-emerald-300 dark:hover:bg-white/5"
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => switchMode("signup")}
-              className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
-                mode === "signup"
-                  ? "bg-emerald-600 text-white shadow-[0_12px_24px_rgba(22,163,74,0.22)] dark:bg-emerald-500"
-                  : "text-emerald-700 hover:bg-white/80 dark:text-emerald-300 dark:hover:bg-white/5"
-              }`}
-            >
-              Sign Up
-            </button>
-          </div>
-
           {signUpSuccess && mode === "signin" ? (
-            <p className="mt-5 text-sm text-emerald-600 dark:text-emerald-300">{signUpSuccess}</p>
+            <p className="mt-8 text-sm text-emerald-600 dark:text-emerald-300">{signUpSuccess}</p>
           ) : null}
 
           {mode === "signin" ? (
-            <form className="mt-5 space-y-5" onSubmit={handleSignInSubmit} autoComplete="off">
+            <form className="mt-8 space-y-5" onSubmit={handleSignInSubmit} autoComplete="off">
               <label className="block">
                 <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">Email</span>
                 <AuthInput
@@ -335,9 +310,19 @@ function LoginForm() {
               >
                 {isSigningIn ? "Signing in..." : "Sign In"}
               </button>
+
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => switchMode("signup")}
+                  className="text-sm font-medium text-emerald-600 transition-colors duration-200 hover:text-emerald-700 hover:underline dark:text-emerald-300 dark:hover:text-emerald-200"
+                >
+                  Don&apos;t have an account? Sign Up
+                </button>
+              </div>
             </form>
           ) : (
-            <form className="mt-5 space-y-5" onSubmit={handleSignUpSubmit} autoComplete="off">
+            <form className="mt-8 space-y-5" onSubmit={handleSignUpSubmit} autoComplete="off">
               <label className="block">
                 <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">Full Name</span>
                 <AuthInput
@@ -398,6 +383,16 @@ function LoginForm() {
               >
                 {isSigningUp ? "Creating account..." : "Sign Up"}
               </button>
+
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => switchMode("signin")}
+                  className="text-sm font-medium text-emerald-600 transition-colors duration-200 hover:text-emerald-700 hover:underline dark:text-emerald-300 dark:hover:text-emerald-200"
+                >
+                  Already have an account? Sign In
+                </button>
+              </div>
             </form>
           )}
         </div>
