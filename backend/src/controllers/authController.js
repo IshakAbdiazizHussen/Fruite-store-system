@@ -2,6 +2,7 @@ const { authConfig } = require("../config/auth");
 const { asyncHandler } = require("./resourceController");
 const {
   loginAdmin,
+  registerAdmin,
   requestPasswordReset,
   resetPassword,
   validatePasswordResetToken,
@@ -24,6 +25,11 @@ const login = asyncHandler(async (req, res) => {
 
   res.cookie(authConfig.cookieName, result.token, cookieOptions);
   res.status(200).json(result);
+});
+
+const register = asyncHandler(async (req, res) => {
+  const result = await registerAdmin(req.body || {});
+  res.status(201).json(result);
 });
 
 const forgotPassword = asyncHandler(async (req, res) => {
@@ -79,6 +85,7 @@ module.exports = {
   me,
   removeImage,
   replaceImage,
+  register,
   resetPasswordWithToken,
   uploadImage,
   validateResetToken,

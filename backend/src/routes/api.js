@@ -32,6 +32,7 @@ const resetPasswordRateLimit = createRateLimit({
 router.get("/", apiInfo);
 router.get("/health", healthCheck);
 router.post("/auth/login", authController.login);
+router.post("/auth/register", authController.register);
 router.post("/auth/forgot-password", forgotPasswordRateLimit, authController.forgotPassword);
 router.get("/auth/reset-password/:token", resetPasswordRateLimit, authController.validateResetToken);
 router.post("/auth/reset-password/:token", resetPasswordRateLimit, authController.resetPasswordWithToken);

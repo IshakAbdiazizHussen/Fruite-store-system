@@ -64,6 +64,13 @@ export async function loginAdmin(credentials) {
   return session;
 }
 
+export async function registerAdmin(payload) {
+  return apiRequest("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function requestPasswordReset(payload) {
   return apiRequest("/auth/forgot-password", {
     method: "POST",

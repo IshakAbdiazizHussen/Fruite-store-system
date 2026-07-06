@@ -3,27 +3,63 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { LockKeyhole, Mail, Moon, Store, Sun } from "lucide-react";
-import { loginAdmin } from "@/lib/authClient";
+import { LockKeyhole, Mail, Moon, Store, Sun, UserRound } from "lucide-react";
+
+import { loginAdmin, registerAdmin } from "@/lib/authClient";
 import { useFrontendContent } from "@/hooks/useFrontendContent";
 import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
+}
+
+function AuthInput({ icon: Icon, type = "text", autoComplete = "off", value, onChange }) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3.5 shadow-sm shadow-emerald-100/40 transition focus-within:border-emerald-400 focus-within:ring-4 focus-within:ring-emerald-100 dark:border-emerald-500/20 dark:bg-[#101915] dark:shadow-none dark:focus-within:border-emerald-400/70 dark:focus-within:ring-emerald-500/15">
+      <Icon className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
+      <input
+        type={type}
+        autoComplete={autoComplete}
+        className="w-full border-0 bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-slate-500"
+        value={value}
+        onChange={onChange}
+      />
+    </div>
+  );
+}
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { content } = useFrontendContent();
   const [theme, setTheme] = useState("light");
-  const [form, setForm] = useState({
+  const [mode, setMode] = useState("signin");
+  const [signInForm, setSignInForm] = useState({
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [signUpForm, setSignUpForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [signInError, setSignInError] = useState("");
+  const [signUpError, setSignUpError] = useState("");
+  const [signUpSuccess, setSignUpSuccess] = useState("");
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
 
   useEffect(() => {
-    setForm({
+    setSignInForm({
       email: "",
       password: "",
+    });
+    setSignUpForm({
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
     });
 
     const initialTheme = getInitialTheme();
@@ -46,19 +82,94 @@ function LoginForm() {
     persistTheme(nextTheme);
   }
 
-  async function handleSubmit(event) {
+  function switchMode(nextMode) {
+    setMode(nextMode);
+    setSignInError("");
+    setSignUpError("");
+    if (nextMode === "signup") {
+      setSignUpSuccess("");
+    }
+  }
+
+  async function handleSignInSubmit(event) {
     event.preventDefault();
-    setError("");
-    setIsSubmitting(true);
+    setSignInError("");
+    setIsSigningIn(true);
 
     try {
-      await loginAdmin(form);
+      await loginAdmin(signInForm);
       const nextPath = searchParams.get("next");
       router.replace(nextPath || "/dashboard");
     } catch (submitError) {
-      setError(submitError.message || "Login failed.");
+      setSignInError(submitError.message || "Invalid email or password.");
     } finally {
-      setIsSubmitting(false);
+      setIsSigningIn(false);
+    }
+  }
+
+  async function handleSignUpSubmit(event) {
+    event.preventDefault();
+    setSignUpError("");
+    setSignUpSuccess("");
+
+    const normalizedName = signUpForm.fullName.trim();
+    const normalizedEmail = signUpForm.email.trim();
+
+    if (!normalizedName) {
+      setSignUpError("Full name is required.");
+      return;
+    }
+
+    if (!normalizedEmail) {
+      setSignUpError("Email is required.");
+      return;
+    }
+
+    if (!isValidEmail(normalizedEmail)) {
+      setSignUpError("Enter a valid email address.");
+      return;
+    }
+
+    if (!signUpForm.password) {
+      setSignUpError("Password is required.");
+      return;
+    }
+
+    if (signUpForm.password.length < 8) {
+      setSignUpError("Password must be at least 8 characters.");
+      return;
+    }
+
+    if (signUpForm.password !== signUpForm.confirmPassword) {
+      setSignUpError("Confirm password must match password.");
+      return;
+    }
+
+    setIsSigningUp(true);
+
+    try {
+      const result = await registerAdmin({
+        fullName: normalizedName,
+        email: normalizedEmail,
+        password: signUpForm.password,
+      });
+
+      setSignUpForm({
+        fullName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+      setSignInForm({
+        email: normalizedEmail,
+        password: "",
+      });
+      setSignUpSuccess(result?.message || "Account created successfully. Please sign in.");
+      setMode("signin");
+    } catch (submitError) {
+      setSignUpError(submitError.message || "Unable to create your account.");
+    } finally {
+      setIsSigningUp(false);
     }
   }
 
@@ -140,59 +251,155 @@ function LoginForm() {
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-600 dark:text-emerald-300">
             {content.login.eyebrow}
           </p>
-          <h2 className="mt-3 text-3xl font-semibold text-gray-900 dark:text-white sm:text-4xl">{content.login.title}</h2>
+          <h2 className="mt-3 text-3xl font-semibold text-gray-900 dark:text-white sm:text-4xl">
+            {mode === "signin" ? content.login.title : "Create your account"}
+          </h2>
           <p className="mt-3 text-sm leading-6 text-gray-500 dark:text-slate-400">
-            Sign in to continue to your dashboard.
+            {mode === "signin"
+              ? "Sign in to continue to your dashboard."
+              : "Register with your own email and password to access the dashboard."}
           </p>
 
-          <form className="mt-8 space-y-5" onSubmit={handleSubmit} autoComplete="off">
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">Email</span>
-              <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3.5 shadow-sm shadow-emerald-100/40 transition focus-within:border-emerald-400 focus-within:ring-4 focus-within:ring-emerald-100 dark:border-emerald-500/20 dark:bg-[#101915] dark:shadow-none dark:focus-within:border-emerald-400/70 dark:focus-within:ring-emerald-500/15">
-                <Mail className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
-                <input
+          <div className="mt-8 grid grid-cols-2 rounded-2xl border border-emerald-100 bg-emerald-50/80 p-1 dark:border-emerald-500/20 dark:bg-[#101915]/80">
+            <button
+              type="button"
+              onClick={() => switchMode("signin")}
+              className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
+                mode === "signin"
+                  ? "bg-emerald-600 text-white shadow-[0_12px_24px_rgba(22,163,74,0.22)] dark:bg-emerald-500"
+                  : "text-emerald-700 hover:bg-white/80 dark:text-emerald-300 dark:hover:bg-white/5"
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => switchMode("signup")}
+              className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
+                mode === "signup"
+                  ? "bg-emerald-600 text-white shadow-[0_12px_24px_rgba(22,163,74,0.22)] dark:bg-emerald-500"
+                  : "text-emerald-700 hover:bg-white/80 dark:text-emerald-300 dark:hover:bg-white/5"
+              }`}
+            >
+              Sign Up
+            </button>
+          </div>
+
+          {signUpSuccess && mode === "signin" ? (
+            <p className="mt-5 text-sm text-emerald-600 dark:text-emerald-300">{signUpSuccess}</p>
+          ) : null}
+
+          {mode === "signin" ? (
+            <form className="mt-5 space-y-5" onSubmit={handleSignInSubmit} autoComplete="off">
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">Email</span>
+                <AuthInput
+                  icon={Mail}
                   type="email"
                   autoComplete="off"
-                  className="w-full border-0 bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-slate-500"
-                  value={form.email}
-                  onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+                  value={signInForm.email}
+                  onChange={(event) =>
+                    setSignInForm((prev) => ({ ...prev, email: event.target.value }))
+                  }
                 />
-              </div>
-            </label>
+              </label>
 
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">Password</span>
-              <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3.5 shadow-sm shadow-emerald-100/40 transition focus-within:border-emerald-400 focus-within:ring-4 focus-within:ring-emerald-100 dark:border-emerald-500/20 dark:bg-[#101915] dark:shadow-none dark:focus-within:border-emerald-400/70 dark:focus-within:ring-emerald-500/15">
-                <LockKeyhole className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
-                <input
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">Password</span>
+                <AuthInput
+                  icon={LockKeyhole}
                   type="password"
                   autoComplete="new-password"
-                  className="w-full border-0 bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-slate-500"
-                  value={form.password}
-                  onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+                  value={signInForm.password}
+                  onChange={(event) =>
+                    setSignInForm((prev) => ({ ...prev, password: event.target.value }))
+                  }
                 />
+              </label>
+
+              <div className="flex justify-end">
+                <Link
+                  href="/forgot-password"
+                  className="cursor-pointer text-sm font-medium text-emerald-600 transition-colors duration-200 hover:text-emerald-700 hover:underline dark:text-emerald-300 dark:hover:text-emerald-200"
+                >
+                  Forgot Password?
+                </Link>
               </div>
-            </label>
 
-            <div className="flex justify-end">
-              <Link
-                href="/forgot-password"
-                className="text-sm font-medium text-emerald-600 transition-colors duration-200 hover:text-emerald-700 hover:underline dark:text-emerald-300 dark:hover:text-emerald-200"
+              {signInError ? <p className="text-sm text-red-600">{signInError}</p> : null}
+
+              <button
+                type="submit"
+                disabled={isSigningIn}
+                className="w-full rounded-2xl bg-emerald-600 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(22,163,74,0.22)] transition-colors hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Forgot Password?
-              </Link>
-            </div>
+                {isSigningIn ? "Signing in..." : "Sign In"}
+              </button>
+            </form>
+          ) : (
+            <form className="mt-5 space-y-5" onSubmit={handleSignUpSubmit} autoComplete="off">
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">Full Name</span>
+                <AuthInput
+                  icon={UserRound}
+                  autoComplete="name"
+                  value={signUpForm.fullName}
+                  onChange={(event) =>
+                    setSignUpForm((prev) => ({ ...prev, fullName: event.target.value }))
+                  }
+                />
+              </label>
 
-            {error ? <p className="text-sm text-red-600">{error}</p> : null}
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">Email</span>
+                <AuthInput
+                  icon={Mail}
+                  type="email"
+                  autoComplete="off"
+                  value={signUpForm.email}
+                  onChange={(event) =>
+                    setSignUpForm((prev) => ({ ...prev, email: event.target.value }))
+                  }
+                />
+              </label>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full rounded-2xl bg-emerald-600 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(22,163,74,0.22)] transition-colors hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {isSubmitting ? "Signing in..." : "Sign In"}
-            </button>
-          </form>
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">Password</span>
+                <AuthInput
+                  icon={LockKeyhole}
+                  type="password"
+                  autoComplete="new-password"
+                  value={signUpForm.password}
+                  onChange={(event) =>
+                    setSignUpForm((prev) => ({ ...prev, password: event.target.value }))
+                  }
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">Confirm Password</span>
+                <AuthInput
+                  icon={LockKeyhole}
+                  type="password"
+                  autoComplete="new-password"
+                  value={signUpForm.confirmPassword}
+                  onChange={(event) =>
+                    setSignUpForm((prev) => ({ ...prev, confirmPassword: event.target.value }))
+                  }
+                />
+              </label>
+
+              {signUpError ? <p className="text-sm text-red-600">{signUpError}</p> : null}
+
+              <button
+                type="submit"
+                disabled={isSigningUp}
+                className="w-full rounded-2xl bg-emerald-600 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(22,163,74,0.22)] transition-colors hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isSigningUp ? "Creating account..." : "Sign Up"}
+              </button>
+            </form>
+          )}
         </div>
       </section>
     </div>
@@ -203,7 +410,8 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-green-50 to-emerald-100/60 px-4 py-5 dark:bg-[linear-gradient(180deg,#07110c_0%,#0c1812_48%,#10231a_100%)] sm:px-6 sm:py-8">
       <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-7xl items-center justify-center sm:min-h-[calc(100vh-4rem)]">
-        <Suspense fallback={<div className="h-[560px] w-full rounded-[32px] border border-emerald-100 bg-white shadow-[0_24px_80px_rgba(22,101,52,0.12)] dark:border-emerald-500/25 dark:bg-[#09110d] dark:shadow-[0_28px_90px_rgba(0,0,0,0.45)]" />}>          <LoginForm />
+        <Suspense fallback={<div className="h-[560px] w-full rounded-[32px] border border-emerald-100 bg-white shadow-[0_24px_80px_rgba(22,101,52,0.12)] dark:border-emerald-500/25 dark:bg-[#09110d] dark:shadow-[0_28px_90px_rgba(0,0,0,0.45)]" />}>
+          <LoginForm />
         </Suspense>
       </div>
     </main>

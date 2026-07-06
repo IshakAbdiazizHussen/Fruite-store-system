@@ -53,6 +53,46 @@ async function loginAdmin({ email, password }) {
   };
 }
 
+async function registerAdmin({ fullName, email, password }) {
+  const normalizedName = String(fullName || "").trim();
+  const normalizedEmail = normalizeEmail(email);
+  const normalizedPassword = String(password || "");
+
+  if (!normalizedName) {
+    throw createHttpError("Full name is required.", 400);
+  }
+
+  if (!normalizedEmail) {
+    throw createHttpError("Email is required.", 400);
+  }
+
+  if (!normalizedPassword) {
+    throw createHttpError("Password is required.", 400);
+  }
+
+  if (normalizedPassword.length < 8) {
+    throw createHttpError("Password must be at least 8 characters.", 400);
+  }
+
+  const existingUser = await AdminUser.findOne({ email: normalizedEmail });
+  if (existingUser) {
+    throw createHttpError("Email already exists.", 409);
+  }
+
+  const user = await AdminUser.create({
+    name: normalizedName,
+    email: normalizedEmail,
+    passwordHash: hashPassword(normalizedPassword),
+    role: "Administrator",
+    isActive: true,
+  });
+
+  return {
+    message: "Account created successfully. Please sign in.",
+    user: toSafeUser(user),
+  };
+}
+
 async function requestPasswordReset({ email }) {
   const normalizedEmail = normalizeEmail(email);
 
@@ -145,6 +185,7 @@ async function resetPassword({ token, password, confirmPassword }) {
 
 module.exports = {
   loginAdmin,
+  registerAdmin,
   requestPasswordReset,
   resetPassword,
   toSafeUser,
