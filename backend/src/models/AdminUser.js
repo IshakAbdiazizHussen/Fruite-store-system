@@ -4,7 +4,9 @@ const adminUserSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    passwordHash: { type: String, required: true },
+    passwordHash: { type: String, default: null },
+    provider: { type: String, default: "password", trim: true },
+    providerId: { type: String, default: null, trim: true },
     role: { type: String, default: "Administrator", trim: true },
     isActive: { type: Boolean, default: true },
     lastLoginAt: { type: Date, default: null },

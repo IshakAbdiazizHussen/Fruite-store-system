@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { LockKeyhole, Mail, Moon, Store, Sun, UserRound } from "lucide-react";
 
 import { loginAdmin, registerAdmin } from "@/lib/authClient";
+import { getBackendOrigin } from "@/lib/apiClient";
 import { useFrontendContent } from "@/hooks/useFrontendContent";
 import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
 
@@ -25,6 +26,49 @@ function AuthInput({ icon: Icon, type = "text", autoComplete = "off", value, onC
         onChange={onChange}
       />
     </div>
+  );
+}
+
+function GoogleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
+      <path
+        fill="#4285F4"
+        d="M21.6 12.23c0-.72-.06-1.25-.19-1.8H12v3.4h5.52c-.11.84-.7 2.1-2.02 2.95l-.02.11 2.73 2.11.19.02c1.77-1.63 3.2-4.03 3.2-6.79Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 22c2.7 0 4.97-.89 6.62-2.42l-3.15-2.44c-.84.59-1.97 1-3.47 1-2.65 0-4.9-1.73-5.71-4.13l-.1.01-2.84 2.19-.03.1C4.96 19.55 8.2 22 12 22Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M6.29 14.01A5.92 5.92 0 0 1 5.97 12c0-.69.12-1.35.31-1.99l-.01-.13-2.88-2.22-.09.04A9.95 9.95 0 0 0 2 12c0 1.59.38 3.09 1.3 4.3l2.99-2.29Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.86c1.89 0 3.16.81 3.88 1.48l2.83-2.76C16.96 2.98 14.7 2 12 2 8.2 2 4.96 4.45 3.3 7.7l2.98 2.3C7.1 7.59 9.35 5.86 12 5.86Z"
+      />
+    </svg>
+  );
+}
+
+function AppleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
+      <path d="M16.7 12.78c.02 2.3 2.01 3.06 2.03 3.07-.02.06-.31 1.07-1.02 2.11-.61.9-1.25 1.8-2.25 1.81-.98.02-1.29-.58-2.41-.58-1.12 0-1.46.56-2.39.6-.96.04-1.69-.96-2.31-1.86-1.27-1.84-2.24-5.18-.94-7.44.65-1.12 1.81-1.83 3.06-1.85.95-.02 1.84.64 2.41.64.57 0 1.65-.79 2.79-.67.48.02 1.82.19 2.69 1.47-.07.04-1.61.94-1.59 2.8ZM14.76 4.73c.51-.62.85-1.48.76-2.33-.73.03-1.62.49-2.14 1.11-.47.54-.88 1.42-.77 2.25.82.06 1.65-.42 2.15-1.03Z" />
+    </svg>
+  );
+}
+
+function SocialButton({ href, label, icon: Icon, className = "" }) {
+  return (
+    <a
+      href={href}
+      className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-100 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm shadow-emerald-100/40 transition hover:border-emerald-300 hover:bg-emerald-50 dark:border-white/10 dark:bg-[#101915] dark:text-slate-100 dark:shadow-none dark:hover:border-emerald-400/40 dark:hover:bg-[#14211b] ${className}`}
+    >
+      <Icon />
+      <span>{label}</span>
+    </a>
   );
 }
 
@@ -49,6 +93,7 @@ function LoginForm() {
   const [signUpSuccess, setSignUpSuccess] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
+  const oauthNextPath = searchParams.get("next") || "/dashboard";
 
   useEffect(() => {
     setSignInForm({
@@ -75,6 +120,14 @@ function LoginForm() {
       unsubscribeTheme();
     };
   }, []);
+
+  useEffect(() => {
+    const oauthError = searchParams.get("error");
+    if (oauthError) {
+      setSignInError(oauthError);
+      setMode("signin");
+    }
+  }, [searchParams]);
 
   function handleThemeToggle() {
     const nextTheme = theme === "dark" ? "light" : "dark";
@@ -315,10 +368,34 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => switchMode("signup")}
-                  className="text-sm font-medium text-emerald-600 transition-colors duration-200 hover:text-emerald-700 hover:underline dark:text-emerald-300 dark:hover:text-emerald-200"
+                  className="inline-flex items-center gap-2.5 text-sm font-medium text-emerald-600 transition-colors duration-200 hover:text-emerald-700 hover:underline dark:text-emerald-300 dark:hover:text-emerald-200"
                 >
-                  Don&apos;t have an account? Sign Up
+                  <span>Don&apos;t have an account?</span>
+                  <span>Sign Up</span>
                 </button>
+              </div>
+
+              <div className="space-y-4 pt-2">
+                <div className="relative">
+                  <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-emerald-100 dark:bg-white/10" />
+                  <p className="relative mx-auto w-fit bg-white px-3 text-xs font-medium text-slate-400 dark:bg-[#09110d] dark:text-slate-500">
+                    Or continue with
+                  </p>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <SocialButton
+                    href={`${getBackendOrigin()}/api/auth/google?next=${encodeURIComponent(oauthNextPath)}`}
+                    label="Google"
+                    icon={GoogleIcon}
+                  />
+                  <SocialButton
+                    href={`${getBackendOrigin()}/api/auth/apple?next=${encodeURIComponent(oauthNextPath)}`}
+                    label="Apple"
+                    icon={AppleIcon}
+                    className="dark:text-white"
+                  />
+                </div>
               </div>
             </form>
           ) : (
