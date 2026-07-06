@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { LockKeyhole, Mail, Moon, Store, Sun, UserRound } from "lucide-react";
 
 import { loginAdmin, registerAdmin } from "@/lib/authClient";
-import { getBackendOrigin } from "@/lib/apiClient";
 import { useFrontendContent } from "@/hooks/useFrontendContent";
 import { applyTheme, getInitialTheme, setTheme as persistTheme, subscribeToTheme } from "@/lib/theme";
 
@@ -94,8 +93,6 @@ function LoginForm() {
   const [signUpSuccess, setSignUpSuccess] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
-  const oauthNextPath = searchParams.get("next") || "/dashboard";
-
   useEffect(() => {
     setSignInForm({
       email: "",
@@ -160,16 +157,20 @@ function LoginForm() {
     }
   }
 
-  function redirectToOauth(provider) {
+  function handleGoogleLogin() {
     if (typeof window === "undefined") {
       return;
     }
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_URL || getBackendOrigin();
-    const normalizedBaseUrl = String(baseUrl).trim().replace(/\/+$/, "");
-    const oauthUrl = `${normalizedBaseUrl}/api/auth/${provider}?next=${encodeURIComponent(oauthNextPath)}`;
-    window.location.href = oauthUrl;
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google?next=/dashboard`;
+  }
+
+  function handleAppleLogin() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/apple?next=/dashboard`;
   }
 
   async function handleSignInSubmit(event) {
@@ -413,12 +414,12 @@ function LoginForm() {
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <SocialButton
-                    onClick={() => redirectToOauth("google")}
+                    onClick={handleGoogleLogin}
                     label="Google"
                     icon={GoogleIcon}
                   />
                   <SocialButton
-                    onClick={() => redirectToOauth("apple")}
+                    onClick={handleAppleLogin}
                     label="Apple"
                     icon={AppleIcon}
                     className="dark:text-white"

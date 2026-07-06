@@ -35,7 +35,7 @@ export default function OauthCallbackPage() {
     const error = searchParams.get("error");
     if (error) {
       clearAuthSession();
-      router.replace(`/login?error=${encodeURIComponent("OAuth login failed. Please try again.")}`);
+      router.replace("/login?error=oauth_failed");
       return;
     }
 
@@ -46,7 +46,7 @@ export default function OauthCallbackPage() {
 
     if (!token || !user) {
       clearAuthSession();
-      router.replace(`/login?error=${encodeURIComponent("OAuth login failed. Please try again.")}`);
+      router.replace("/login?error=oauth_failed");
       return;
     }
 

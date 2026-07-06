@@ -80,6 +80,14 @@ function logOauthDebug(label, payload) {
   console.info(`[auth][oauth] ${label}`, payload);
 }
 
+function getGoogleOauthConfigStatus() {
+  return {
+    googleClientIdExists: Boolean(String(authConfig.googleClientId || "").trim()),
+    googleClientSecretExists: Boolean(String(authConfig.googleClientSecret || "").trim()),
+    googleCallbackUrlExists: Boolean(String(authConfig.googleCallbackUrl || "").trim()),
+  };
+}
+
 function buildOauthSuccessRedirectUrl(result, nextPath) {
   const url = new URL("/oauth/callback", authConfig.frontendBaseUrl);
   url.searchParams.set("token", result.token);
@@ -147,6 +155,7 @@ const startGoogleOauth = asyncHandler(async (req, res) => {
     url: req.originalUrl,
     query: req.query || {},
   });
+  logOauthDebug("google:start:config-status", getGoogleOauthConfigStatus());
 
   try {
     const state = createOauthState({
