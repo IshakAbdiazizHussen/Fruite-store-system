@@ -10,8 +10,11 @@ function getMailerConfig() {
     secure: String(process.env.SMTP_SECURE || "false").toLowerCase() === "true",
     username: process.env.SMTP_USERNAME || "",
     password: process.env.SMTP_PASSWORD || "",
-    fromAddress: process.env.SMTP_FROM_EMAIL || process.env.ADMIN_EMAIL || "admin@fruitstore.com",
-    fromName: process.env.SMTP_FROM_NAME || process.env.ADMIN_NAME || "Fruit Store Admin",
+    fromAddress:
+      process.env.SMTP_FROM_EMAIL ||
+      process.env.SMTP_USERNAME ||
+      "no-reply@fruitstore.local",
+    fromName: process.env.SMTP_FROM_NAME || "Fruit Store Admin",
   };
 }
 

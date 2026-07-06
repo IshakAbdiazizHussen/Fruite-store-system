@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
       const result = await requestPasswordReset({ email: normalizedEmail });
       setSuccess(
         result?.message ||
-          "If an account exists for this email, a password reset link has been sent."
+          "If an account exists for this email, a reset link or OTP has been sent."
       );
     } catch (submitError) {
       setError(submitError.message || "Unable to send a reset link right now.");

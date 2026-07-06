@@ -8,7 +8,7 @@ const { toSafeUser } = require("../utils/userView");
 const { sendPasswordResetEmail } = require("./emailService");
 
 const GENERIC_FORGOT_PASSWORD_MESSAGE =
-  "If an account exists for this email, a password reset link has been sent.";
+  "If an account exists for this email, a reset link or OTP has been sent.";
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
