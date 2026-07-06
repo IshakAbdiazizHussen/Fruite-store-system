@@ -124,6 +124,21 @@ function LoginForm() {
 
   useEffect(() => {
     const oauthError = searchParams.get("error");
+    const oauthProvider = searchParams.get("provider");
+
+    if (oauthError === "oauth_not_configured") {
+      const providerLabel = oauthProvider === "apple" ? "Apple" : "Google";
+      setSignInError(`${providerLabel} login is not configured yet.`);
+      setMode("signin");
+      return;
+    }
+
+    if (oauthError === "oauth_failed") {
+      setSignInError("OAuth login failed. Please try again.");
+      setMode("signin");
+      return;
+    }
+
     if (oauthError) {
       setSignInError(oauthError);
       setMode("signin");
@@ -150,8 +165,10 @@ function LoginForm() {
       return;
     }
 
-    const baseUrl = getBackendOrigin();
-    const oauthUrl = `${baseUrl}/api/auth/${provider}?next=${encodeURIComponent(oauthNextPath)}`;
+    const baseUrl =
+      process.env.NEXT_PUBLIC_API_URL || getBackendOrigin();
+    const normalizedBaseUrl = String(baseUrl).trim().replace(/\/+$/, "");
+    const oauthUrl = `${normalizedBaseUrl}/api/auth/${provider}?next=${encodeURIComponent(oauthNextPath)}`;
     window.location.href = oauthUrl;
   }
 

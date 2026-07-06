@@ -11,12 +11,12 @@ const authConfig = {
   oauthStateCookieName: process.env.OAUTH_STATE_COOKIE_NAME || "fruit_store_oauth_state",
   googleClientId: process.env.GOOGLE_CLIENT_ID || "",
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-  googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL || "http://localhost:5000/api/auth/google/callback",
+  googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL || "http://localhost:4000/api/auth/google/callback",
   appleClientId: process.env.APPLE_CLIENT_ID || "",
   appleTeamId: process.env.APPLE_TEAM_ID || "",
   appleKeyId: process.env.APPLE_KEY_ID || "",
   applePrivateKey: process.env.APPLE_PRIVATE_KEY || "",
-  appleCallbackUrl: process.env.APPLE_CALLBACK_URL || "http://localhost:5000/api/auth/apple/callback",
+  appleCallbackUrl: process.env.APPLE_CALLBACK_URL || "http://localhost:4000/api/auth/apple/callback",
 };
 
 module.exports = {

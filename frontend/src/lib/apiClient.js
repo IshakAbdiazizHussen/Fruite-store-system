@@ -1,6 +1,6 @@
 "use client";
 
-const DEFAULT_LOCAL_API_URL = "http://localhost:5000/api";
+const DEFAULT_LOCAL_API_URL = "http://localhost:4000/api";
 
 function normalizeApiBaseUrl(value) {
   if (!value) {

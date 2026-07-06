@@ -40,12 +40,44 @@ function getSafeRedirectPath(value) {
   return rawValue;
 }
 
-function buildFrontendRedirectUrl(pathname, message) {
+function buildFrontendRedirectUrl(pathname, message, extraParams = {}) {
   const url = new URL(pathname, authConfig.frontendBaseUrl);
   if (message) {
     url.searchParams.set("error", message);
   }
+  Object.entries(extraParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      url.searchParams.set(key, String(value));
+    }
+  });
   return url.toString();
+}
+
+function isOauthSetupError(error) {
+  const message = String(error?.message || "");
+  return (
+    message.includes("OAuth is not configured") ||
+    message.includes("GOOGLE_CLIENT_ID") ||
+    message.includes("GOOGLE_CLIENT_SECRET") ||
+    message.includes("GOOGLE_CALLBACK_URL") ||
+    message.includes("APPLE_CLIENT_ID") ||
+    message.includes("APPLE_TEAM_ID") ||
+    message.includes("APPLE_KEY_ID") ||
+    message.includes("APPLE_PRIVATE_KEY") ||
+    message.includes("APPLE_CALLBACK_URL")
+  );
+}
+
+function getOauthUserErrorMessage(error) {
+  if (isOauthSetupError(error)) {
+    return "Social login is not configured yet. Please contact the administrator.";
+  }
+
+  return "OAuth login failed. Please try again.";
+}
+
+function logOauthDebug(label, payload) {
+  console.info(`[auth][oauth] ${label}`, payload);
 }
 
 function buildOauthSuccessRedirectUrl(result, nextPath) {
@@ -110,24 +142,53 @@ const forgotPassword = asyncHandler(async (req, res) => {
 });
 
 const startGoogleOauth = asyncHandler(async (req, res) => {
+  logOauthDebug("google:start:request", {
+    method: req.method,
+    url: req.originalUrl,
+    query: req.query || {},
+  });
+
   try {
     const state = createOauthState({
       provider: "google",
       nextPath: getSafeRedirectPath(req.query?.next),
     });
     const authorizationUrl = createGoogleOauthUrl(state);
+    logOauthDebug("google:start:redirect", {
+      redirectUrl: authorizationUrl,
+    });
 
     res.cookie(authConfig.oauthStateCookieName, state, oauthStateCookieOptions);
     res.redirect(302, authorizationUrl);
   } catch (error) {
-    res.redirect(302, buildFrontendRedirectUrl("/login", error.message));
+    console.error("[auth] Google OAuth start failed:", error.message);
+    const failureRedirectUrl = isOauthSetupError(error)
+      ? buildFrontendRedirectUrl("/login", "oauth_not_configured", { provider: "google" })
+      : buildFrontendRedirectUrl("/login", "oauth_failed");
+    logOauthDebug("google:start:error", {
+      error: error.message,
+      redirectUrl: failureRedirectUrl,
+    });
+    res.redirect(302, failureRedirectUrl);
   }
 });
 
 const googleOauthCallback = asyncHandler(async (req, res) => {
+  logOauthDebug("google:callback:request", {
+    method: req.method,
+    url: req.originalUrl,
+    query: req.query || {},
+    body: req.body || {},
+  });
+
   if (req.query?.error) {
     const providerMessage = req.query?.error_description || "Google sign-in was cancelled.";
-    return res.redirect(302, buildFrontendRedirectUrl("/login", providerMessage));
+    const failureRedirectUrl = buildFrontendRedirectUrl("/login", "oauth_failed");
+    logOauthDebug("google:callback:provider-error", {
+      providerError: providerMessage,
+      redirectUrl: failureRedirectUrl,
+    });
+    return res.redirect(302, failureRedirectUrl);
   }
 
   const requestState = String(req.query?.state || "");
@@ -137,10 +198,11 @@ const googleOauthCallback = asyncHandler(async (req, res) => {
   res.clearCookie(authConfig.oauthStateCookieName, oauthStateCookieOptions);
 
   if (!parsedState) {
-    return res.redirect(
-      302,
-      buildFrontendRedirectUrl("/login", "Google sign-in could not be verified.")
-    );
+    const failureRedirectUrl = buildFrontendRedirectUrl("/login", "oauth_failed");
+    logOauthDebug("google:callback:state-invalid", {
+      redirectUrl: failureRedirectUrl,
+    });
+    return res.redirect(302, failureRedirectUrl);
   }
 
   try {
@@ -150,37 +212,78 @@ const googleOauthCallback = asyncHandler(async (req, res) => {
     });
 
     res.cookie(authConfig.cookieName, result.token, cookieOptions);
-    return res.redirect(302, buildOauthSuccessRedirectUrl(result, parsedState.nextPath));
+    const successRedirectUrl = buildOauthSuccessRedirectUrl(result, parsedState.nextPath);
+    logOauthDebug("google:callback:success", {
+      userId: result.user?.id,
+      email: result.user?.email,
+      role: result.user?.role,
+      redirectUrl: successRedirectUrl,
+    });
+    return res.redirect(302, successRedirectUrl);
   } catch (error) {
-    return res.redirect(
-      302,
-      buildFrontendRedirectUrl("/login", error.message || "Google sign-in failed.")
-    );
+    console.error("[auth] Google OAuth callback failed:", error.message);
+    const failureRedirectUrl = isOauthSetupError(error)
+      ? buildFrontendRedirectUrl("/login", "oauth_not_configured", { provider: "google" })
+      : buildFrontendRedirectUrl("/login", "oauth_failed");
+    logOauthDebug("google:callback:error", {
+      error: error.message,
+      redirectUrl: failureRedirectUrl,
+    });
+    return res.redirect(302, failureRedirectUrl);
   }
 });
 
 const startAppleOauth = asyncHandler(async (req, res) => {
+  logOauthDebug("apple:start:request", {
+    method: req.method,
+    url: req.originalUrl,
+    query: req.query || {},
+  });
+
   try {
     const state = createOauthState({
       provider: "apple",
       nextPath: getSafeRedirectPath(req.query?.next),
     });
     const authorizationUrl = createAppleOauthUrl(state);
+    logOauthDebug("apple:start:redirect", {
+      redirectUrl: authorizationUrl,
+    });
 
     res.cookie(authConfig.oauthStateCookieName, state, oauthStateCookieOptions);
     res.redirect(302, authorizationUrl);
   } catch (error) {
-    res.redirect(302, buildFrontendRedirectUrl("/login", error.message));
+    console.error("[auth] Apple OAuth start failed:", error.message);
+    const failureRedirectUrl = isOauthSetupError(error)
+      ? buildFrontendRedirectUrl("/login", "oauth_not_configured", { provider: "apple" })
+      : buildFrontendRedirectUrl("/login", "oauth_failed");
+    logOauthDebug("apple:start:error", {
+      error: error.message,
+      redirectUrl: failureRedirectUrl,
+    });
+    res.redirect(302, failureRedirectUrl);
   }
 });
 
 const appleOauthCallback = asyncHandler(async (req, res) => {
+  logOauthDebug("apple:callback:request", {
+    method: req.method,
+    url: req.originalUrl,
+    query: req.query || {},
+    body: req.body || {},
+  });
+
   if (req.query?.error || req.body?.error) {
     const providerMessage =
       req.query?.error_description ||
       req.body?.error_description ||
       "Apple sign-in was cancelled.";
-    return res.redirect(302, buildFrontendRedirectUrl("/login", providerMessage));
+    const failureRedirectUrl = buildFrontendRedirectUrl("/login", "oauth_failed");
+    logOauthDebug("apple:callback:provider-error", {
+      providerError: providerMessage,
+      redirectUrl: failureRedirectUrl,
+    });
+    return res.redirect(302, failureRedirectUrl);
   }
 
   const requestState = String(req.query?.state || req.body?.state || "");
@@ -190,10 +293,11 @@ const appleOauthCallback = asyncHandler(async (req, res) => {
   res.clearCookie(authConfig.oauthStateCookieName, oauthStateCookieOptions);
 
   if (!parsedState) {
-    return res.redirect(
-      302,
-      buildFrontendRedirectUrl("/login", "Apple sign-in could not be verified.")
-    );
+    const failureRedirectUrl = buildFrontendRedirectUrl("/login", "oauth_failed");
+    logOauthDebug("apple:callback:state-invalid", {
+      redirectUrl: failureRedirectUrl,
+    });
+    return res.redirect(302, failureRedirectUrl);
   }
 
   try {
@@ -205,12 +309,24 @@ const appleOauthCallback = asyncHandler(async (req, res) => {
     });
 
     res.cookie(authConfig.cookieName, result.token, cookieOptions);
-    return res.redirect(302, buildOauthSuccessRedirectUrl(result, parsedState.nextPath));
+    const successRedirectUrl = buildOauthSuccessRedirectUrl(result, parsedState.nextPath);
+    logOauthDebug("apple:callback:success", {
+      userId: result.user?.id,
+      email: result.user?.email,
+      role: result.user?.role,
+      redirectUrl: successRedirectUrl,
+    });
+    return res.redirect(302, successRedirectUrl);
   } catch (error) {
-    return res.redirect(
-      302,
-      buildFrontendRedirectUrl("/login", error.message || "Apple sign-in failed.")
-    );
+    console.error("[auth] Apple OAuth callback failed:", error.message);
+    const failureRedirectUrl = isOauthSetupError(error)
+      ? buildFrontendRedirectUrl("/login", "oauth_not_configured", { provider: "apple" })
+      : buildFrontendRedirectUrl("/login", "oauth_failed");
+    logOauthDebug("apple:callback:error", {
+      error: error.message,
+      redirectUrl: failureRedirectUrl,
+    });
+    return res.redirect(302, failureRedirectUrl);
   }
 });
 
