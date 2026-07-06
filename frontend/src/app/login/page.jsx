@@ -16,7 +16,7 @@ function isValidEmail(email) {
 
 function AuthInput({ icon: Icon, type = "text", autoComplete = "off", value, onChange }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3.5 shadow-sm shadow-emerald-100/40 transition focus-within:border-emerald-400 focus-within:ring-4 focus-within:ring-emerald-100 dark:border-emerald-500/20 dark:bg-[#101915] dark:shadow-none dark:focus-within:border-emerald-400/70 dark:focus-within:ring-emerald-500/15">
+    <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-white/95 px-4 py-3.5 shadow-[0_12px_28px_rgba(16,185,129,0.08)] transition focus-within:border-emerald-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-100 dark:border-emerald-500/20 dark:bg-[#101915] dark:shadow-none dark:focus-within:border-emerald-400/70 dark:focus-within:ring-emerald-500/15">
       <Icon className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
       <input
         type={type}
@@ -64,7 +64,7 @@ function SocialButton({ href, label, icon: Icon, className = "" }) {
   return (
     <a
       href={href}
-      className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-100 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm shadow-emerald-100/40 transition hover:border-emerald-300 hover:bg-emerald-50 dark:border-white/10 dark:bg-[#101915] dark:text-slate-100 dark:shadow-none dark:hover:border-emerald-400/40 dark:hover:bg-[#14211b] ${className}`}
+      className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-white/95 px-4 py-3 text-sm font-medium text-slate-700 shadow-[0_12px_28px_rgba(16,185,129,0.08)] transition hover:border-emerald-300 hover:bg-emerald-50 hover:shadow-[0_14px_30px_rgba(16,185,129,0.12)] dark:border-white/10 dark:bg-[#101915] dark:text-slate-100 dark:shadow-none dark:hover:border-emerald-400/40 dark:hover:bg-[#14211b] ${className}`}
     >
       <Icon />
       <span>{label}</span>
@@ -227,14 +227,14 @@ function LoginForm() {
   }
 
   return (
-    <div className="relative grid w-full overflow-hidden rounded-[32px] border border-emerald-100 bg-white shadow-[0_24px_80px_rgba(22,101,52,0.12)] dark:border-emerald-500/25 dark:bg-[#09110d] dark:shadow-[0_28px_90px_rgba(0,0,0,0.45)] lg:min-h-[560px] lg:grid-cols-[1.2fr_1fr]">
+    <div className="relative grid w-full overflow-hidden rounded-[32px] border border-emerald-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(247,254,249,0.98)_100%)] shadow-[0_24px_80px_rgba(22,101,52,0.14)] dark:border-emerald-500/25 dark:bg-[#09110d] dark:bg-none dark:shadow-[0_28px_90px_rgba(0,0,0,0.45)] lg:min-h-[560px] lg:grid-cols-[1.2fr_1fr]">
       <div className="absolute right-5 top-5 z-20 sm:right-6 sm:top-6">
         <button
           type="button"
           onClick={handleThemeToggle}
           aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-white/90 p-1 text-slate-600 shadow-lg shadow-emerald-100/60 backdrop-blur transition-all hover:border-emerald-300 hover:bg-white dark:border-emerald-500/25 dark:bg-[#101915]/90 dark:text-slate-200 dark:shadow-[0_12px_30px_rgba(0,0,0,0.32)] dark:hover:border-emerald-400/40 dark:hover:bg-[#15211b]"
+          className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-white/95 p-1 text-slate-600 shadow-[0_18px_36px_rgba(16,185,129,0.18)] backdrop-blur transition-all hover:border-emerald-400 hover:bg-white dark:border-emerald-500/25 dark:bg-[#101915]/90 dark:text-slate-200 dark:shadow-[0_12px_30px_rgba(0,0,0,0.32)] dark:hover:border-emerald-400/40 dark:hover:bg-[#15211b]"
         >
           <span className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${theme === "light" ? "bg-emerald-600 text-white shadow-[0_10px_24px_rgba(22,163,74,0.28)]" : "text-slate-400 dark:text-slate-300"}`}>
             <Sun className="h-4 w-4" />
@@ -245,7 +245,7 @@ function LoginForm() {
         </button>
       </div>
 
-      <section className="relative overflow-hidden bg-gradient-to-br from-white via-emerald-50 to-green-100/80 p-6 sm:p-8 lg:p-10 dark:bg-[linear-gradient(145deg,#0d1712_0%,#102019_55%,#163524_100%)]">
+      <section className="relative overflow-hidden bg-gradient-to-br from-white via-emerald-50 to-green-100/90 p-6 sm:p-8 lg:p-10 dark:bg-[linear-gradient(145deg,#0d1712_0%,#102019_55%,#163524_100%)]">
         <div className="absolute inset-x-6 top-4 h-24 rounded-full bg-emerald-200/30 blur-3xl dark:bg-emerald-500/10 sm:inset-x-10" />
         <div className="absolute left-8 top-20 h-32 w-32 rounded-full bg-white/55 blur-3xl dark:bg-white/5" />
         <div className="absolute left-10 top-[6.5rem] h-44 w-44 rounded-full bg-white/60 blur-3xl dark:bg-white/5" />
@@ -299,7 +299,7 @@ function LoginForm() {
         </div>
       </section>
 
-      <section className="p-6 pt-[4.5rem] sm:p-8 sm:pt-[5.5rem] lg:p-10 lg:pt-[5.5rem]">
+      <section className="bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,255,251,0.96)_100%)] p-6 pt-[4.5rem] dark:bg-[#09110d] dark:bg-none sm:p-8 sm:pt-[5.5rem] lg:p-10 lg:pt-[5.5rem]">
         <div className="mx-auto max-w-md">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-600 dark:text-emerald-300">
             {content.login.eyebrow}
@@ -377,8 +377,8 @@ function LoginForm() {
 
               <div className="space-y-4 pt-2">
                 <div className="relative">
-                  <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-emerald-100 dark:bg-white/10" />
-                  <p className="relative mx-auto w-fit bg-white px-3 text-xs font-medium text-slate-400 dark:bg-[#09110d] dark:text-slate-500">
+                  <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-emerald-200 dark:bg-white/10" />
+                  <p className="relative mx-auto w-fit bg-[rgba(248,255,251,0.98)] px-3 text-xs font-medium text-slate-500 dark:bg-[#09110d] dark:text-slate-500">
                     Or continue with
                   </p>
                 </div>
