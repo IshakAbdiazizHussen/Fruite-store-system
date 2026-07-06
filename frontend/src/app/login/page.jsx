@@ -20,6 +20,11 @@ function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    setForm({
+      email: "",
+      password: "",
+    });
+
     const initialTheme = getInitialTheme();
     setTheme(initialTheme);
     applyTheme(initialTheme);
