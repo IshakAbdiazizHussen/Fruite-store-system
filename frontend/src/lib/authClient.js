@@ -64,6 +64,24 @@ export async function loginAdmin(credentials) {
   return session;
 }
 
+export async function requestPasswordReset(payload) {
+  return apiRequest("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function validatePasswordResetToken(token) {
+  return apiRequest(`/auth/reset-password/${encodeURIComponent(token)}`);
+}
+
+export async function resetPasswordWithToken(token, payload) {
+  return apiRequest(`/auth/reset-password/${encodeURIComponent(token)}`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function fetchCurrentUser() {
   const payload = await apiRequest("/auth/me");
   if (payload?.user) {

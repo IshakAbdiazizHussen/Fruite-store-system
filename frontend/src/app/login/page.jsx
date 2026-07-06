@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LockKeyhole, Mail, Moon, Store, Sun } from "lucide-react";
 import { loginAdmin } from "@/lib/authClient";
@@ -172,6 +173,15 @@ function LoginForm() {
                 />
               </div>
             </label>
+
+            <div className="flex justify-end">
+              <Link
+                href="/forgot-password"
+                className="text-sm font-medium text-emerald-600 transition-colors duration-200 hover:text-emerald-700 hover:underline dark:text-emerald-300 dark:hover:text-emerald-200"
+              >
+                Forgot Password?
+              </Link>
+            </div>
 
             {error ? <p className="text-sm text-red-600">{error}</p> : null}
 

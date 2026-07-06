@@ -1,10 +1,30 @@
+const crypto = require("crypto");
+
 const AdminUser = require("../models/AdminUser");
 const { authConfig } = require("../config/auth");
-const { createToken, verifyPassword } = require("../utils/password");
+const { createToken, hashPassword, verifyPassword } = require("../utils/password");
+const { createHttpError } = require("../utils/httpError");
 const { toSafeUser } = require("../utils/userView");
+const { sendPasswordResetEmail } = require("./emailService");
+
+const GENERIC_FORGOT_PASSWORD_MESSAGE =
+  "If an account exists for this email, a password reset link has been sent.";
+
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function hashResetToken(token) {
+  return crypto.createHash("sha256").update(String(token || "")).digest("hex");
+}
+
+function createPasswordResetUrl(token) {
+  const baseUrl = String(authConfig.passwordResetFrontendBaseUrl || "http://localhost:3000").replace(/\/+$/, "");
+  return `${baseUrl}/reset-password/${encodeURIComponent(token)}`;
+}
 
 async function loginAdmin({ email, password }) {
-  const normalizedEmail = String(email || "").trim().toLowerCase();
+  const normalizedEmail = normalizeEmail(email);
   const user = await AdminUser.findOne({ email: normalizedEmail });
 
   if (!user || !user.isActive || !verifyPassword(password || "", user.passwordHash)) {
@@ -33,7 +53,100 @@ async function loginAdmin({ email, password }) {
   };
 }
 
+async function requestPasswordReset({ email }) {
+  const normalizedEmail = normalizeEmail(email);
+
+  if (!normalizedEmail) {
+    return { message: GENERIC_FORGOT_PASSWORD_MESSAGE };
+  }
+
+  const user = await AdminUser.findOne({ email: normalizedEmail, isActive: true });
+  if (!user) {
+    return { message: GENERIC_FORGOT_PASSWORD_MESSAGE };
+  }
+
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  user.passwordResetTokenHash = hashResetToken(rawToken);
+  user.passwordResetTokenExpiresAt = new Date(
+    Date.now() + authConfig.passwordResetTokenTtlMinutes * 60 * 1000
+  );
+  user.passwordResetRequestedAt = new Date();
+  await user.save();
+
+  await sendPasswordResetEmail({
+    to: user.email,
+    resetUrl: createPasswordResetUrl(rawToken),
+    expiresInMinutes: authConfig.passwordResetTokenTtlMinutes,
+  });
+
+  return {
+    message: GENERIC_FORGOT_PASSWORD_MESSAGE,
+  };
+}
+
+async function validatePasswordResetToken(token) {
+  const user = await AdminUser.findOne({
+    passwordResetTokenHash: hashResetToken(token),
+    passwordResetTokenExpiresAt: { $gt: new Date() },
+    isActive: true,
+  });
+
+  if (!user) {
+    throw createHttpError("This password reset link is invalid or has expired.", 400);
+  }
+
+  return {
+    valid: true,
+    expiresAt: user.passwordResetTokenExpiresAt,
+  };
+}
+
+async function resetPassword({ token, password, confirmPassword }) {
+  if (!password || !confirmPassword) {
+    throw createHttpError("Both password fields are required.", 400);
+  }
+
+  if (password !== confirmPassword) {
+    throw createHttpError("New password and confirm password do not match.", 400);
+  }
+
+  if (String(password).length < 8) {
+    throw createHttpError("Password must be at least 8 characters.", 400);
+  }
+
+  if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+    throw createHttpError("Password must include at least one letter and one number.", 400);
+  }
+
+  const user = await AdminUser.findOne({
+    passwordResetTokenHash: hashResetToken(token),
+    passwordResetTokenExpiresAt: { $gt: new Date() },
+    isActive: true,
+  });
+
+  if (!user) {
+    throw createHttpError("This password reset link is invalid or has expired.", 400);
+  }
+
+  if (verifyPassword(password, user.passwordHash)) {
+    throw createHttpError("New password must be different from the current password.", 400);
+  }
+
+  user.passwordHash = hashPassword(password);
+  user.passwordResetTokenHash = null;
+  user.passwordResetTokenExpiresAt = null;
+  user.passwordResetRequestedAt = null;
+  await user.save();
+
+  return {
+    message: "Your password has been reset successfully.",
+  };
+}
+
 module.exports = {
   loginAdmin,
+  requestPasswordReset,
+  resetPassword,
   toSafeUser,
+  validatePasswordResetToken,
 };

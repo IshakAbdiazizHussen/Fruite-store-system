@@ -1,6 +1,11 @@
 const { authConfig } = require("../config/auth");
 const { asyncHandler } = require("./resourceController");
-const { loginAdmin } = require("../services/authService");
+const {
+  loginAdmin,
+  requestPasswordReset,
+  resetPassword,
+  validatePasswordResetToken,
+} = require("../services/authService");
 const {
   getCurrentUserProfile,
   uploadProfileImage,
@@ -18,6 +23,25 @@ const login = asyncHandler(async (req, res) => {
   const result = await loginAdmin(req.body || {});
 
   res.cookie(authConfig.cookieName, result.token, cookieOptions);
+  res.status(200).json(result);
+});
+
+const forgotPassword = asyncHandler(async (req, res) => {
+  const result = await requestPasswordReset(req.body || {});
+  res.status(200).json(result);
+});
+
+const validateResetToken = asyncHandler(async (req, res) => {
+  const result = await validatePasswordResetToken(req.params.token);
+  res.status(200).json(result);
+});
+
+const resetPasswordWithToken = asyncHandler(async (req, res) => {
+  const result = await resetPassword({
+    token: req.params.token,
+    password: req.body?.password,
+    confirmPassword: req.body?.confirmPassword,
+  });
   res.status(200).json(result);
 });
 
@@ -49,10 +73,13 @@ const removeImage = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  forgotPassword,
   login,
   logout,
   me,
-  uploadImage,
-  replaceImage,
   removeImage,
+  replaceImage,
+  resetPasswordWithToken,
+  uploadImage,
+  validateResetToken,
 };

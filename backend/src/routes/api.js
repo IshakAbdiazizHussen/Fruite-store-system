@@ -13,13 +13,28 @@ const salesController = require("../controllers/salesController");
 const settingsController = require("../controllers/settingsController");
 const supplierController = require("../controllers/supplierController");
 const { profileImageUpload } = require("../middleware/profileImageUpload");
+const { createRateLimit } = require("../middleware/rateLimit");
 
 const router = express.Router();
 const protectedRouter = express.Router();
+const forgotPasswordRateLimit = createRateLimit({
+  windowMs: 15 * 60 * 1000,
+  maxRequests: 5,
+  keyGenerator: (req) =>
+    `forgot:${req.ip}:${String(req.body?.email || "").trim().toLowerCase()}`,
+});
+const resetPasswordRateLimit = createRateLimit({
+  windowMs: 15 * 60 * 1000,
+  maxRequests: 10,
+  keyGenerator: (req) => `reset:${req.ip}:${req.params.token || "unknown"}`,
+});
 
 router.get("/", apiInfo);
 router.get("/health", healthCheck);
 router.post("/auth/login", authController.login);
+router.post("/auth/forgot-password", forgotPasswordRateLimit, authController.forgotPassword);
+router.get("/auth/reset-password/:token", resetPasswordRateLimit, authController.validateResetToken);
+router.post("/auth/reset-password/:token", resetPasswordRateLimit, authController.resetPasswordWithToken);
 router.get("/frontend-content", publicCache("public, max-age=60, stale-while-revalidate=300"), frontendContentController.getFrontendContent);
 
 protectedRouter.use(authenticate);

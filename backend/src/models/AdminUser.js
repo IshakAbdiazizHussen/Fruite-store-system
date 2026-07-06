@@ -9,6 +9,9 @@ const adminUserSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     lastLoginAt: { type: Date, default: null },
     profile_image_url: { type: String, default: null, trim: true },
+    passwordResetTokenHash: { type: String, default: null },
+    passwordResetTokenExpiresAt: { type: Date, default: null },
+    passwordResetRequestedAt: { type: Date, default: null },
   },
   { timestamps: true, versionKey: false }
 );
