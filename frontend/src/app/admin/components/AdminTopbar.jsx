@@ -75,7 +75,7 @@ export default function AdminTopbar({ onToggleSidebar, isSidebarOpen }) {
           triggerMode="button"
           triggerPlaceholder="Search"
           hint="⌘ K"
-          triggerClassName="hidden lg:inline-flex lg:w-[460px] xl:w-[560px] 2xl:w-[620px] lg:justify-between"
+          triggerClassName="hidden lg:inline-flex lg:w-[560px] xl:w-[680px] 2xl:w-[760px] lg:justify-between"
           slashShortcutEnabled={false}
           commandOnlyShortcut
         />

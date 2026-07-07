@@ -35,10 +35,10 @@ function AdminCard({ label, description, href, icon: Icon, tone }) {
 export default function AdminOverviewPage() {
   return (
     <div className="space-y-8 p-8">
-      <section className="rounded-[32px] border border-slate-200/80 bg-[linear-gradient(135deg,#ffffff_0%,#f8fafc_55%,#e2e8f0_100%)] px-8 py-10 text-slate-900 shadow-xl shadow-slate-200/70 dark:border-white/10 dark:bg-[linear-gradient(135deg,#0f172a_0%,#111827_55%,#1e293b_100%)] dark:text-white dark:shadow-none">
-        <p className="text-xs font-semibold uppercase tracking-[0.32em] text-slate-500 dark:text-slate-300">Backend Administration</p>
-        <h1 className="mt-4 text-4xl font-semibold">Choose a backend section to edit.</h1>
-        <p className="mt-3 max-w-2xl text-sm text-slate-600 dark:text-slate-300">
+      <section className="rounded-[32px] border border-slate-200/80 bg-[linear-gradient(135deg,#ffffff_0%,#f8fafc_55%,#e2e8f0_100%)] px-8 py-10 text-slate-900 shadow-xl shadow-slate-200/70 dark:border-slate-700/80 dark:bg-[linear-gradient(135deg,#111827_0%,#162033_55%,#1e293b_100%)] dark:text-white dark:shadow-[0_20px_60px_rgba(2,6,23,0.28)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.32em] text-slate-500 dark:text-slate-200">Backend Administration</p>
+        <h1 className="mt-4 text-4xl font-semibold dark:font-bold dark:text-white">Choose a backend section to edit.</h1>
+        <p className="mt-3 max-w-2xl text-sm text-slate-600 dark:text-slate-200">
           This area is now for control only. Open a sidebar section to edit its own backend data without mixing it with the frontend dashboard screens.
         </p>
       </section>
