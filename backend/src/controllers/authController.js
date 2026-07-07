@@ -1,7 +1,7 @@
 const { authConfig } = require("../config/auth");
 const { asyncHandler } = require("./resourceController");
 const {
-  completeOauthLogin,
+  completeOauthLogin,  
   createAppleOauthUrl,
   createGoogleOauthUrl,
   createOauthState,

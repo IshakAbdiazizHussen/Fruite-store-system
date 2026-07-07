@@ -125,7 +125,9 @@ function LoginForm() {
 
     if (oauthError === "oauth_not_configured") {
       const providerLabel = oauthProvider === "apple" ? "Apple" : "Google";
-      setSignInError(`${providerLabel} login is not configured yet.`);
+      setSignInError(
+        `${providerLabel} login is not configured yet. Please contact the administrator.`
+      );
       setMode("signin");
       return;
     }
