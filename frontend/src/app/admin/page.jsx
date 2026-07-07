@@ -20,7 +20,7 @@ function AdminCard({ label, description, href, icon: Icon, tone }) {
     slate: "border-slate-200 bg-white text-slate-900 dark:border-white/10 dark:bg-slate-900/80 dark:text-white",
   };
   return (
-    <Link href={href} className={`rounded-3xl border p-6 shadow-sm transition-transform hover:-translate-y-0.5 ${classes[tone]}`}>
+    <Link href={href} className={`rounded-3xl border p-6 shadow-sm transition-transform hover:-translate-y-0.5 dark:shadow-none ${classes[tone]}`}>
       <div className="flex items-center gap-3">
         <div className="rounded-2xl bg-white/70 p-3 dark:bg-white/10">
           <Icon className="h-5 w-5" />
