@@ -51,20 +51,13 @@ function GoogleIcon() {
   );
 }
 
-function AppleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
-      <path d="M16.7 12.78c.02 2.3 2.01 3.06 2.03 3.07-.02.06-.31 1.07-1.02 2.11-.61.9-1.25 1.8-2.25 1.81-.98.02-1.29-.58-2.41-.58-1.12 0-1.46.56-2.39.6-.96.04-1.69-.96-2.31-1.86-1.27-1.84-2.24-5.18-.94-7.44.65-1.12 1.81-1.83 3.06-1.85.95-.02 1.84.64 2.41.64.57 0 1.65-.79 2.79-.67.48.02 1.82.19 2.69 1.47-.07.04-1.61.94-1.59 2.8ZM14.76 4.73c.51-.62.85-1.48.76-2.33-.73.03-1.62.49-2.14 1.11-.47.54-.88 1.42-.77 2.25.82.06 1.65-.42 2.15-1.03Z" />
-    </svg>
-  );
-}
-
-function SocialButton({ onClick, label, icon: Icon, className = "" }) {
+function SocialButton({ onClick, label, icon: Icon, className = "", disabled = false }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-white/95 px-4 py-3 text-sm font-medium text-slate-700 shadow-[0_12px_28px_rgba(16,185,129,0.08)] transition hover:border-emerald-300 hover:bg-emerald-50 hover:shadow-[0_14px_30px_rgba(16,185,129,0.12)] dark:border-white/10 dark:bg-[#101915] dark:text-slate-100 dark:shadow-none dark:hover:border-emerald-400/40 dark:hover:bg-[#14211b] ${className}`}
+      disabled={disabled}
+      className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-white/95 px-4 py-3 text-sm font-medium text-slate-700 shadow-[0_12px_28px_rgba(16,185,129,0.08)] transition hover:border-emerald-300 hover:bg-emerald-50 hover:shadow-[0_14px_30px_rgba(16,185,129,0.12)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-[#101915] dark:text-slate-100 dark:shadow-none dark:hover:border-emerald-400/40 dark:hover:bg-[#14211b] ${className}`}
     >
       <Icon />
       <span>{label}</span>
@@ -165,14 +158,6 @@ function LoginForm() {
     }
 
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google?next=/dashboard`;
-  }
-
-  function handleAppleLogin() {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/apple?next=/dashboard`;
   }
 
   async function handleSignInSubmit(event) {
@@ -414,17 +399,11 @@ function LoginForm() {
                   </p>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-3">
                   <SocialButton
                     onClick={handleGoogleLogin}
                     label="Google"
                     icon={GoogleIcon}
-                  />
-                  <SocialButton
-                    onClick={handleAppleLogin}
-                    label="Apple"
-                    icon={AppleIcon}
-                    className="dark:text-white"
                   />
                 </div>
               </div>

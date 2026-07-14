@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { clearAuthSession, storeAuthSession } from "@/lib/authClient";
@@ -27,7 +27,7 @@ function getSafeNextPath(value) {
   return rawValue;
 }
 
-export default function OauthCallbackPage() {
+function OauthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -60,5 +60,21 @@ export default function OauthCallbackPage() {
         Completing sign in...
       </div>
     </main>
+  );
+}
+
+export default function OauthCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#f8fafc_0%,#f1f5f9_100%)] dark:bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)]">
+          <div className="rounded-2xl border border-white/60 bg-white px-6 py-4 text-sm text-slate-600 shadow-xl dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
+            Completing sign in...
+          </div>
+        </main>
+      }
+    >
+      <OauthCallbackContent />
+    </Suspense>
   );
 }

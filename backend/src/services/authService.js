@@ -142,25 +142,22 @@ function createAppleClientSecret() {
   signer.end();
 
   const privateKey = authConfig.applePrivateKey.replace(/\\n/g, "\n");
-  const signature = signer.sign(privateKey).toString("base64url");
+  // JWT ES256 uses the IEEE-P1363 (r || s) form, not OpenSSL's DER default.
+  const signature = signer.sign({ key: privateKey, dsaEncoding: "ieee-p1363" }).toString("base64url");
   return `${unsignedToken}.${signature}`;
 }
 
-function createAppleOauthUrl(state) {
+function createAppleOauthSession() {
   ensureOauthConfig("apple");
+  const state = createOauthState({ provider: "apple" });
   const parsedState = parseOauthState(state);
 
-  const params = new URLSearchParams({
-    client_id: authConfig.appleClientId,
-    redirect_uri: authConfig.appleCallbackUrl,
-    response_type: "code id_token",
-    response_mode: "form_post",
-    scope: "name email",
-    nonce: parsedState?.nonce || crypto.randomBytes(16).toString("hex"),
+  return {
     state,
-  });
-
-  return `https://appleid.apple.com/auth/authorize?${params.toString()}`;
+    nonce: parsedState.nonce,
+    clientId: authConfig.appleClientId,
+    redirectURI: authConfig.appleCallbackUrl,
+  };
 }
 
 async function exchangeGoogleCode(code) {
@@ -203,75 +200,125 @@ async function exchangeGoogleCode(code) {
   };
 }
 
-function decodeJwtPayload(token) {
-  const parts = String(token || "").split(".");
-  if (parts.length < 2) {
-    throw createHttpError("OAuth token is invalid.", 400);
+let appleJwksCache = { keys: [], expiresAt: 0 };
+
+async function getAppleJwks() {
+  if (appleJwksCache.expiresAt > Date.now() && appleJwksCache.keys.length) {
+    return appleJwksCache.keys;
   }
 
-  return JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+  const response = await fetch("https://appleid.apple.com/auth/keys");
+  if (!response.ok) {
+    throw createHttpError("Apple's signing keys could not be loaded.", 502);
+  }
+  const payload = await response.json();
+  if (!Array.isArray(payload?.keys)) {
+    throw createHttpError("Apple returned invalid signing keys.", 502);
+  }
+
+  // Apple's keys rotate; cache briefly and refresh on an unknown key identifier.
+  appleJwksCache = { keys: payload.keys, expiresAt: Date.now() + 60 * 60 * 1000 };
+  return appleJwksCache.keys;
 }
 
-async function exchangeAppleCode(code, identityToken) {
+function parseJwt(token) {
+  const [encodedHeader, encodedPayload, encodedSignature] = String(token || "").split(".");
+  if (!encodedHeader || !encodedPayload || !encodedSignature) {
+    throw createHttpError("Apple returned an invalid identity token.", 400);
+  }
+  try {
+    return {
+      header: JSON.parse(Buffer.from(encodedHeader, "base64url").toString("utf8")),
+      payload: JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8")),
+      signingInput: `${encodedHeader}.${encodedPayload}`,
+      signature: Buffer.from(encodedSignature, "base64url"),
+    };
+  } catch {
+    throw createHttpError("Apple returned an invalid identity token.", 400);
+  }
+}
+
+async function verifyAppleIdentityToken(identityToken, expectedNonce) {
+  const parsed = parseJwt(identityToken);
+  if (parsed.header.alg !== "ES256" || !parsed.header.kid) {
+    throw createHttpError("Apple identity token uses an unsupported signing algorithm.", 400);
+  }
+
+  let keys = await getAppleJwks();
+  let jwk = keys.find(
+    (key) => key.kid === parsed.header.kid && key.kty === "EC" && key.crv === "P-256"
+  );
+  if (!jwk) {
+    appleJwksCache.expiresAt = 0;
+    keys = await getAppleJwks();
+    jwk = keys.find(
+      (key) => key.kid === parsed.header.kid && key.kty === "EC" && key.crv === "P-256"
+    );
+  }
+  if (!jwk) {
+    throw createHttpError("Apple identity token signing key is unknown.", 400);
+  }
+
+  const publicKey = crypto.createPublicKey({ key: jwk, format: "jwk" });
+  const isValidSignature = crypto.verify(
+    "sha256",
+    Buffer.from(parsed.signingInput),
+    { key: publicKey, dsaEncoding: "ieee-p1363" },
+    parsed.signature
+  );
+  if (!isValidSignature) {
+    throw createHttpError("Apple identity token signature is invalid.", 401);
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  const audience = Array.isArray(parsed.payload.aud) ? parsed.payload.aud : [parsed.payload.aud];
+  if (
+    parsed.payload.iss !== "https://appleid.apple.com" ||
+    !audience.includes(authConfig.appleClientId) ||
+    !parsed.payload.sub ||
+    !parsed.payload.exp ||
+    Number(parsed.payload.exp) <= now ||
+    (parsed.payload.iat && Number(parsed.payload.iat) > now + 300) ||
+    !expectedNonce ||
+    parsed.payload.nonce !== expectedNonce
+  ) {
+    throw createHttpError("Apple identity token validation failed.", 401);
+  }
+
+  return parsed.payload;
+}
+
+async function exchangeAppleCode(code) {
   ensureOauthConfig("apple");
-  let resolvedIdentityToken = identityToken;
-
-  if (!resolvedIdentityToken) {
-    const clientSecret = createAppleClientSecret();
-    const response = await fetch("https://appleid.apple.com/auth/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        client_id: authConfig.appleClientId,
-        client_secret: clientSecret,
-        code,
-        grant_type: "authorization_code",
-        redirect_uri: authConfig.appleCallbackUrl,
-      }),
-    });
-
-    if (!response.ok) {
-      throw createHttpError("Apple sign-in could not be completed.", 400);
-    }
-
-    const tokenPayload = await response.json();
-    resolvedIdentityToken = tokenPayload.id_token;
+  const clientSecret = createAppleClientSecret();
+  const response = await fetch("https://appleid.apple.com/auth/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: authConfig.appleClientId,
+      client_secret: clientSecret,
+      code,
+      grant_type: "authorization_code",
+      redirect_uri: authConfig.appleCallbackUrl,
+    }),
+  });
+  if (!response.ok) {
+    throw createHttpError("Apple sign-in could not be completed.", 400);
   }
-
-  const idTokenPayload = decodeJwtPayload(resolvedIdentityToken);
-
-  if (idTokenPayload.aud !== authConfig.appleClientId) {
-    throw createHttpError("Apple sign-in audience is invalid.", 400);
+  const tokenPayload = await response.json();
+  if (!tokenPayload?.id_token) {
+    throw createHttpError("Apple did not return an identity token.", 400);
   }
-
-  if (idTokenPayload.iss !== "https://appleid.apple.com") {
-    throw createHttpError("Apple sign-in issuer is invalid.", 400);
-  }
-
-  return {
-    provider: "apple",
-    providerId: idTokenPayload.sub,
-    email: normalizeEmail(idTokenPayload.email),
-    name: idTokenPayload.email || "Apple User",
-  };
+  return tokenPayload;
 }
 
 function buildOauthDisplayName({ name, profileName, email, fallback }) {
-  if (String(name || "").trim()) {
-    return String(name).trim();
-  }
+  const sanitize = (value) => String(value || "")
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .trim()
+    .slice(0, 120);
 
-  if (String(profileName || "").trim()) {
-    return String(profileName).trim();
-  }
-
-  if (String(email || "").trim()) {
-    return String(email).trim();
-  }
-
-  return fallback;
+  return sanitize(name) || sanitize(profileName) || sanitize(email) || fallback;
 }
 
 async function findOrCreateOauthUser({ provider, providerId, email, name }) {
@@ -279,19 +326,29 @@ async function findOrCreateOauthUser({ provider, providerId, email, name }) {
     throw createHttpError("OAuth provider identifier is missing.", 400);
   }
 
-  if (!email) {
+  if (provider !== "apple" && !email) {
     throw createHttpError("OAuth provider did not return an email address.", 400);
   }
 
-  let user = await AdminUser.findOne({ provider, providerId });
-  if (!user) {
+  let user = provider === "apple"
+    ? await AdminUser.findOne({ appleUserId: providerId })
+    : await AdminUser.findOne({ provider, providerId });
+  // Email is only a one-time linking aid. Apple subject remains the permanent lookup key.
+  if (!user && email) {
     user = await AdminUser.findOne({ email });
   }
 
   if (user) {
     user.name = user.name || name;
-    user.provider = provider;
-    user.providerId = providerId;
+    if (provider === "apple") {
+      if (user.appleUserId && user.appleUserId !== providerId) {
+        throw createHttpError("This email is already linked to a different Apple account.", 409);
+      }
+      user.appleUserId = providerId;
+    } else {
+      user.provider = provider;
+      user.providerId = providerId;
+    }
     user.isActive = true;
     user.lastLoginAt = new Date();
     if (!user.passwordHash) {
@@ -303,17 +360,18 @@ async function findOrCreateOauthUser({ provider, providerId, email, name }) {
 
   return AdminUser.create({
     name,
-    email,
+    email: email || undefined,
     passwordHash: null,
     provider,
     providerId,
+    appleUserId: provider === "apple" ? providerId : undefined,
     role: "Administrator",
     isActive: true,
     lastLoginAt: new Date(),
   });
 }
 
-async function completeOauthLogin({ provider, code, identityToken, profileName }) {
+async function completeOauthLogin({ provider, code, identityToken, profileName, nonce }) {
   if (!code) {
     throw createHttpError("OAuth authorization code is missing.", 400);
   }
@@ -322,13 +380,24 @@ async function completeOauthLogin({ provider, code, identityToken, profileName }
   if (provider === "google") {
     profile = await exchangeGoogleCode(code);
   } else {
-    profile = await exchangeAppleCode(code, identityToken);
-    profile.name = buildOauthDisplayName({
-      name: profile.name,
-      profileName,
-      email: profile.email,
-      fallback: "Apple User",
-    });
+    // Verify the SDK token and the token returned after server-side code exchange.
+    // The code exchange keeps Apple client-secret generation off the browser.
+    const sdkClaims = await verifyAppleIdentityToken(identityToken, nonce);
+    const tokenPayload = await exchangeAppleCode(code);
+    const claims = await verifyAppleIdentityToken(tokenPayload.id_token, nonce);
+    if (claims.sub !== sdkClaims.sub) {
+      throw createHttpError("Apple identity token does not match the authorization code.", 401);
+    }
+    profile = {
+      provider: "apple",
+      providerId: claims.sub,
+      email: normalizeEmail(claims.email),
+      name: buildOauthDisplayName({
+        name: profileName,
+        email: claims.email,
+        fallback: "Apple User",
+      }),
+    };
   }
 
   const user = await findOrCreateOauthUser(profile);
@@ -486,7 +555,7 @@ async function resetPassword({ token, password, confirmPassword }) {
 
 module.exports = {
   completeOauthLogin,
-  createAppleOauthUrl,
+  createAppleOauthSession,
   createGoogleOauthUrl,
   createOauthState,
   loginAdmin,

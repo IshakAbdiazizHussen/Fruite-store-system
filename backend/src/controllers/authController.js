@@ -1,8 +1,9 @@
 const { authConfig } = require("../config/auth");
+const { createHttpError } = require("../utils/httpError");
 const { asyncHandler } = require("./resourceController");
 const {
-  completeOauthLogin,  
-  createAppleOauthUrl,
+  completeOauthLogin,
+  createAppleOauthSession,
   createGoogleOauthUrl,
   createOauthState,
   loginAdmin,
@@ -21,14 +22,14 @@ const {
 const cookieOptions = {
   httpOnly: true,
   sameSite: "lax",
-  secure: false,
+  secure: authConfig.frontendBaseUrl.startsWith("https://"),
   maxAge: authConfig.tokenTtlSeconds * 1000,
 };
 
 const oauthStateCookieOptions = {
   httpOnly: true,
   sameSite: "lax",
-  secure: false,
+  secure: authConfig.frontendBaseUrl.startsWith("https://"),
   maxAge: 10 * 60 * 1000,
 };
 
@@ -66,14 +67,6 @@ function isOauthSetupError(error) {
     message.includes("APPLE_PRIVATE_KEY") ||
     message.includes("APPLE_CALLBACK_URL")
   );
-}
-
-function getOauthUserErrorMessage(error) {
-  if (isOauthSetupError(error)) {
-    return "Social login is not configured yet. Please contact the administrator.";
-  }
-
-  return "OAuth login failed. Please try again.";
 }
 
 function logOauthDebug(label, payload) {
@@ -116,9 +109,16 @@ function parseAppleProfileName(userPayload) {
 }
 
 function validateOauthState(requestState, storedState, provider) {
-  if (!requestState || !storedState || requestState !== storedState) {
+  if (!requestState || !storedState) {
     return null;
   }
+
+  const requestBuffer = Buffer.from(requestState);
+  const storedBuffer = Buffer.from(storedState);
+  if (
+    requestBuffer.length !== storedBuffer.length ||
+    !require("crypto").timingSafeEqual(requestBuffer, storedBuffer)
+  ) return null;
 
   const parsedState = parseOauthState(requestState);
   if (!parsedState || parsedState.provider !== provider) {
@@ -242,101 +242,33 @@ const googleOauthCallback = asyncHandler(async (req, res) => {
   }
 });
 
-const startAppleOauth = asyncHandler(async (req, res) => {
-  logOauthDebug("apple:start:request", {
-    method: req.method,
-    url: req.originalUrl,
-    query: req.query || {},
-  });
-
-  try {
-    const state = createOauthState({
-      provider: "apple",
-      nextPath: getSafeRedirectPath(req.query?.next),
-    });
-    const authorizationUrl = createAppleOauthUrl(state);
-    logOauthDebug("apple:start:redirect", {
-      redirectUrl: authorizationUrl,
-    });
-
-    res.cookie(authConfig.oauthStateCookieName, state, oauthStateCookieOptions);
-    res.redirect(302, authorizationUrl);
-  } catch (error) {
-    console.error("[auth] Apple OAuth start failed:", error.message);
-    const failureRedirectUrl = isOauthSetupError(error)
-      ? buildFrontendRedirectUrl("/login", "oauth_not_configured", { provider: "apple" })
-      : buildFrontendRedirectUrl("/login", "oauth_failed");
-    logOauthDebug("apple:start:error", {
-      error: error.message,
-      redirectUrl: failureRedirectUrl,
-    });
-    res.redirect(302, failureRedirectUrl);
-  }
+// Apple JS receives the authorization response in the browser. This endpoint
+// creates a server-bound state/nonce pair before the browser calls Apple.
+const createAppleOauthConfiguration = asyncHandler(async (_req, res) => {
+  const config = createAppleOauthSession();
+  res.cookie(authConfig.appleOauthStateCookieName, config.state, oauthStateCookieOptions);
+  res.status(200).json(config);
 });
 
-const appleOauthCallback = asyncHandler(async (req, res) => {
-  logOauthDebug("apple:callback:request", {
-    method: req.method,
-    url: req.originalUrl,
-    query: req.query || {},
-    body: req.body || {},
-  });
-
-  if (req.query?.error || req.body?.error) {
-    const providerMessage =
-      req.query?.error_description ||
-      req.body?.error_description ||
-      "Apple sign-in was cancelled.";
-    const failureRedirectUrl = buildFrontendRedirectUrl("/login", "oauth_failed");
-    logOauthDebug("apple:callback:provider-error", {
-      providerError: providerMessage,
-      redirectUrl: failureRedirectUrl,
-    });
-    return res.redirect(302, failureRedirectUrl);
-  }
-
-  const requestState = String(req.query?.state || req.body?.state || "");
-  const storedState = req.cookies?.[authConfig.oauthStateCookieName];
-  const parsedState = validateOauthState(requestState, storedState, "apple");
-
-  res.clearCookie(authConfig.oauthStateCookieName, oauthStateCookieOptions);
+const completeAppleOauth = asyncHandler(async (req, res) => {
+  const state = String(req.body?.state || "");
+  const storedState = req.cookies?.[authConfig.appleOauthStateCookieName];
+  const parsedState = validateOauthState(state, storedState, "apple");
+  res.clearCookie(authConfig.appleOauthStateCookieName, oauthStateCookieOptions);
 
   if (!parsedState) {
-    const failureRedirectUrl = buildFrontendRedirectUrl("/login", "oauth_failed");
-    logOauthDebug("apple:callback:state-invalid", {
-      redirectUrl: failureRedirectUrl,
-    });
-    return res.redirect(302, failureRedirectUrl);
+    throw createHttpError("Apple sign-in session expired or could not be verified.", 401);
   }
 
-  try {
-    const result = await completeOauthLogin({
-      provider: "apple",
-      code: req.query?.code || req.body?.code,
-      identityToken: req.query?.id_token || req.body?.id_token,
-      profileName: parseAppleProfileName(req.body?.user),
-    });
-
-    res.cookie(authConfig.cookieName, result.token, cookieOptions);
-    const successRedirectUrl = buildOauthSuccessRedirectUrl(result, parsedState.nextPath);
-    logOauthDebug("apple:callback:success", {
-      userId: result.user?.id,
-      email: result.user?.email,
-      role: result.user?.role,
-      redirectUrl: successRedirectUrl,
-    });
-    return res.redirect(302, successRedirectUrl);
-  } catch (error) {
-    console.error("[auth] Apple OAuth callback failed:", error.message);
-    const failureRedirectUrl = isOauthSetupError(error)
-      ? buildFrontendRedirectUrl("/login", "oauth_not_configured", { provider: "apple" })
-      : buildFrontendRedirectUrl("/login", "oauth_failed");
-    logOauthDebug("apple:callback:error", {
-      error: error.message,
-      redirectUrl: failureRedirectUrl,
-    });
-    return res.redirect(302, failureRedirectUrl);
-  }
+  const result = await completeOauthLogin({
+    provider: "apple",
+    code: req.body?.code,
+    identityToken: req.body?.idToken,
+    profileName: parseAppleProfileName(req.body?.user),
+    nonce: parsedState.nonce,
+  });
+  res.cookie(authConfig.cookieName, result.token, cookieOptions);
+  res.status(200).json(result);
 });
 
 const validateResetToken = asyncHandler(async (req, res) => {
@@ -381,7 +313,8 @@ const removeImage = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  appleOauthCallback,
+  completeAppleOauth,
+  createAppleOauthConfiguration,
   forgotPassword,
   googleOauthCallback,
   login,
@@ -391,7 +324,6 @@ module.exports = {
   replaceImage,
   register,
   resetPasswordWithToken,
-  startAppleOauth,
   startGoogleOauth,
   uploadImage,
   validateResetToken,
