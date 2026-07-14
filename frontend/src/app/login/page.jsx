@@ -51,6 +51,18 @@ function GoogleIcon() {
   );
 }
 
+function FacebookIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
+      <circle cx="12" cy="12" r="10" fill="#1877F2" />
+      <path
+        fill="#fff"
+        d="M13.42 20v-7.3h2.45l.37-2.85h-2.82V8.03c0-.83.23-1.39 1.42-1.39h1.52V4.1c-.26-.03-1.16-.11-2.2-.11-2.18 0-3.67 1.33-3.67 3.77v2.1H8v2.85h2.49V20h2.93Z"
+      />
+    </svg>
+  );
+}
+
 function SocialButton({ onClick, label, icon: Icon, className = "", disabled = false }) {
   return (
     <button
@@ -158,6 +170,10 @@ function LoginForm() {
     }
 
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google?next=/dashboard`;
+  }
+
+  function handleFacebookLogin() {
+    setSignInError("Facebook sign-in is not configured yet.");
   }
 
   async function handleSignInSubmit(event) {
@@ -399,11 +415,16 @@ function LoginForm() {
                   </p>
                 </div>
 
-                <div className="grid gap-3">
+                <div className="grid gap-3 sm:grid-cols-2">
                   <SocialButton
                     onClick={handleGoogleLogin}
                     label="Google"
                     icon={GoogleIcon}
+                  />
+                  <SocialButton
+                    onClick={handleFacebookLogin}
+                    label="Facebook"
+                    icon={FacebookIcon}
                   />
                 </div>
               </div>
